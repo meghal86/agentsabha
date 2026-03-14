@@ -1,18 +1,53 @@
+from __future__ import annotations
+
 from functools import lru_cache
+from pathlib import Path
+from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import URL, make_url
+
+
+def _normalize_async_database_url(value: str) -> str:
+    normalized = value
+    if value.startswith("postgresql://"):
+        normalized = value.replace("postgresql://", "postgresql+asyncpg://", 1)
+    parsed = make_url(normalized)
+    query = dict(parsed.query)
+    query.pop("pgbouncer", None)
+    query.pop("sslmode", None)
+    cleaned = URL.create(
+        drivername=parsed.drivername,
+        username=parsed.username,
+        password=parsed.password,
+        host=parsed.host,
+        port=parsed.port,
+        database=parsed.database,
+        query=query,
+    )
+    return cleaned.render_as_string(hide_password=False)
+
+
+def _normalize_direct_database_url(value: str) -> str:
+    if value.startswith("postgresql+asyncpg://"):
+        return value.replace("postgresql+asyncpg://", "postgresql://", 1)
+    return value
+
+
+ROOT_ENV_PATH = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=str(ROOT_ENV_PATH), env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "AgentSabha API"
     environment: str = "development"
     api_version: str = "0.1.0"
     secret_key: str = "development-secret"
 
-    database_url: str = "postgresql+asyncpg://user:pass@localhost:5432/agentsabha"
+    database_url: str = Field(default="postgresql://user:pass@localhost:5432/agentsabha", alias="DATABASE_URL")
+    direct_url: Optional[str] = Field(default=None, alias="DIRECT_URL")
     redis_url: str = "redis://localhost:6379/0"
 
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
@@ -39,8 +74,27 @@ class Settings(BaseSettings):
     tatkal_new_reports_threshold: int = Field(default=50, alias="TATKAL_NEW_REPORTS_THRESHOLD")
     tatkal_max_age_hours: int = Field(default=24, alias="TATKAL_MAX_AGE_HOURS")
 
+    @property
+    def sqlalchemy_async_database_url(self) -> str:
+        return _normalize_async_database_url(self.database_url)
+
+    @property
+    def sqlalchemy_direct_url(self) -> str:
+        source = self.direct_url or self.database_url
+        return _normalize_direct_database_url(source)
+
+    @property
+    def safe_database_host(self) -> Optional[str]:
+        return make_url(self.sqlalchemy_direct_url).host
+
+    @property
+    def async_connect_args(self) -> dict[str, str]:
+        host = self.safe_database_host or ""
+        if host not in {"localhost", "127.0.0.1"}:
+            return {"ssl": "require"}
+        return {}
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
-

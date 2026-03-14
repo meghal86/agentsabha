@@ -7,7 +7,12 @@ from app.config import get_settings
 
 settings = get_settings()
 
-engine = create_async_engine(settings.database_url, echo=False, future=True)
+engine = create_async_engine(
+    settings.sqlalchemy_async_database_url,
+    echo=False,
+    future=True,
+    connect_args=settings.async_connect_args,
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
@@ -18,4 +23,3 @@ class Base(DeclarativeBase):
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
-

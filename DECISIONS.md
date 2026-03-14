@@ -67,3 +67,31 @@ Alternatives considered: Delay the embedding column until migration 13; store em
 Reason: Both alternatives would temporarily violate the documented schema. The least harmful path is to preserve the final schema early and keep the indexed optimization at the documented final step.
 
 Consequences: The migration chain remains functionally correct, but the pgvector capability is technically enabled before the optimization step listed in the prompt.
+
+---
+
+## 2026-03-14 — Use Supabase only as a temporary development database
+
+Context: The provided database credentials point to a Supabase host in `us-east-1`, while the master prompt requires India-only data residency for production.
+
+Decision: Wire the Supabase connection as a local development override only, and keep the India-only requirement as the production infrastructure constraint.
+
+Alternatives considered: Refuse to connect at all; silently treat the Supabase instance as production-ready.
+
+Reason: Development needs a live Postgres target now, but using a US-hosted database as the implied production environment would violate the documented legal and architecture constraints.
+
+Consequences: Local `.env` supports Supabase-backed development and migrations, but deployment planning must still move to an India-region database before real production use.
+
+---
+
+## 2026-03-14 — Strip Supabase pooler flags from the async SQLAlchemy URL
+
+Context: Supabase connection strings include query flags like `pgbouncer=true` and `sslmode=require`. The direct migration path accepts those, but SQLAlchemy's `asyncpg` driver rejects them as connection kwargs.
+
+Decision: Keep the direct URL intact for migrations, but normalize the async app URL by removing `pgbouncer` and `sslmode` from the query string and passing SSL through `connect_args`.
+
+Alternatives considered: Use the direct URL for all async traffic; leave the async URL unchanged and tolerate connection failures.
+
+Reason: The backend needs a working async engine for FastAPI routes, and the migration path needs to remain explicit and separate.
+
+Consequences: The app can use Supabase-backed async sessions locally, while Alembic continues to run over the direct synchronous connection.

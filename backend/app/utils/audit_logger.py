@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 
-@dataclass(slots=True)
+@dataclass
 class AuditEntry:
     agent_type: str
     constituency_id: int | None
