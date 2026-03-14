@@ -24,3 +24,53 @@ export async function getNationalHeatmap() {
   return request<{ constituencies: HeatmapPoint[] }>("/api/national/heatmap");
 }
 
+export type ConstituencySummary = {
+  id: number;
+  name: string;
+  state: string;
+  mp_name: string | null;
+  mp_party: string | null;
+  population: number | null;
+};
+
+export type ConstituencyIssueCluster = {
+  label: string | null;
+  count: number;
+  severity: number | null;
+  badge: "tatkal" | "rising" | "chronic" | "stable" | "resolved" | null;
+  velocity: number | null;
+  category: string | null;
+};
+
+export type ParliamentaryActionSummary = {
+  type: string | null;
+  content: string;
+  status: string;
+  filed_at: string | null;
+  response_text: string | null;
+};
+
+export type NationalPulseIssue = {
+  label: string;
+  constituency_count: number;
+  avg_severity: number | null;
+  total_reports: number;
+};
+
+export async function getConstituencySummary(id: number | string) {
+  return request<ConstituencySummary>(`/api/constituency/${id}`);
+}
+
+export async function getConstituencyIssues(id: number | string) {
+  return request<{ constituency_id: number; clusters: ConstituencyIssueCluster[]; total: number; page: number }>(
+    `/api/constituency/${id}/issues`,
+  );
+}
+
+export async function getConstituencyActions(id: number | string) {
+  return request<{ constituency_id: number; actions: ParliamentaryActionSummary[] }>(`/api/constituency/${id}/actions`);
+}
+
+export async function getNationalPulse() {
+  return request<{ issues: NationalPulseIssue[] }>("/api/national/pulse");
+}

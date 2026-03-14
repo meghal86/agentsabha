@@ -3,8 +3,32 @@ import Link from "next/link";
 import { IndiaMap } from "@/components/india-map";
 import { IssueLedger } from "@/components/issue-ledger";
 import { SiteHeader } from "@/components/site-header";
+import { getNationalHeatmap, getNationalPulse } from "@/lib/api";
 
-export default function HomePage() {
+function deriveBadge(severity: number | null) {
+  if (severity === null) return "stable" as const;
+  if (severity >= 8) return "tatkal" as const;
+  if (severity >= 6.5) return "rising" as const;
+  if (severity >= 5) return "chronic" as const;
+  return "stable" as const;
+}
+
+export default async function HomePage() {
+  const [heatmap, pulse] = await Promise.all([
+    getNationalHeatmap().catch(() => ({ constituencies: [] })),
+    getNationalPulse().catch(() => ({ issues: [] })),
+  ]);
+  const activeCount = heatmap.constituencies.filter((item) => item.severity_score !== null).length || 3;
+  const pulseRows =
+    pulse.issues.map((issue) => ({
+      badge: deriveBadge(issue.avg_severity),
+      label: issue.label,
+      category: `${issue.constituency_count} seats`,
+      reports: issue.total_reports,
+      severity: issue.avg_severity?.toFixed(1) ?? "—",
+      since: "national",
+    })) || [];
+
   return (
     <main className="min-h-screen">
       <SiteHeader />
@@ -29,14 +53,14 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <IndiaMap />
+          <IndiaMap activeCount={activeCount} />
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-10 md:px-8">
         <div className="mandate-rule mb-8 pt-6" />
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-          <IssueLedger />
+          <IssueLedger title="National Pulse Ledger" subtitle="राष्ट्रीय प्रवाह" rows={pulseRows.length > 0 ? pulseRows : undefined} />
           <div className="border border-[#E2D4B0] bg-haath p-5">
             <p className="font-body text-xs uppercase tracking-[0.14em] text-neela/50">Build status</p>
             <h2 className="mt-3 font-display text-4xl text-neela">Production foundation is now being built around the approved design system.</h2>
@@ -49,4 +73,3 @@ export default function HomePage() {
     </main>
   );
 }
-

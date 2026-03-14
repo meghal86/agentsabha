@@ -1,8 +1,12 @@
-export function IndiaMap() {
+type IndiaMapProps = {
+  activeCount?: number;
+};
+
+export function IndiaMap({ activeCount = 3 }: IndiaMapProps) {
   return (
     <div className="relative border border-[#E2D4B0] bg-haldi p-6">
       <div className="absolute right-6 top-6 border border-neela bg-neela px-3 py-2 text-sm font-semibold text-haath">
-        3 pilot constituencies active
+        {activeCount} pilot constituencies active
       </div>
       <svg viewBox="0 0 620 640" className="mx-auto w-full max-w-[430px]" aria-label="India map placeholder">
         <path
@@ -22,4 +26,3 @@ export function IndiaMap() {
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 # AgentSabha Session State
 
-Last updated: 2026-03-14T20:20:00-05:00
+Last updated: 2026-03-14T20:32:00-05:00
 Last developer: LLM session
 Current phase: Phase 1
 Current week: Week 1 of 8
@@ -31,13 +31,15 @@ Current week: Week 1 of 8
 - Added live-db citizen lifecycle tests and confirmed the backend suite now passes with 12 tests
 - Implemented database-backed public timeline, filed-actions, national pulse, and weekly audit endpoints
 - Expanded public route contract coverage; backend suite now passes with 16 tests
+- Wired the Next.js homepage and constituency page to live public API data with safe SSR fallbacks
+- Verified the frontend again with `npm run build --workspace frontend`
 
 ## In progress (DO NOT restart from scratch)
 
 - Integration layer: WhatsApp, Aadhaar sandbox, translation, transcription, and PDF generation are still stubs pending live wiring
 - Intake route surface now processes issues, but live Anthropic/OpenAI-backed extraction quality and WhatsApp acknowledgements are not yet connected
 - Authenticated MP, journalist, and admin routes are still placeholder responses on top of the now-live schema
-- Product routes: the production Next.js pages are scaffolded, but the approved prototype has not yet been fully ported into interactive app routes
+- The approved prototype has not yet been fully ported into the production routes; only the homepage and constituency shell now read live data
 
 ## Blocked
 
@@ -56,7 +58,7 @@ Current week: Week 1 of 8
 
 - Wire live translation and WhatsApp acknowledgement services into the now-complete intake path
 - Implement authenticated MP/journalist/admin route logic on the live schema
-- Begin replacing frontend shell sections with real API-backed data components
+- Continue porting the approved prototype screens into the production Next.js routes without changing the design system
 
 ## Known issues
 
