@@ -39,3 +39,17 @@ Alternatives considered: Stop all backend verification until Python 3.11 or Dock
 Reason: The local environment should not block progress on scaffolding and API validation, but the deployment contract from the master prompt remains the source of truth.
 
 Consequences: A small amount of typing compatibility work is needed in request-facing code until containerized Python 3.11 verification is available.
+
+---
+
+## 2026-03-14 — Normalize DataMeet constituency ids into schema ids 1..543
+
+Context: The Phase 1 schema requires `constituencies.id` to be a `SERIAL`-style 1..543 identifier, while the DataMeet constituency geometry source uses `pc_id` values encoded by state and seat number.
+
+Decision: Use DataMeet as the authoritative source for constituency names, states, and geometry-derived centroids, but map features sorted by `pc_id` onto internal ids `1..543` in the committed seed asset.
+
+Alternatives considered: Store DataMeet `pc_id` directly as the primary key; invent a second identifier column for source ids.
+
+Reason: The schema is explicitly fixed in the master prompt and should not be widened during foundation work.
+
+Consequences: Any later geometry join will need a deterministic mapping layer if raw DataMeet `pc_id` is required in code or analytics.

@@ -1,6 +1,6 @@
 # AgentSabha Session State
 
-Last updated: 2026-03-14T18:05:00-05:00
+Last updated: 2026-03-14T18:20:00-05:00
 Last developer: LLM session
 Current phase: Phase 1
 Current week: Week 1 of 8
@@ -15,10 +15,11 @@ Current week: Week 1 of 8
 - Copied approved prototype screens 01-08 plus art assets into `frontend/public/prototype`
 - Verified the frontend with `npm run build --workspace frontend`
 - Verified the backend scaffold with `PYTHONPATH=. pytest tests -q` inside `backend/.venv` (3 passing tests)
+- Added a 543-row constituency seed asset derived from DataMeet parliamentary constituency geometry, plus regeneration script and test coverage
 
 ## In progress (DO NOT restart from scratch)
 
-- Data layer implementation: Alembic migrations and constituency seed data have not been authored yet
+- Data layer implementation: Alembic migrations have not been authored yet
 - Integration layer: WhatsApp, Aadhaar sandbox, embeddings, translation, transcription, and PDF generation are stubs pending live wiring
 - Product routes: the production Next.js pages are scaffolded, but the approved prototype has not yet been fully ported into interactive app routes
 
@@ -45,3 +46,4 @@ Current week: Week 1 of 8
 - Docker is not installed on this machine, so Compose and container startup remain unverified locally
 - The backend currently uses schema-accurate models but placeholder business logic and stub integrations
 - Alembic versions directory is still empty
+- Constituency seed currently includes name, state, region, and centroid; population and area remain null pending enrichment
