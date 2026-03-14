@@ -76,7 +76,11 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_async_database_url(self) -> str:
-        return _normalize_async_database_url(self.database_url)
+        source = self.database_url
+        parsed = make_url(source)
+        if parsed.query.get("pgbouncer") == "true" and self.direct_url:
+            source = self.direct_url
+        return _normalize_async_database_url(source)
 
     @property
     def sqlalchemy_direct_url(self) -> str:
@@ -88,10 +92,10 @@ class Settings(BaseSettings):
         return make_url(self.sqlalchemy_direct_url).host
 
     @property
-    def async_connect_args(self) -> dict[str, str]:
+    def async_connect_args(self) -> dict[str, object]:
         host = self.safe_database_host or ""
         if host not in {"localhost", "127.0.0.1"}:
-            return {"ssl": "require"}
+            return {"ssl": "require", "statement_cache_size": 0}
         return {}
 
 

@@ -95,3 +95,59 @@ Alternatives considered: Use the direct URL for all async traffic; leave the asy
 Reason: The backend needs a working async engine for FastAPI routes, and the migration path needs to remain explicit and separate.
 
 Consequences: The app can use Supabase-backed async sessions locally, while Alembic continues to run over the direct synchronous connection.
+
+---
+
+## 2026-03-14 — Capture explicit consent flags at citizen verification confirmation
+
+Context: The master prompt requires explicit, granular consent for issue storage, constituency mapping, anonymised aggregation, and MP brief inclusion, but the endpoint section did not yet define where those fields should enter the API.
+
+Decision: Extend `POST /api/citizen/verify/confirm` to require a `consent_flags` object and `age_verified` boolean, and persist those flags directly on the `citizens` record at verification time.
+
+Alternatives considered: Implicitly default all consent flags to `true`; defer consent collection until issue submission.
+
+Reason: Consent is a hard legal constraint, and verification confirmation is the first authenticated point where a stable citizen record is created.
+
+Consequences: The frontend and WhatsApp verification flows must provide explicit consent fields before production use, and issue submission can now enforce only the specific flags it actually needs.
+
+---
+
+## 2026-03-14 — Require `issue_storage` and `mapping` consent before citizen submission
+
+Context: Citizen submission cannot lawfully proceed unless the platform can store the issue and link it to a constituency, but aggregation and MP-brief inclusion may remain optional.
+
+Decision: Block `/api/citizen/submit` unless the citizen has granted `issue_storage=true` and `mapping=true`. Keep `aggregation` and `mp_brief` available for later publication and briefing filters.
+
+Alternatives considered: Require all four consents before any submission; allow submission even if storage/mapping consent is absent.
+
+Reason: This keeps the Phase 1 flow operational while honoring the minimum legally necessary permissions for the core loop.
+
+Consequences: Submission is now consent-aware, and future public aggregation / MP brief generation logic must read the remaining flags instead of assuming universal reuse rights.
+
+---
+
+## 2026-03-14 — Use direct Postgres for async app traffic when `DATABASE_URL` is a PgBouncer endpoint
+
+Context: The supplied Supabase pooled URL uses PgBouncer transaction mode. Even with reduced asyncpg caching, SQLAlchemy's async dialect still hits prepared-statement incompatibilities under test and route execution.
+
+Decision: When `DATABASE_URL` carries `pgbouncer=true` and `DIRECT_URL` is available, prefer `DIRECT_URL` for the async FastAPI engine while keeping `DIRECT_URL` explicit for Alembic as well.
+
+Alternatives considered: Continue using the pooler with more asyncpg tuning; require a different pooled database before any live verification.
+
+Reason: The direct connection is already available, avoids the prepared-statement failures, and unblocks reliable local development immediately.
+
+Consequences: The current development app no longer exercises pooled async traffic, so connection pooling behavior still needs explicit verification in a production-grade India-hosted environment later.
+
+---
+
+## 2026-03-14 — Use deterministic hashed embeddings as the offline fallback
+
+Context: The schema and clustering pipeline require 1536-dimension embeddings, but local development cannot assume an OpenAI API key will always be present.
+
+Decision: Keep `text-embedding-3-small` as the primary embedding contract, but fall back to deterministic hashed token vectors with the same dimensionality when no API key is configured.
+
+Alternatives considered: Persist zero vectors; block intake entirely without OpenAI credentials.
+
+Reason: Zero vectors destroy clustering quality and make even local end-to-end flow unrealistic, while blocking intake would stall the build whenever keys are unavailable.
+
+Consequences: Development clustering is now structurally meaningful but not production-grade semantic quality. Real OpenAI embeddings remain mandatory before Phase 1 field use.
