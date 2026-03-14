@@ -1,6 +1,6 @@
 # AgentSabha Session State
 
-Last updated: 2026-03-14T18:45:00-05:00
+Last updated: 2026-03-14T19:00:00-05:00
 Last developer: LLM session
 Current phase: Phase 1
 Current week: Week 1 of 8
@@ -19,11 +19,13 @@ Current week: Week 1 of 8
 - Authored the exact 13-step Alembic revision chain in prompt order, including constituency seeding and critical indexes
 - Replaced the public constituency summary, issue ledger, and national heatmap placeholder routes with database-query helper functions
 - Expanded backend test coverage to migration inventory and public route contracts; backend suite now passes with 8 tests
+- Added the 100-issue golden fixture corpus specified by the master prompt, along with a generator script and validation test
 
 ## In progress (DO NOT restart from scratch)
 
 - Data layer implementation: Alembic revisions exist but have not been executed against a live Postgres instance on this machine
 - Integration layer: WhatsApp, Aadhaar sandbox, embeddings, translation, transcription, and PDF generation are stubs pending live wiring
+- Intake pipeline implementation is still pending behind those stubs, though the golden fixture and route contracts are now in place for it
 - Product routes: the production Next.js pages are scaffolded, but the approved prototype has not yet been fully ported into interactive app routes
 
 ## Blocked

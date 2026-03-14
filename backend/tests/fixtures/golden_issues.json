@@ -1,0 +1,1007 @@
+[
+  {
+    "id": "fixture-001",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "स्कूल के सामने सड़क टूट गई है, बच्चे रोज गिर रहे हैं।",
+    "expected_translation": "The road in front of the school is broken and children are falling every day.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.7
+  },
+  {
+    "id": "fixture-002",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "बरसात के बाद मुख्य सड़क पर बड़े गड्ढे हो गए हैं।",
+    "expected_translation": "After the rains, the main road has developed large potholes.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.5
+  },
+  {
+    "id": "fixture-003",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "गांव को जोड़ने वाली सड़क छह महीने से अधूरी है।",
+    "expected_translation": "The road connecting the village has been unfinished for six months.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 6.8
+  },
+  {
+    "id": "fixture-004",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "एम्बुलेंस इस सड़क से नहीं आ पा रही है।",
+    "expected_translation": "Ambulances are unable to reach through this road.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 9.1
+  },
+  {
+    "id": "fixture-005",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "वार्ड 14 में डामर पूरी तरह उखड़ गया है।",
+    "expected_translation": "In Ward 14 the asphalt has completely peeled away.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.9
+  },
+  {
+    "id": "fixture-006",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "स्कूल के सामने सड़क टूट गई है, बच्चे रोज गिर रहे हैं।",
+    "expected_translation": "The road in front of the school is broken and children are falling every day.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.6
+  },
+  {
+    "id": "fixture-007",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "बरसात के बाद मुख्य सड़क पर बड़े गड्ढे हो गए हैं।",
+    "expected_translation": "After the rains, the main road has developed large potholes.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.4
+  },
+  {
+    "id": "fixture-008",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "गांव को जोड़ने वाली सड़क छह महीने से अधूरी है।",
+    "expected_translation": "The road connecting the village has been unfinished for six months.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 6.7
+  },
+  {
+    "id": "fixture-009",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "एम्बुलेंस इस सड़क से नहीं आ पा रही है।",
+    "expected_translation": "Ambulances are unable to reach through this road.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 9.0
+  },
+  {
+    "id": "fixture-010",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "वार्ड 14 में डामर पूरी तरह उखड़ गया है।",
+    "expected_translation": "In Ward 14 the asphalt has completely peeled away.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.800000000000001
+  },
+  {
+    "id": "fixture-011",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "स्कूल के सामने सड़क टूट गई है, बच्चे रोज गिर रहे हैं।",
+    "expected_translation": "The road in front of the school is broken and children are falling every day.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.5
+  },
+  {
+    "id": "fixture-012",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "बरसात के बाद मुख्य सड़क पर बड़े गड्ढे हो गए हैं।",
+    "expected_translation": "After the rains, the main road has developed large potholes.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.3
+  },
+  {
+    "id": "fixture-013",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "गांव को जोड़ने वाली सड़क छह महीने से अधूरी है।",
+    "expected_translation": "The road connecting the village has been unfinished for six months.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 6.6
+  },
+  {
+    "id": "fixture-014",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "एम्बुलेंस इस सड़क से नहीं आ पा रही है।",
+    "expected_translation": "Ambulances are unable to reach through this road.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.9
+  },
+  {
+    "id": "fixture-015",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "वार्ड 14 में डामर पूरी तरह उखड़ गया है।",
+    "expected_translation": "In Ward 14 the asphalt has completely peeled away.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.7
+  },
+  {
+    "id": "fixture-016",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "स्कूल के सामने सड़क टूट गई है, बच्चे रोज गिर रहे हैं।",
+    "expected_translation": "The road in front of the school is broken and children are falling every day.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.399999999999999
+  },
+  {
+    "id": "fixture-017",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "बरसात के बाद मुख्य सड़क पर बड़े गड्ढे हो गए हैं।",
+    "expected_translation": "After the rains, the main road has developed large potholes.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.2
+  },
+  {
+    "id": "fixture-018",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "गांव को जोड़ने वाली सड़क छह महीने से अधूरी है।",
+    "expected_translation": "The road connecting the village has been unfinished for six months.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 6.5
+  },
+  {
+    "id": "fixture-019",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "एम्बुलेंस इस सड़क से नहीं आ पा रही है।",
+    "expected_translation": "Ambulances are unable to reach through this road.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.799999999999999
+  },
+  {
+    "id": "fixture-020",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "वार्ड 14 में डामर पूरी तरह उखड़ गया है।",
+    "expected_translation": "In Ward 14 the asphalt has completely peeled away.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 7.6000000000000005
+  },
+  {
+    "id": "fixture-021",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "காலை ஐந்து மணிக்கு மட்டும் தண்ணீர் வருகிறது, பிறகு முழு நாள் இல்லை.",
+    "expected_translation": "Water comes only at five in the morning and then stops for the whole day.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.8
+  },
+  {
+    "id": "fixture-022",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குழாய் நீரில் மண் கலந்திருக்கிறது.",
+    "expected_translation": "Mud is mixed in the tap water.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 6.9
+  },
+  {
+    "id": "fixture-023",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "ఈ వారం మూడోసారి నీటి సరఫరా పూర్తిగా ఆగిపోయింది.",
+    "expected_translation": "This is the third time this week that water supply has stopped completely.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 8.1
+  },
+  {
+    "id": "fixture-024",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "బోర్‌వెల్ దగ్గర క్యూ చాలా ఎక్కువగా ఉంది.",
+    "expected_translation": "The queue near the borewell is very long.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 6.2
+  },
+  {
+    "id": "fixture-025",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குடிநீர் தொட்டியை சுத்தம் செய்யவில்லை.",
+    "expected_translation": "The drinking water tank has not been cleaned.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.0
+  },
+  {
+    "id": "fixture-026",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "காலை ஐந்து மணிக்கு மட்டும் தண்ணீர் வருகிறது, பிறகு முழு நாள் இல்லை.",
+    "expected_translation": "Water comes only at five in the morning and then stops for the whole day.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.85
+  },
+  {
+    "id": "fixture-027",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குழாய் நீரில் மண் கலந்திருக்கிறது.",
+    "expected_translation": "Mud is mixed in the tap water.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 6.95
+  },
+  {
+    "id": "fixture-028",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "ఈ వారం మూడోసారి నీటి సరఫరా పూర్తిగా ఆగిపోయింది.",
+    "expected_translation": "This is the third time this week that water supply has stopped completely.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 8.15
+  },
+  {
+    "id": "fixture-029",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "బోర్‌వెల్ దగ్గర క్యూ చాలా ఎక్కువగా ఉంది.",
+    "expected_translation": "The queue near the borewell is very long.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 6.25
+  },
+  {
+    "id": "fixture-030",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குடிநீர் தொட்டியை சுத்தம் செய்யவில்லை.",
+    "expected_translation": "The drinking water tank has not been cleaned.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.05
+  },
+  {
+    "id": "fixture-031",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "காலை ஐந்து மணிக்கு மட்டும் தண்ணீர் வருகிறது, பிறகு முழு நாள் இல்லை.",
+    "expected_translation": "Water comes only at five in the morning and then stops for the whole day.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.8999999999999995
+  },
+  {
+    "id": "fixture-032",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குழாய் நீரில் மண் கலந்திருக்கிறது.",
+    "expected_translation": "Mud is mixed in the tap water.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.0
+  },
+  {
+    "id": "fixture-033",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "ఈ వారం మూడోసారి నీటి సరఫరా పూర్తిగా ఆగిపోయింది.",
+    "expected_translation": "This is the third time this week that water supply has stopped completely.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 8.2
+  },
+  {
+    "id": "fixture-034",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "బోర్‌వెల్ దగ్గర క్యూ చాలా ఎక్కువగా ఉంది.",
+    "expected_translation": "The queue near the borewell is very long.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 6.3
+  },
+  {
+    "id": "fixture-035",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குடிநீர் தொட்டியை சுத்தம் செய்யவில்லை.",
+    "expected_translation": "The drinking water tank has not been cleaned.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.1
+  },
+  {
+    "id": "fixture-036",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "காலை ஐந்து மணிக்கு மட்டும் தண்ணீர் வருகிறது, பிறகு முழு நாள் இல்லை.",
+    "expected_translation": "Water comes only at five in the morning and then stops for the whole day.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.95
+  },
+  {
+    "id": "fixture-037",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குழாய் நீரில் மண் கலந்திருக்கிறது.",
+    "expected_translation": "Mud is mixed in the tap water.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.050000000000001
+  },
+  {
+    "id": "fixture-038",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "ఈ వారం మూడోసారి నీటి సరఫరా పూర్తిగా ఆగిపోయింది.",
+    "expected_translation": "This is the third time this week that water supply has stopped completely.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 8.25
+  },
+  {
+    "id": "fixture-039",
+    "category": "water",
+    "language": "te",
+    "source_channel": "whatsapp",
+    "raw_text": "బోర్‌వెల్ దగ్గర క్యూ చాలా ఎక్కువగా ఉంది.",
+    "expected_translation": "The queue near the borewell is very long.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 6.3500000000000005
+  },
+  {
+    "id": "fixture-040",
+    "category": "water",
+    "language": "ta",
+    "source_channel": "whatsapp",
+    "raw_text": "குடிநீர் தொட்டியை சுத்தம் செய்யவில்லை.",
+    "expected_translation": "The drinking water tank has not been cleaned.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.15
+  },
+  {
+    "id": "fixture-041",
+    "category": "health",
+    "language": "bn",
+    "source_channel": "whatsapp",
+    "raw_text": "প্রাথমিক স্বাস্থ্যকেন্দ্রে ডাক্তার সপ্তাহে একদিনও আসেন না।",
+    "expected_translation": "The doctor does not come to the primary health centre even once a week.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.4
+  },
+  {
+    "id": "fixture-042",
+    "category": "health",
+    "language": "bn",
+    "source_channel": "whatsapp",
+    "raw_text": "ওষুধের স্টকে জ্বর আর ডায়াবেটিসের ওষুধ নেই।",
+    "expected_translation": "Fever and diabetes medicines are out of stock.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.7
+  },
+  {
+    "id": "fixture-043",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "आरोग्य केंद्रात प्रसूती कक्ष बंद आहे.",
+    "expected_translation": "The maternity room at the health centre is closed.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.8
+  },
+  {
+    "id": "fixture-044",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "रुग्णवाहिका फोन केल्यावरही वेळेवर येत नाही.",
+    "expected_translation": "The ambulance does not arrive on time even after calling.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.9
+  },
+  {
+    "id": "fixture-045",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "बाळांसाठी लसीकरण आजही रद्द झाले.",
+    "expected_translation": "Vaccination for children was cancelled again today.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.6
+  },
+  {
+    "id": "fixture-046",
+    "category": "health",
+    "language": "bn",
+    "source_channel": "whatsapp",
+    "raw_text": "প্রাথমিক স্বাস্থ্যকেন্দ্রে ডাক্তার সপ্তাহে একদিনও আসেন না।",
+    "expected_translation": "The doctor does not come to the primary health centre even once a week.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.25
+  },
+  {
+    "id": "fixture-047",
+    "category": "health",
+    "language": "bn",
+    "source_channel": "whatsapp",
+    "raw_text": "ওষুধের স্টকে জ্বর আর ডায়াবেটিসের ওষুধ নেই।",
+    "expected_translation": "Fever and diabetes medicines are out of stock.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.55
+  },
+  {
+    "id": "fixture-048",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "आरोग्य केंद्रात प्रसूती कक्ष बंद आहे.",
+    "expected_translation": "The maternity room at the health centre is closed.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.65
+  },
+  {
+    "id": "fixture-049",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "रुग्णवाहिका फोन केल्यावरही वेळेवर येत नाही.",
+    "expected_translation": "The ambulance does not arrive on time even after calling.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.75
+  },
+  {
+    "id": "fixture-050",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "बाळांसाठी लसीकरण आजही रद्द झाले.",
+    "expected_translation": "Vaccination for children was cancelled again today.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.449999999999999
+  },
+  {
+    "id": "fixture-051",
+    "category": "health",
+    "language": "bn",
+    "source_channel": "whatsapp",
+    "raw_text": "প্রাথমিক স্বাস্থ্যকেন্দ্রে ডাক্তার সপ্তাহে একদিনও আসেন না।",
+    "expected_translation": "The doctor does not come to the primary health centre even once a week.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.1
+  },
+  {
+    "id": "fixture-052",
+    "category": "health",
+    "language": "bn",
+    "source_channel": "whatsapp",
+    "raw_text": "ওষুধের স্টকে জ্বর আর ডায়াবেটিসের ওষুধ নেই।",
+    "expected_translation": "Fever and diabetes medicines are out of stock.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.4
+  },
+  {
+    "id": "fixture-053",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "आरोग्य केंद्रात प्रसूती कक्ष बंद आहे.",
+    "expected_translation": "The maternity room at the health centre is closed.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.5
+  },
+  {
+    "id": "fixture-054",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "रुग्णवाहिका फोन केल्यावरही वेळेवर येत नाही.",
+    "expected_translation": "The ambulance does not arrive on time even after calling.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.6
+  },
+  {
+    "id": "fixture-055",
+    "category": "health",
+    "language": "mr",
+    "source_channel": "whatsapp",
+    "raw_text": "बाळांसाठी लसीकरण आजही रद्द झाले.",
+    "expected_translation": "Vaccination for children was cancelled again today.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.3
+  },
+  {
+    "id": "fixture-056",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "बिजली रोज रात में चार घंटे चली जाती है.",
+    "expected_translation": "Power goes out every night for four hours.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.5
+  },
+  {
+    "id": "fixture-057",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "ट्रांसफार्मर जल गइल बा, तीन दिन से अँधेरा बा।",
+    "expected_translation": "The transformer has burned and it has been dark for three days.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 8.8
+  },
+  {
+    "id": "fixture-058",
+    "category": "power",
+    "language": "kn",
+    "source_channel": "whatsapp",
+    "raw_text": "ಪ್ರತಿ ಸಂಜೆ ವೋಲ್ಟೇಜ್ ತುಂಬಾ ಕಡಿಮೆಯಾಗುತ್ತಿದೆ.",
+    "expected_translation": "Every evening the voltage drops too low.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 6.9
+  },
+  {
+    "id": "fixture-059",
+    "category": "power",
+    "language": "kn",
+    "source_channel": "whatsapp",
+    "raw_text": "ಗ್ರಾಮದ ಒಂದು ಭಾಗಕ್ಕೆ ವಿದ್ಯುತ್ ಲೈನ್ ತಲುಪುತ್ತಿಲ್ಲ.",
+    "expected_translation": "The electric line is not reaching one part of the village.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.8
+  },
+  {
+    "id": "fixture-060",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "मीटर बिल गलत आ रहल बा.",
+    "expected_translation": "The meter bill is coming incorrectly.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 5.4
+  },
+  {
+    "id": "fixture-061",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "बिजली रोज रात में चार घंटे चली जाती है.",
+    "expected_translation": "Power goes out every night for four hours.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.6
+  },
+  {
+    "id": "fixture-062",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "ट्रांसफार्मर जल गइल बा, तीन दिन से अँधेरा बा।",
+    "expected_translation": "The transformer has burned and it has been dark for three days.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 8.9
+  },
+  {
+    "id": "fixture-063",
+    "category": "power",
+    "language": "kn",
+    "source_channel": "whatsapp",
+    "raw_text": "ಪ್ರತಿ ಸಂಜೆ ವೋಲ್ಟೇಜ್ ತುಂಬಾ ಕಡಿಮೆಯಾಗುತ್ತಿದೆ.",
+    "expected_translation": "Every evening the voltage drops too low.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.0
+  },
+  {
+    "id": "fixture-064",
+    "category": "power",
+    "language": "kn",
+    "source_channel": "whatsapp",
+    "raw_text": "ಗ್ರಾಮದ ಒಂದು ಭಾಗಕ್ಕೆ ವಿದ್ಯುತ್ ಲೈನ್ ತಲುಪುತ್ತಿಲ್ಲ.",
+    "expected_translation": "The electric line is not reaching one part of the village.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.8999999999999995
+  },
+  {
+    "id": "fixture-065",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "मीटर बिल गलत आ रहल बा.",
+    "expected_translation": "The meter bill is coming incorrectly.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 5.5
+  },
+  {
+    "id": "fixture-066",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "बिजली रोज रात में चार घंटे चली जाती है.",
+    "expected_translation": "Power goes out every night for four hours.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.7
+  },
+  {
+    "id": "fixture-067",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "ट्रांसफार्मर जल गइल बा, तीन दिन से अँधेरा बा।",
+    "expected_translation": "The transformer has burned and it has been dark for three days.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 9.0
+  },
+  {
+    "id": "fixture-068",
+    "category": "power",
+    "language": "kn",
+    "source_channel": "whatsapp",
+    "raw_text": "ಪ್ರತಿ ಸಂಜೆ ವೋಲ್ಟೇಜ್ ತುಂಬಾ ಕಡಿಮೆಯಾಗುತ್ತಿದೆ.",
+    "expected_translation": "Every evening the voltage drops too low.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 7.1000000000000005
+  },
+  {
+    "id": "fixture-069",
+    "category": "power",
+    "language": "kn",
+    "source_channel": "whatsapp",
+    "raw_text": "ಗ್ರಾಮದ ಒಂದು ಭಾಗಕ್ಕೆ ವಿದ್ಯುತ್ ಲೈನ್ ತಲುಪುತ್ತಿಲ್ಲ.",
+    "expected_translation": "The electric line is not reaching one part of the village.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 8.0
+  },
+  {
+    "id": "fixture-070",
+    "category": "power",
+    "language": "bho",
+    "source_channel": "whatsapp",
+    "raw_text": "मीटर बिल गलत आ रहल बा.",
+    "expected_translation": "The meter bill is coming incorrectly.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 5.6000000000000005
+  },
+  {
+    "id": "fixture-071",
+    "category": "education",
+    "language": "gu",
+    "source_channel": "whatsapp",
+    "raw_text": "શાળામાં ગણિતના શિક્ષક ત્રણ મહિનાથી નથી.",
+    "expected_translation": "The school has had no mathematics teacher for three months.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 7.1
+  },
+  {
+    "id": "fixture-072",
+    "category": "education",
+    "language": "or",
+    "source_channel": "whatsapp",
+    "raw_text": "ବିଦ୍ୟାଳୟର ଶୌଚାଳୟ ବ୍ୟବହାରଯୋଗ୍ୟ ନୁହେଁ।",
+    "expected_translation": "The school toilet is not usable.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 7.4
+  },
+  {
+    "id": "fixture-073",
+    "category": "education",
+    "language": "gu",
+    "source_channel": "whatsapp",
+    "raw_text": "ક્લાસરૂમની છતમાંથી વરસાદ પડે છે.",
+    "expected_translation": "Rain leaks through the classroom roof.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 7.8
+  },
+  {
+    "id": "fixture-074",
+    "category": "education",
+    "language": "or",
+    "source_channel": "whatsapp",
+    "raw_text": "ସ୍କୁଲରେ ପାଣି ନଥିବାରୁ ଛାତ୍ରମାନେ ଘରକୁ ଫେରୁଛନ୍ତି।",
+    "expected_translation": "Students are returning home because the school has no water.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 6.9
+  },
+  {
+    "id": "fixture-075",
+    "category": "education",
+    "language": "gu",
+    "source_channel": "whatsapp",
+    "raw_text": "પાઠ્યપુસ્તક હજુ સુધી મળ્યાં નથી.",
+    "expected_translation": "Textbooks have still not been distributed.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 5.9
+  },
+  {
+    "id": "fixture-076",
+    "category": "education",
+    "language": "gu",
+    "source_channel": "whatsapp",
+    "raw_text": "શાળામાં ગણિતના શિક્ષક ત્રણ મહિનાથી નથી.",
+    "expected_translation": "The school has had no mathematics teacher for three months.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 7.1499999999999995
+  },
+  {
+    "id": "fixture-077",
+    "category": "education",
+    "language": "or",
+    "source_channel": "whatsapp",
+    "raw_text": "ବିଦ୍ୟାଳୟର ଶୌଚାଳୟ ବ୍ୟବହାରଯୋଗ୍ୟ ନୁହେଁ।",
+    "expected_translation": "The school toilet is not usable.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 7.45
+  },
+  {
+    "id": "fixture-078",
+    "category": "education",
+    "language": "gu",
+    "source_channel": "whatsapp",
+    "raw_text": "ક્લાસરૂમની છતમાંથી વરસાદ પડે છે.",
+    "expected_translation": "Rain leaks through the classroom roof.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 7.85
+  },
+  {
+    "id": "fixture-079",
+    "category": "education",
+    "language": "or",
+    "source_channel": "whatsapp",
+    "raw_text": "ସ୍କୁଲରେ ପାଣି ନଥିବାରୁ ଛାତ୍ରମାନେ ଘରକୁ ଫେରୁଛନ୍ତି।",
+    "expected_translation": "Students are returning home because the school has no water.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 6.95
+  },
+  {
+    "id": "fixture-080",
+    "category": "education",
+    "language": "gu",
+    "source_channel": "whatsapp",
+    "raw_text": "પાઠ્યપુસ્તક હજુ સુધી મળ્યાં નથી.",
+    "expected_translation": "Textbooks have still not been distributed.",
+    "expected_issue_type": "education",
+    "expected_severity_score": 5.95
+  },
+  {
+    "id": "fixture-081",
+    "category": "employment",
+    "language": "raj",
+    "source_channel": "whatsapp",
+    "raw_text": "मनरेगा के भुगतान तीन महीना से अटका है।",
+    "expected_translation": "MGNREGA payment has been stuck for three months.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 7.3
+  },
+  {
+    "id": "fixture-082",
+    "category": "employment",
+    "language": "raj",
+    "source_channel": "whatsapp",
+    "raw_text": "काम तो हुआ लेकिन जॉब कार्ड में एंट्री नहीं है।",
+    "expected_translation": "The work was done but there is no entry in the job card.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 6.4
+  },
+  {
+    "id": "fixture-083",
+    "category": "employment",
+    "language": "hne",
+    "source_channel": "whatsapp",
+    "raw_text": "मनरेगा साइट पर मशीन चल रही है, मजदूरों को काम नहीं मिल रहा।",
+    "expected_translation": "Machines are operating at the MGNREGA site and labourers are not getting work.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 7.9
+  },
+  {
+    "id": "fixture-084",
+    "category": "employment",
+    "language": "hne",
+    "source_channel": "whatsapp",
+    "raw_text": "रोज़गार शिविर का वादा हुआ था पर कोई सूचना नहीं आई।",
+    "expected_translation": "An employment camp was promised but no information arrived.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 5.8
+  },
+  {
+    "id": "fixture-085",
+    "category": "employment",
+    "language": "raj",
+    "source_channel": "whatsapp",
+    "raw_text": "गाँव के युवाओं के लिए स्किल सेंटर बंद पड़ा है।",
+    "expected_translation": "The skill centre for village youth is shut.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 6.7
+  },
+  {
+    "id": "fixture-086",
+    "category": "employment",
+    "language": "raj",
+    "source_channel": "whatsapp",
+    "raw_text": "मनरेगा के भुगतान तीन महीना से अटका है।",
+    "expected_translation": "MGNREGA payment has been stuck for three months.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 7.3999999999999995
+  },
+  {
+    "id": "fixture-087",
+    "category": "employment",
+    "language": "raj",
+    "source_channel": "whatsapp",
+    "raw_text": "काम तो हुआ लेकिन जॉब कार्ड में एंट्री नहीं है।",
+    "expected_translation": "The work was done but there is no entry in the job card.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 6.5
+  },
+  {
+    "id": "fixture-088",
+    "category": "employment",
+    "language": "hne",
+    "source_channel": "whatsapp",
+    "raw_text": "मनरेगा साइट पर मशीन चल रही है, मजदूरों को काम नहीं मिल रहा।",
+    "expected_translation": "Machines are operating at the MGNREGA site and labourers are not getting work.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 8.0
+  },
+  {
+    "id": "fixture-089",
+    "category": "employment",
+    "language": "hne",
+    "source_channel": "whatsapp",
+    "raw_text": "रोज़गार शिविर का वादा हुआ था पर कोई सूचना नहीं आई।",
+    "expected_translation": "An employment camp was promised but no information arrived.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 5.8999999999999995
+  },
+  {
+    "id": "fixture-090",
+    "category": "employment",
+    "language": "raj",
+    "source_channel": "whatsapp",
+    "raw_text": "गाँव के युवाओं के लिए स्किल सेंटर बंद पड़ा है।",
+    "expected_translation": "The skill centre for village youth is shut.",
+    "expected_issue_type": "employment",
+    "expected_severity_score": 6.8
+  },
+  {
+    "id": "voice-hi-1",
+    "category": "sanitation",
+    "language": "hi",
+    "source_channel": "voice_note",
+    "raw_text": "हमारे मोहल्ले में सीवर उफन रहा है और बदबू बहुत है।",
+    "expected_translation": "Sewage is overflowing in our neighbourhood and the stench is severe.",
+    "expected_issue_type": "sanitation",
+    "expected_severity_score": 7.6
+  },
+  {
+    "id": "voice-ta-1",
+    "category": "health",
+    "language": "ta",
+    "source_channel": "voice_note",
+    "raw_text": "அரசு மருத்துவமனையில் இன்று மருத்துவர் வரவே இல்லை.",
+    "expected_translation": "No doctor came to the government hospital today.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 8.2
+  },
+  {
+    "id": "voice-bn-1",
+    "category": "water",
+    "language": "bn",
+    "source_channel": "voice_note",
+    "raw_text": "পানীয় জলের পাইপ ফেটে রাস্তায় নষ্ট হচ্ছে।",
+    "expected_translation": "The drinking water pipe has burst and water is being wasted on the road.",
+    "expected_issue_type": "water",
+    "expected_severity_score": 7.4
+  },
+  {
+    "id": "voice-mr-1",
+    "category": "power",
+    "language": "mr",
+    "source_channel": "voice_note",
+    "raw_text": "रस्त्यावरील स्ट्रीटलाइट बंद आहेत.",
+    "expected_translation": "The streetlights on the road are not working.",
+    "expected_issue_type": "power",
+    "expected_severity_score": 6.8
+  },
+  {
+    "id": "voice-bho-1",
+    "category": "health",
+    "language": "bho",
+    "source_channel": "voice_note",
+    "raw_text": "आंगनबाड़ी में पोषण आहार कई दिन से नइखे मिलत।",
+    "expected_translation": "Nutrition supplements have not been available at the anganwadi for many days.",
+    "expected_issue_type": "health",
+    "expected_severity_score": 7.1
+  },
+  {
+    "id": "edge-001",
+    "category": "other",
+    "language": "en",
+    "source_channel": "whatsapp",
+    "raw_text": "",
+    "expected_translation": "",
+    "expected_issue_type": "other",
+    "expected_severity_score": 1.0,
+    "edge_case": "empty_message"
+  },
+  {
+    "id": "edge-002",
+    "category": "other",
+    "language": "en",
+    "source_channel": "whatsapp",
+    "raw_text": "Hi",
+    "expected_translation": "Hi",
+    "expected_issue_type": "other",
+    "expected_severity_score": 1.0,
+    "edge_case": "very_short_message"
+  },
+  {
+    "id": "edge-003",
+    "category": "other",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "तुम लोग कुछ नहीं करते, बेकार हो।",
+    "expected_translation": "You people do nothing, you are useless.",
+    "expected_issue_type": "other",
+    "expected_severity_score": 2.0,
+    "edge_case": "abusive_content"
+  },
+  {
+    "id": "edge-004",
+    "category": "other",
+    "language": "en",
+    "source_channel": "whatsapp",
+    "raw_text": "What is the cricket score today?",
+    "expected_translation": "What is the cricket score today?",
+    "expected_issue_type": "other",
+    "expected_severity_score": 1.0,
+    "edge_case": "irrelevant_content"
+  },
+  {
+    "id": "edge-005",
+    "category": "road",
+    "language": "hi",
+    "source_channel": "whatsapp",
+    "raw_text": "स्कूल के सामने सड़क टूट गई है, बच्चे रोज गिर रहे हैं।",
+    "expected_translation": "The road in front of the school is broken and children are falling every day.",
+    "expected_issue_type": "road",
+    "expected_severity_score": 8.7,
+    "edge_case": "duplicate_issue"
+  }
+]
