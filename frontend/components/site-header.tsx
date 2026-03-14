@@ -1,35 +1,47 @@
 import Link from "next/link";
 
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/submit", label: "Submit" },
-  { href: "/about", label: "About" },
-  { href: "/prototype", label: "Prototype 01-08" }
-];
+type SiteHeaderProps = {
+  active?: "home" | "constituency" | "submit" | "about" | "prototype";
+};
 
-export function SiteHeader() {
+const navItems = [
+  { href: "/", label: "Home", key: "home" },
+  { href: "/constituency/1", label: "Constituency", key: "constituency" },
+  { href: "/submit", label: "Submit", key: "submit" },
+  { href: "/about", label: "About", key: "about" },
+  { href: "/prototype", label: "Prototype", key: "prototype" },
+] as const;
+
+export function SiteHeader({ active }: SiteHeaderProps) {
   return (
-    <header className="border-b border-neela/15 bg-haath/95">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-5 py-5 md:px-8">
-        <Link href="/" className="flex flex-col text-neela">
-          <span className="font-display text-3xl font-bold leading-none">AgentSabha</span>
-          <span className="font-hindi text-xl leading-none">एजेंट सभा</span>
-        </Link>
-        <nav className="hidden items-center gap-6 md:flex">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="font-body text-sm font-medium uppercase tracking-[0.08em] text-neela/70 transition hover:text-neela">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <Link
-          href="/submit"
-          className="border border-neela bg-neela px-4 py-3 font-display text-lg font-semibold text-haath shadow-[0_3px_0_0_#FF9933]"
-        >
+    <header className="topbar mandate-frame">
+      <Link className="brand-lockup" href="/" aria-label="AgentSabha home">
+        <span className="brand-mark small-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 120" role="img">
+            <circle cx="60" cy="60" r="50" className="chakra-ring" />
+            <circle cx="60" cy="60" r="43" className="chakra-ring inner" />
+            <path className="dome-shape" d="M42 67c4-13 11-20 18-20s14 7 18 20H42zm4 7h28v6H46z" />
+          </svg>
+        </span>
+        <span className="brand-copy">
+          <strong>AgentSabha</strong>
+          <span>एजेंट सभा</span>
+        </span>
+      </Link>
+
+      <nav className="prototype-nav" aria-label="Primary">
+        {navItems.map((item) => (
+          <Link key={item.href} className={`screen-link${active === item.key ? " active" : ""}`} href={item.href}>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      <nav className="top-actions">
+        <Link className="outline-button button-link" href="/submit">
           Submit Issue
         </Link>
-      </div>
+      </nav>
     </header>
   );
 }
-

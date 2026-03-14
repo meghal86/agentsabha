@@ -1,30 +1,52 @@
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen">
-      <SiteHeader />
-      <section className="mx-auto max-w-5xl px-5 py-10 md:px-8 md:py-14">
-        <p className="font-body text-xs uppercase tracking-[0.14em] text-neela/60">How it works</p>
-        <h1 className="mt-3 font-display text-5xl text-neela md:text-7xl">
-          Citizen to cluster to Parliament.
-          <span className="mt-2 block font-hindi text-4xl md:text-6xl">नागरिक से संसद तक</span>
-        </h1>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {[
-            ["01", "Citizen submits", "WhatsApp or web intake captures the issue in any language."],
-            ["02", "Agent clusters", "Embeddings, clustering, and badge assignment turn reports into constituency intelligence."],
-            ["03", "MP reviews draft", "Rule 32-ready questions and weekly briefs are drafted for human filing."]
-          ].map(([step, title, body]) => (
-            <article key={step} className="border border-[#E2D4B0] bg-haath p-5">
-              <div className="font-display text-5xl text-kesariya">{step}</div>
-              <h2 className="mt-3 font-display text-3xl text-neela">{title}</h2>
-              <p className="mt-3 font-body text-base leading-7 text-neela/75">{body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-    </main>
+    <div className="page-shell">
+      <SiteHeader active="about" />
+
+      <main className="screen-main">
+        <section className="screen-frame mandate-frame">
+          <div className="screen-label-row">
+            <div>
+              <p className="eyebrow">SYSTEM EXPLAINER</p>
+              <h2>How AgentSabha works</h2>
+            </div>
+            <p className="frame-note">Citizen → intake → clustering → MP co-pilot. Same visual grammar as the approved product screens.</p>
+          </div>
+
+          <section className="frame-panel full-width-panel">
+            <div className="section-heading compact-heading">
+              <div>
+                <p>यह कैसे काम करता है</p>
+                <h2>Citizen to cluster to Parliament</h2>
+              </div>
+            </div>
+            <div className="steps-grid">
+              {[
+                ["01", "Citizen submits", "Citizens can file by web or WhatsApp in Hindi, English, or local bhasha."],
+                ["02", "Intake structures", "The intake agent translates, classifies, embeds, and stores a structured issue record."],
+                ["03", "Clusters emerge", "The clustering agent groups similar reports and marks Tatkal, Rising, Chronic, or Stable."],
+                ["04", "Drafts prepared", "The strongest clusters are converted into draft parliamentary instruments for MP review."],
+                ["05", "Citizen notified", "When the issue reaches action, the originating citizens can be notified back."],
+                ["06", "Audit remains public", "Agent logs, counts, and visible public clusters become the credibility layer."],
+              ].map(([step, title, body]) => (
+                <article key={step}>
+                  <span className="step-number">{step}</span>
+                  <div className="step-illustration">
+                    <img src="/prototype/art/warli-scene.svg" alt="" />
+                  </div>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <SiteFooter note="एजेंट सभा · Design principles, data dignity, and public accountability" />
+    </div>
   );
 }
-
