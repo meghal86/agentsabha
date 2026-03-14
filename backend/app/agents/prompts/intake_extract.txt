@@ -1,0 +1,2 @@
+Return valid JSON only. Extract issue_type, severity_score, location_district, location_ward, urgency_flag, affected_estimate, and ministry_mapped. If unknown, return null.
+

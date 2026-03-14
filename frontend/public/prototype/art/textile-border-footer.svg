@@ -1,0 +1,18 @@
+<svg width="1440" height="160" viewBox="0 0 1440 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect y="3" width="1440" height="154" rx="16" fill="#1B2A4A"/>
+  <rect width="1440" height="3" fill="#FF9933"/>
+  <rect y="4" width="1440" height="1" fill="#FAF3E0"/>
+  <rect y="5" width="1440" height="1" fill="#2D6A4F"/>
+  <rect y="155" width="1440" height="3" fill="#FF9933"/>
+  <rect y="154" width="1440" height="1" fill="#FAF3E0"/>
+  <rect y="153" width="1440" height="1" fill="#2D6A4F"/>
+  <g font-family="Playfair Display, Georgia, serif" fill="#FAF3E0">
+    <text x="48" y="82" font-size="34" font-weight="700">AgentSabha</text>
+  </g>
+  <g font-family="DM Sans, Arial, sans-serif" fill="#FAF3E0" fill-opacity="0.72">
+    <text x="48" y="114" font-size="20">एजेंट सभा · The Parliament of Intelligent Agents</text>
+  </g>
+  <g font-family="DM Sans, Arial, sans-serif" fill="#FF9933">
+    <text x="1250" y="92" font-size="22" font-weight="700" text-anchor="end">Built for Bharat</text>
+  </g>
+</svg>

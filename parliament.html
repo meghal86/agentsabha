@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentSabha | 04 Parliament</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700;800&family=Tiro+Devanagari+Hindi:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="screen-page">
+    <div class="page-shell">
+      <header class="topbar mandate-frame">
+        <a class="brand-lockup" href="./index.html">
+          <span class="brand-mark small-mark" aria-hidden="true">
+            <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="chakra-ring" /><circle cx="60" cy="60" r="43" class="chakra-ring inner" /><path class="dome-shape" d="M42 67c4-13 11-20 18-20s14 7 18 20H42zm4 7h28v6H46z" /></svg>
+          </span>
+          <span class="brand-copy"><strong>AgentSabha</strong><span>एजेंट सभा</span></span>
+        </a>
+        <nav class="prototype-nav">
+          <a class="screen-link" href="./index.html">01 Homepage</a>
+          <a class="screen-link" href="./dashboard.html">02 Dashboard</a>
+          <a class="screen-link" href="./submit.html">03 Submit</a>
+          <a class="screen-link active" href="./parliament.html">04 Parliament</a>
+          <a class="screen-link" href="./mobile.html">05 Mobile</a>
+          <a class="screen-link" href="./components.html">06 Components</a>
+          <a class="screen-link" href="./art-system.html">07 Art System</a>
+          <a class="screen-link" href="./map-first.html">08 Map First</a>
+        </nav>
+      </header>
+
+      <main class="screen-main">
+        <section class="screen-frame mandate-frame">
+          <div class="screen-label-row">
+            <div>
+              <p class="eyebrow">DESKTOP SCREEN</p>
+              <h2>04 — Parliament Sessions</h2>
+            </div>
+            <p class="frame-note">Designed as the issue-card destination. This stands in for the D-04 drawer overlay in the prototype flow.</p>
+          </div>
+
+          <div class="parliament-grid">
+            <section class="session-board frame-panel">
+              <div class="section-heading compact-heading">
+                <div>
+                  <p>LIVE SESSION</p>
+                  <h2>जन-सुनवाई / Public session</h2>
+                </div>
+              </div>
+              <div class="jaali-divider compact-divider" aria-hidden="true">
+                <img src="./art/jaali-band.svg" alt="" />
+              </div>
+              <div class="session-list">
+                <article>
+                  <span class="stamp-badge road">सड़क (Roads)</span>
+                  <h4>Varanasi school corridor roads flagged for urgent intervention.</h4>
+                  <p>27 constituent reports and 3 press references merged into one parliamentary note.</p>
+                </article>
+                <article>
+                  <span class="stamp-badge water">पानी (Water)</span>
+                  <h4>Morning water pressure drop escalated from local complaint to state-level brief.</h4>
+                  <p>Agent Sabha now marks the issue as recurring across multiple peri-urban wards.</p>
+                </article>
+              </div>
+            </section>
+
+            <aside class="drawer-panel ceremonial-panel">
+              <div class="drawer-header">
+                <span class="stamp-badge road">Tatkal dossier</span>
+                <a class="drawer-close" href="./dashboard.html">Back to dashboard</a>
+              </div>
+              <article class="issue-card full">
+                <span class="issue-rank">1</span>
+                <div class="issue-top">
+                  <span class="stamp-badge road">सड़क (Roads)</span>
+                  <span class="trend-up">↑ in session</span>
+                </div>
+                <h3>Road potholes near government schools causing accidents daily</h3>
+                <p class="issue-subhead">सरकारी स्कूल के पास सड़क की हालत बहुत खराब है</p>
+                <div class="issue-progress">
+                  <div class="severity-track"><span style="width: 82%"></span></div>
+                  <div class="issue-meta"><strong>847 रिपोर्ट</strong><span>Raised 11:20 AM</span></div>
+                </div>
+                <div class="citizen-quote">
+                  <span class="quote-mark">"</span>
+                  <div>
+                    <p>Road to my school has been broken for 3 months. Three children fell. No response.</p>
+                    <small>Ward 14 • 11 attachments • 3 photo proofs</small>
+                  </div>
+                </div>
+                <footer>📍 Civil Lines • Rajghat • Cantonment <a href="./submit.html">Add more evidence →</a></footer>
+              </article>
+            </aside>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <div class="site-footer-inner">
+          <div>
+            <strong>AgentSabha</strong>
+            <span>एजेंट सभा · Public session records and constituency briefs</span>
+          </div>
+          <span>Built for Bharat</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

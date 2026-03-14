@@ -1,0 +1,13 @@
+{
+  "name": "agentsabha",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "prototype:start": "python3 -m http.server 4173",
+    "start": "npm run prototype:start",
+    "frontend:dev": "npm run dev --workspace frontend"
+  }
+}

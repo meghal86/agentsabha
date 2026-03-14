@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentSabha | 03 Submit Issue</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700;800&family=Tiro+Devanagari+Hindi:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="screen-page submit-screen">
+    <div class="page-shell">
+      <header class="topbar mandate-frame">
+        <a class="brand-lockup" href="./index.html">
+          <span class="brand-mark small-mark" aria-hidden="true">
+            <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="chakra-ring" /><circle cx="60" cy="60" r="43" class="chakra-ring inner" /><path class="dome-shape" d="M42 67c4-13 11-20 18-20s14 7 18 20H42zm4 7h28v6H46z" /></svg>
+          </span>
+          <span class="brand-copy"><strong>AgentSabha</strong><span>एजेंट सभा</span></span>
+        </a>
+        <nav class="prototype-nav">
+          <a class="screen-link" href="./index.html">01 Homepage</a>
+          <a class="screen-link" href="./dashboard.html">02 Dashboard</a>
+          <a class="screen-link active" href="./submit.html">03 Submit</a>
+          <a class="screen-link" href="./parliament.html">04 Parliament</a>
+          <a class="screen-link" href="./mobile.html">05 Mobile</a>
+          <a class="screen-link" href="./components.html">06 Components</a>
+          <a class="screen-link" href="./art-system.html">07 Art System</a>
+          <a class="screen-link" href="./map-first.html">08 Map First</a>
+        </nav>
+      </header>
+
+      <main class="screen-main">
+        <section class="screen-frame mandate-frame narrow-screen">
+          <div class="screen-label-row">
+            <div>
+              <p class="eyebrow">DESKTOP SCREEN</p>
+              <h2>03 — Submit Issue</h2>
+            </div>
+            <p class="frame-note">Core citizen action. Clean, focused, and ready for prototype handoff.</p>
+          </div>
+
+          <div class="submit-masthead frame-panel">
+            <div>
+              <p class="eyebrow">CITIZEN ENTRY DESK</p>
+              <h3>Write once. Let the constituency agent do the routing.</h3>
+            </div>
+            <div class="submit-summary-grid">
+              <div class="meta-stat">
+                <span class="meta-label">Languages</span>
+                <strong>Hindi + English + local bhasha</strong>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-label">Evidence</span>
+                <strong>Voice, photo, or text</strong>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-label">Routing</span>
+                <strong>Agent auto-detects category</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="submit-layout">
+            <div class="submit-shell">
+              <div class="section-heading centered">
+                <h2>अपनी समस्या दर्ज करें</h2>
+                <h3>Submit Your Issue</h3>
+              </div>
+
+              <div class="step-line">
+                <span class="step-index current">1</span>
+                <span></span>
+                <span class="step-index current">2</span>
+                <span></span>
+                <span class="step-index">3</span>
+              </div>
+
+              <form class="issue-form">
+                <label>
+                  <span>Step 1 — Constituency</span>
+                  <input type="text" placeholder="PIN code ya constituency ka naam..." />
+                  <small>आपका क्षेत्र ढूंढें / Find your area</small>
+                </label>
+
+                <label>
+                  <span>Step 2 — Issue</span>
+                  <textarea rows="6" placeholder="Hindi, English, ya apni bhasha mein likhein... (any language)"></textarea>
+                  <div class="field-tools">
+                    <button type="button">🎙 Voice input / आवाज़</button>
+                    <button type="button">📷 Photo upload / फोटो</button>
+                    <small>124 / 500 • अक्षर / characters</small>
+                  </div>
+                </label>
+
+                <fieldset>
+                  <legend>Step 3 — Category (optional)</legend>
+                  <div class="category-stamps">
+                    <button class="stamp-badge road selected" type="button">🛣️ सड़क</button>
+                    <button class="stamp-badge water" type="button">💧 पानी</button>
+                    <button class="stamp-badge electricity" type="button">⚡ बिजली</button>
+                    <button class="stamp-badge health" type="button">🏥 स्वास्थ्य</button>
+                    <button class="stamp-badge education" type="button">📚 शिक्षा</button>
+                    <button class="stamp-badge sanitation" type="button">🗑️ सफाई</button>
+                    <button class="stamp-badge neutral" type="button">Ya AI detect karne do</button>
+                  </div>
+                </fieldset>
+
+                <a class="submit-button button-link" href="./dashboard.html">Submit / दर्ज करें →</a>
+              </form>
+
+              <div class="whatsapp-divider">— या / or —</div>
+              <a class="whatsapp-button" href="./dashboard.html">WhatsApp se turant bhejein / Submit via WhatsApp instantly</a>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <div class="site-footer-inner">
+          <div>
+            <strong>AgentSabha</strong>
+            <span>एजेंट सभा · Citizen entry designed for trust</span>
+          </div>
+          <span>Built for Bharat</span>
+        </div>
+      </footer>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>

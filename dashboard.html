@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentSabha | 02 Constituency Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700;800&family=Tiro+Devanagari+Hindi:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="screen-page">
+    <div class="page-shell">
+      <header class="topbar mandate-frame">
+        <a class="brand-lockup" href="./index.html">
+          <span class="brand-mark small-mark" aria-hidden="true">
+            <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="chakra-ring" /><circle cx="60" cy="60" r="43" class="chakra-ring inner" /><path class="dome-shape" d="M42 67c4-13 11-20 18-20s14 7 18 20H42zm4 7h28v6H46z" /></svg>
+          </span>
+          <span class="brand-copy"><strong>AgentSabha</strong><span>एजेंट सभा</span></span>
+        </a>
+        <nav class="prototype-nav">
+          <a class="screen-link" href="./index.html">01 Homepage</a>
+          <a class="screen-link active" href="./dashboard.html">02 Dashboard</a>
+          <a class="screen-link" href="./submit.html">03 Submit</a>
+          <a class="screen-link" href="./parliament.html">04 Parliament</a>
+          <a class="screen-link" href="./mobile.html">05 Mobile</a>
+          <a class="screen-link" href="./components.html">06 Components</a>
+          <a class="screen-link" href="./art-system.html">07 Art System</a>
+          <a class="screen-link" href="./map-first.html">08 Map First</a>
+        </nav>
+        <nav class="top-actions">
+          <a class="outline-button button-link" href="./submit.html">Submit Issue</a>
+        </nav>
+      </header>
+
+      <main class="screen-main">
+        <section class="screen-frame mandate-frame">
+          <div class="screen-label-row">
+            <div>
+              <p class="eyebrow">DESKTOP SCREEN</p>
+              <h2>02 — Constituency Dashboard</h2>
+            </div>
+            <p class="frame-note">Primary operational view for MPs, journalists, and district observers.</p>
+          </div>
+
+          <div class="dashboard-masthead frame-panel">
+            <div class="dashboard-header">
+              <div>
+                <p class="breadcrumbs">India → Uttar Pradesh → Varanasi</p>
+                <div class="dashboard-title">
+                  <div>
+                    <h2>Varanasi</h2>
+                    <h3>वाराणसी</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-meta-board">
+                <div class="meta-stat">
+                  <span class="meta-label">MP</span>
+                  <strong>Meera Dwivedi</strong>
+                </div>
+                <div class="meta-stat">
+                  <span class="meta-label">Agent</span>
+                  <strong>Active / सक्रिय</strong>
+                </div>
+                <div class="meta-stat">
+                  <span class="meta-label">Weekly brief</span>
+                  <strong>28 raised</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-summary-grid">
+            <article class="summary-tile">
+              <span class="summary-kicker">Top category</span>
+              <strong>सड़क / Roads</strong>
+              <p>School corridor complaints now dominate constituency volume.</p>
+            </article>
+            <article class="summary-tile">
+              <span class="summary-kicker">This week</span>
+              <strong>2,944 reports</strong>
+              <p>Resident submissions rose fastest in Civil Lines and Rajghat.</p>
+            </article>
+            <article class="summary-tile accent-tile">
+              <span class="summary-kicker">Need action today</span>
+              <strong>3 Tatkal clusters</strong>
+              <p>Road safety, water pressure, and sanitation are all above alert range.</p>
+            </article>
+          </div>
+
+          <div class="jaali-divider" aria-hidden="true">
+            <img src="./art/jaali-band.svg" alt="" />
+          </div>
+
+          <div class="dashboard-layout dashboard-frame-layout">
+            <aside class="dashboard-rail">
+              <section class="category-breakdown">
+                <div class="section-heading small">
+                  <p>CATEGORY BREAKDOWN</p>
+                  <h4>श्रेणी विवरण</h4>
+                </div>
+                <div class="category-bars">
+                  <div class="category-row"><span>सड़क / Roads</span><div class="bar"><i style="width: 84%"></i></div><strong>847</strong></div>
+                  <div class="category-row"><span>पानी / Water</span><div class="bar water"><i style="width: 69%"></i></div><strong>631</strong></div>
+                  <div class="category-row"><span>बिजली / Electricity</span><div class="bar electricity"><i style="width: 52%"></i></div><strong>488</strong></div>
+                  <div class="category-row"><span>स्वास्थ्य / Health</span><div class="bar health"><i style="width: 43%"></i></div><strong>377</strong></div>
+                  <div class="category-row"><span>सफाई / Sanitation</span><div class="bar sanitation"><i style="width: 37%"></i></div><strong>301</strong></div>
+                </div>
+              </section>
+              <section class="agent-panel">
+                <p>AGENT STATUS</p>
+                <h4>Agent Varanasi</h4>
+                <span class="status-line"><i></i> Active / सक्रिय</span>
+                <div class="agent-stats">
+                  <article><strong>92%</strong><small>Issue clustering confidence</small></article>
+                  <article><strong>14m</strong><small>Average processing window</small></article>
+                  <article><strong>28</strong><small>Signals sent this week</small></article>
+                </div>
+              </section>
+            </aside>
+
+            <div class="dashboard-main">
+              <div class="tab-bar" role="tablist" aria-label="Constituency sections">
+                <button class="tab active" data-panel="issues" type="button">Top Issues / प्रमुख समस्याएं</button>
+                <button class="tab" data-panel="timeline" type="button">Timeline / समयरेखा</button>
+                <button class="tab" data-panel="map" type="button">Map / मानचित्र</button>
+                <button class="tab" data-panel="sessions" type="button">Sessions / सत्र</button>
+              </div>
+              <div class="filter-row">
+                <span class="stamp-badge road">Tatkal</span>
+                <span class="stamp-badge water">Paani</span>
+                <span class="stamp-badge sanitation">Safai</span>
+                <span class="stamp-badge neutral">Ward 14</span>
+              </div>
+
+              <section class="tab-panel active" id="panel-issues">
+                <article class="issue-card full">
+                  <span class="issue-rank">1</span>
+                  <div class="issue-top">
+                    <span class="stamp-badge road">सड़क (Roads)</span>
+                    <span class="trend-up">↑ तेज़ी से बढ़ रहा है</span>
+                  </div>
+                  <h3>Road potholes near government schools causing accidents daily</h3>
+                  <p class="issue-subhead">सरकारी स्कूल के पास सड़क की हालत बहुत खराब है</p>
+                  <div class="issue-progress">
+                    <div class="severity-track"><span style="width: 82%"></span></div>
+                    <div class="issue-meta"><strong>847 रिपोर्ट</strong><span>+34% this week</span></div>
+                  </div>
+                  <div class="citizen-quote">
+                    <span class="quote-mark">"</span>
+                    <div>
+                      <p>Road to my school has been broken for 3 months. Three children fell. No response.</p>
+                      <small>Ward 14 • Government School cluster • 11 submissions attached</small>
+                    </div>
+                  </div>
+                  <footer>📍 Civil Lines • Rajghat • Cantonment <a href="./parliament.html">Open session →</a></footer>
+                </article>
+
+                <article class="issue-card full">
+                  <span class="issue-rank">2</span>
+                  <div class="issue-top">
+                    <span class="stamp-badge water">पानी (Water)</span>
+                    <span class="trend-up calmer">consistent rise</span>
+                  </div>
+                  <h3>Morning water pressure drop extends across six wards on the river edge</h3>
+                  <p class="issue-subhead">सुबह पानी की सप्लाई का दबाव लगातार कम हो रहा है</p>
+                  <div class="issue-progress">
+                    <div class="severity-track water"><span style="width: 70%"></span></div>
+                    <div class="issue-meta"><strong>631 रिपोर्ट</strong><span>+12% this week</span></div>
+                  </div>
+                  <div class="citizen-quote">
+                    <span class="quote-mark">"</span>
+                    <div>
+                      <p>We fill buckets at 4:30 now. By six the line is already dry.</p>
+                      <small>Sarnath • Pump cluster 3 • 8 voice notes attached</small>
+                    </div>
+                  </div>
+                  <footer>📍 Shivpur • Sarnath • Pandeypur <a href="./parliament.html">Open session →</a></footer>
+                </article>
+              </section>
+
+              <section class="tab-panel" id="panel-timeline">
+                <div class="timeline-card">
+                  <div class="section-heading small">
+                    <p>ISSUE VOLUME OVER TIME</p>
+                    <h4>समय के साथ समस्याओं की संख्या</h4>
+                  </div>
+                  <svg viewBox="0 0 760 300" class="timeline-chart">
+                    <path class="chart-fill" d="M40 240L40 226 140 208 240 166 340 170 440 145 540 121 640 110 720 72 720 240Z" />
+                    <path class="chart-line" d="M40 226 140 208 240 166 340 170 440 145 540 121 640 110 720 72" />
+                    <g class="chart-guides">
+                      <line x1="40" y1="240" x2="720" y2="240" />
+                      <line x1="40" y1="190" x2="720" y2="190" />
+                      <line x1="40" y1="140" x2="720" y2="140" />
+                      <line x1="40" y1="90" x2="720" y2="90" />
+                    </g>
+                    <g class="chart-points">
+                      <circle cx="40" cy="226" r="5" />
+                      <circle cx="140" cy="208" r="5" />
+                      <circle cx="240" cy="166" r="5" />
+                      <circle cx="340" cy="170" r="5" />
+                      <circle cx="440" cy="145" r="5" />
+                      <circle cx="540" cy="121" r="5" />
+                      <circle cx="640" cy="110" r="5" />
+                      <circle cx="720" cy="72" r="5" />
+                    </g>
+                  </svg>
+                </div>
+              </section>
+
+              <section class="tab-panel" id="panel-map">
+                <div class="map-summary">
+                  <div class="mini-map"></div>
+                  <div class="map-legend">
+                    <h4>Ward hotspots / वार्ड संकेत</h4>
+                    <p>Civil Lines and Rajghat are in Tatkal range, with school corridor roads showing the steepest climb.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="tab-panel" id="panel-sessions">
+                <div class="session-list">
+                  <article>
+                    <span class="stamp-badge neutral">SESSION NOTE</span>
+                    <h4>Agent Varanasi prepared a brief for transport and school safety.</h4>
+                    <p>Bundled 28 school-road complaints into one constituency packet for this week's parliamentary handoff.</p>
+                  </article>
+                  <article>
+                    <span class="stamp-badge neutral">MEDIA WATCH</span>
+                    <h4>Local press mentions increased 3.2x around sanitation clusters.</h4>
+                    <p>Chowk and Lahurabir have the strongest signal overlap between resident reports and local coverage.</p>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <div class="site-footer-inner">
+          <div>
+            <strong>AgentSabha</strong>
+            <span>एजेंट सभा · Constituency intelligence for public action</span>
+          </div>
+          <span>Built for Bharat</span>
+        </div>
+      </footer>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentSabha | 06 Components</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700;800&family=Tiro+Devanagari+Hindi:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="screen-page">
+    <div class="page-shell">
+      <header class="topbar mandate-frame">
+        <a class="brand-lockup" href="./index.html">
+          <span class="brand-copy"><strong>AgentSabha</strong><span>एजेंट सभा</span></span>
+        </a>
+        <nav class="prototype-nav">
+          <a class="screen-link" href="./index.html">01 Homepage</a>
+          <a class="screen-link" href="./dashboard.html">02 Dashboard</a>
+          <a class="screen-link" href="./submit.html">03 Submit</a>
+          <a class="screen-link" href="./parliament.html">04 Parliament</a>
+          <a class="screen-link" href="./mobile.html">05 Mobile</a>
+          <a class="screen-link active" href="./components.html">06 Components</a>
+          <a class="screen-link" href="./art-system.html">07 Art System</a>
+          <a class="screen-link" href="./map-first.html">08 Map First</a>
+        </nav>
+      </header>
+
+      <main class="screen-main">
+        <section class="screen-frame mandate-frame">
+          <div class="screen-label-row">
+            <div>
+              <p class="eyebrow">SYSTEM PAGE</p>
+              <h2>06 — Components</h2>
+            </div>
+            <p class="frame-note">Atoms and molecules separated so the screen files can stay focused and presentation-ready.</p>
+          </div>
+
+          <div class="components-grid">
+            <section class="frame-panel">
+              <div class="section-heading compact-heading"><div><p>BADGES</p><h2>Category stamps</h2></div></div>
+              <div class="category-stamps">
+                <span class="stamp-badge road">🛣️ सड़क</span>
+                <span class="stamp-badge water">💧 पानी</span>
+                <span class="stamp-badge electricity">⚡ बिजली</span>
+                <span class="stamp-badge health">🏥 स्वास्थ्य</span>
+                <span class="stamp-badge education">📚 शिक्षा</span>
+                <span class="stamp-badge sanitation">🗑️ सफाई</span>
+                <span class="stamp-badge neutral">🛡️ सुरक्षा</span>
+              </div>
+            </section>
+
+            <section class="frame-panel">
+              <div class="section-heading compact-heading"><div><p>ATOMS</p><h2>TrendBadge + SeverityBar</h2></div></div>
+              <div class="component-atoms">
+                <div class="atom-block">
+                  <p class="atom-label">TrendBadge</p>
+                  <div class="trend-badge-row">
+                    <span class="trend-badge up">↑ तेज़ी से बढ़ रहा है</span>
+                    <span class="trend-badge steady">steady demand</span>
+                    <span class="trend-badge alert">Tatkal signal</span>
+                  </div>
+                </div>
+                <div class="atom-block">
+                  <p class="atom-label">SeverityBar</p>
+                  <div class="severity-samples">
+                    <div class="severity-sample">
+                      <span>Tatkal</span>
+                      <div class="severity-track"><span style="width: 88%"></span></div>
+                    </div>
+                    <div class="severity-sample">
+                      <span>Paani</span>
+                      <div class="severity-track water"><span style="width: 64%"></span></div>
+                    </div>
+                    <div class="severity-sample">
+                      <span>Safai</span>
+                      <div class="severity-track sanitation"><span style="width: 52%"></span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="jaali-divider full-span" aria-hidden="true">
+              <img src="./art/jaali-band.svg" alt="" />
+            </div>
+
+            <section class="frame-panel">
+              <div class="section-heading compact-heading"><div><p>LOGOS</p><h2>Brand marks</h2></div></div>
+              <div class="logo-grid logo-grid-three">
+                <article class="logo-card preferred">
+                  <div class="logo-card-head"><span class="stamp-badge neutral">DIRECTION A</span><span class="recommended-tag">Recommended</span></div>
+                  <svg viewBox="0 0 240 240" class="logo-sample"><circle cx="120" cy="120" r="88" class="logo-outline" /><circle cx="120" cy="120" r="76" class="logo-outline" /><path class="dome-shape" d="M83 138c9-29 22-44 37-44s28 15 37 44H83zm9 16h56v14H92z" /></svg>
+                  <h3>Digital Chakra</h3>
+                </article>
+                <article class="logo-card">
+                  <div class="logo-card-head"><span class="stamp-badge neutral">DIRECTION B</span></div>
+                  <svg viewBox="0 0 240 240" class="logo-sample"><polygon class="hex-outline" points="120,24 188,63 188,145 120,184 52,145 52,63" /><circle cx="120" cy="47" r="8" class="logo-dot" /><path class="mudra-shirorekha" d="M70 78h100" /><path class="mudra-a" d="M89 160l31-82 31 82m-46-37h31" /></svg>
+                  <h3>Mudra Mark</h3>
+                </article>
+                <article class="logo-card">
+                  <div class="logo-card-head"><span class="stamp-badge neutral">DIRECTION D</span><span class="recommended-tag">Validate</span></div>
+                  <svg viewBox="0 0 240 240" class="logo-sample">
+                    <circle cx="150" cy="56" r="12" class="logo-dot"></circle>
+                    <path class="abhaya-outline" d="M112 182V112C112 103 118 96 126 96C134 96 140 102 140 110V182" />
+                    <path class="abhaya-outline" d="M136 182V72C136 63 142 56 150 56C158 56 164 63 164 72V182" />
+                    <path class="abhaya-outline" d="M160 166V68C160 59 166 52 174 52C182 52 188 59 188 68V166" />
+                    <path class="abhaya-outline" d="M184 154V76C184 67 190 60 198 60C206 60 212 67 212 76V142C212 151 208 159 201 165" />
+                    <path class="abhaya-thumb" d="M112 180C100 176 92 165 92 150V114C92 105 98 98 106 98C114 98 120 104 120 112V148" />
+                  </svg>
+                  <h3>Abhaya Mudra</h3>
+                  <p>Do not fear. Speak. A civilizational gesture of public assurance, not party symbolism.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="frame-panel full-span">
+              <div class="section-heading compact-heading"><div><p>ISSUE CARD</p><h2>Newspaper clipping card</h2></div></div>
+              <article class="issue-card full">
+                <span class="issue-rank">1</span>
+                <div class="issue-top">
+                  <span class="stamp-badge road">सड़क (Roads)</span>
+                  <span class="trend-up">↑ तेज़ी से बढ़ रहा है</span>
+                </div>
+                <h3>Road potholes near government schools causing accidents daily</h3>
+                <p class="issue-subhead">सरकारी स्कूल के पास सड़क की हालत बहुत खराब है</p>
+                <div class="issue-progress">
+                  <div class="severity-track"><span style="width: 82%"></span></div>
+                  <div class="issue-meta"><strong>847 रिपोर्ट</strong><span>+34% this week</span></div>
+                </div>
+                <div class="citizen-quote">
+                  <span class="quote-mark">"</span>
+                  <div>
+                    <p>Road to my school has been broken for 3 months. Three children fell. No response.</p>
+                    <small>Ward 14 • Government School cluster • 11 submissions attached</small>
+                  </div>
+                </div>
+                <footer>📍 Civil Lines • Rajghat • Cantonment <a href="./parliament.html">देखें →</a></footer>
+              </article>
+            </section>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <div class="site-footer-inner">
+          <div>
+            <strong>AgentSabha</strong>
+            <span>एजेंट सभा · Components, art, and product grammar</span>
+          </div>
+          <span>Built for Bharat</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
