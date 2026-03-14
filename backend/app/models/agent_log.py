@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import DateTime, Integer, Text, func
@@ -15,12 +16,12 @@ class AgentLog(Base):
 
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
     agent_type: Mapped[str] = mapped_column(Text, nullable=False)
-    constituency_id: Mapped[int | None] = mapped_column(Integer)
+    constituency_id: Mapped[Optional[int]] = mapped_column(Integer)
     action: Mapped[str] = mapped_column(Text, nullable=False)
     input_hash: Mapped[str] = mapped_column(Text, nullable=False)
     output_hash: Mapped[str] = mapped_column(Text, nullable=False)
     model_version: Mapped[str] = mapped_column(Text, nullable=False)
-    tokens_used: Mapped[int | None] = mapped_column(Integer)
-    latency_ms: Mapped[int | None] = mapped_column(Integer)
-    error_code: Mapped[str | None] = mapped_column(Text)
+    tokens_used: Mapped[Optional[int]] = mapped_column(Integer)
+    latency_ms: Mapped[Optional[int]] = mapped_column(Integer)
+    error_code: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)

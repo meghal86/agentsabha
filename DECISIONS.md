@@ -53,3 +53,17 @@ Alternatives considered: Store DataMeet `pc_id` directly as the primary key; inv
 Reason: The schema is explicitly fixed in the master prompt and should not be widened during foundation work.
 
 Consequences: Any later geometry join will need a deterministic mapping layer if raw DataMeet `pc_id` is required in code or analytics.
+
+---
+
+## 2026-03-14 — Enable pgvector before the issues table, keep index step at migration 13
+
+Context: The master prompt lists pgvector extension installation in migration step 13, but the schema for `issues` requires an `embedding vector(1536)` column much earlier in the chain.
+
+Decision: Create the `vector` extension as a prerequisite in the issues-table migration so the column can exist, then repeat `CREATE EXTENSION IF NOT EXISTS vector` in migration 13 where the ivfflat index is added.
+
+Alternatives considered: Delay the embedding column until migration 13; store embeddings temporarily in a non-vector column.
+
+Reason: Both alternatives would temporarily violate the documented schema. The least harmful path is to preserve the final schema early and keep the indexed optimization at the documented final step.
+
+Consequences: The migration chain remains functionally correct, but the pgvector capability is technically enabled before the optimization step listed in the prompt.

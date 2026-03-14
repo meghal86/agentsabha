@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from typing import Any
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import Date, DateTime, ForeignKey, Text, UniqueConstraint, func
@@ -16,13 +17,13 @@ class MPBrief(Base):
     __table_args__ = (UniqueConstraint("constituency_id", "week_date", name="uq_mp_brief_constituency_week"),)
 
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
-    constituency_id: Mapped[int | None] = mapped_column(ForeignKey("constituencies.id"))
+    constituency_id: Mapped[Optional[int]] = mapped_column(ForeignKey("constituencies.id"))
     week_date: Mapped[date] = mapped_column(Date, nullable=False)
-    brief_content: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
-    brief_pdf_url: Mapped[str | None] = mapped_column(Text)
-    delivery_status: Mapped[str | None] = mapped_column(Text)
-    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    mp_whatsapp: Mapped[str | None] = mapped_column(Text)
+    brief_content: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    brief_pdf_url: Mapped[Optional[str]] = mapped_column(Text)
+    delivery_status: Mapped[Optional[str]] = mapped_column(Text)
+    delivered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    mp_whatsapp: Mapped[Optional[str]] = mapped_column(Text)
 
     constituency = relationship("Constituency", back_populates="briefs")
 
@@ -32,10 +33,10 @@ class PodcastEpisode(Base):
 
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
     week_date: Mapped[date] = mapped_column(Date, nullable=False)
-    script_text: Mapped[str | None] = mapped_column(Text)
-    audio_url: Mapped[str | None] = mapped_column(Text)
-    video_url: Mapped[str | None] = mapped_column(Text)
-    fact_check_report: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
-    perspective_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    script_text: Mapped[Optional[str]] = mapped_column(Text)
+    audio_url: Mapped[Optional[str]] = mapped_column(Text)
+    video_url: Mapped[Optional[str]] = mapped_column(Text)
+    fact_check_report: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    perspective_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    published_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, Text, UniqueConstraint, func
@@ -15,13 +16,13 @@ class IssueCluster(Base):
     __tablename__ = "issue_clusters"
 
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
-    constituency_id: Mapped[int | None] = mapped_column(ForeignKey("constituencies.id"))
-    label: Mapped[str | None] = mapped_column(Text)
-    category: Mapped[str | None] = mapped_column(Text)
+    constituency_id: Mapped[Optional[int]] = mapped_column(ForeignKey("constituencies.id"))
+    label: Mapped[Optional[str]] = mapped_column(Text)
+    category: Mapped[Optional[str]] = mapped_column(Text)
     issue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    severity_avg: Mapped[Decimal | None] = mapped_column(Numeric(3, 1))
-    velocity: Mapped[Decimal | None] = mapped_column(Numeric)
-    badge: Mapped[str | None] = mapped_column(Text)
+    severity_avg: Mapped[Optional[Decimal]] = mapped_column(Numeric(3, 1))
+    velocity: Mapped[Optional[Decimal]] = mapped_column(Numeric)
+    badge: Mapped[Optional[str]] = mapped_column(Text)
     first_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     national_flag: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -37,9 +38,9 @@ class ClusterSnapshot(Base):
     __table_args__ = (UniqueConstraint("cluster_id", "snapshot_date", name="uq_cluster_snapshot"),)
 
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
-    cluster_id: Mapped[UUID | None] = mapped_column(ForeignKey("issue_clusters.id"))
+    cluster_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("issue_clusters.id"))
     snapshot_date: Mapped[date] = mapped_column(Date, nullable=False)
-    issue_count: Mapped[int | None] = mapped_column(Integer)
-    severity_avg: Mapped[Decimal | None] = mapped_column(Numeric(3, 1))
+    issue_count: Mapped[Optional[int]] = mapped_column(Integer)
+    severity_avg: Mapped[Optional[Decimal]] = mapped_column(Numeric(3, 1))
 
     cluster = relationship("IssueCluster", back_populates="snapshots")
