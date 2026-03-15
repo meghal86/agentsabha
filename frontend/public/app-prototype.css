@@ -336,10 +336,10 @@ textarea {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(300px, 0.72fr) minmax(700px, 1.28fr);
-  gap: 28px;
-  align-items: center;
-  min-height: 640px;
+  grid-template-columns: 1fr;
+  gap: 26px;
+  align-items: start;
+  min-height: auto;
 }
 
 .homepage-frame::before {
@@ -494,21 +494,28 @@ textarea {
 }
 
 .hero-map-panel {
-  justify-self: end;
+  justify-self: stretch;
   width: 100%;
 }
 
 .hero-map-panel .national-map-card {
   min-height: 100%;
-  padding: 24px 24px 28px;
+  padding: 28px 28px 32px;
 }
 
 .hero-map-panel .national-map-stage {
+  position: relative;
   grid-template-columns: 1fr;
 }
 
 .hero-map-panel .national-hover-card {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: min(280px, calc(100% - 36px));
   min-height: 0;
+  z-index: 2;
+  background: rgba(250, 243, 224, 0.94);
 }
 
 .map-card,
@@ -598,7 +605,7 @@ textarea {
 .national-map-svg {
   display: block;
   width: 100%;
-  min-height: 860px;
+  min-height: 980px;
   margin: 0;
   background:
     linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.82)),
@@ -637,12 +644,12 @@ textarea {
 .national-seat {
   cursor: pointer;
   transition: fill 120ms ease, opacity 120ms ease, stroke 120ms ease;
-  stroke: rgba(27, 42, 74, 0.28);
-  stroke-width: 0.85;
+  stroke: rgba(27, 42, 74, 0.34);
+  stroke-width: 1;
 }
 
 .national-seat.is-idle {
-  fill: rgba(27, 42, 74, 0.035);
+  fill: rgba(27, 42, 74, 0.1);
 }
 
 .national-seat.is-low {
@@ -669,7 +676,8 @@ textarea {
 
 .national-seat.is-selected {
   stroke: var(--kesariya);
-  stroke-width: 1.4;
+  stroke-width: 2.4;
+  fill: rgba(255, 153, 51, 0.26);
 }
 
 .map-dots circle {
@@ -2723,6 +2731,11 @@ section {
 
   .hero-map-panel {
     justify-self: stretch;
+  }
+
+  .hero-map-panel .national-hover-card {
+    position: static;
+    width: auto;
   }
 
   .pulse-bar article + article::before {
