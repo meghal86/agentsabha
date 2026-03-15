@@ -10,7 +10,7 @@ export default function AboutPage() {
         <section className="screen-frame mandate-frame bharat-ornament-frame">
           <div className="product-intro compact-intro">
             <div>
-              <p className="eyebrow">SYSTEM EXPLAINER</p>
+              <p className="eyebrow">HOW AGENTSABHA WORKS</p>
               <h1 className="product-title">How AgentSabha works</h1>
               <p className="hero-body">Citizen → intake → clustering → MP co-pilot. The live app now uses the same Bharat-first visual grammar without the prototype screen labels.</p>
             </div>

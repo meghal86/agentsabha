@@ -69,6 +69,7 @@ Current week: Week 1 of 8
 - Seed a deterministic three-constituency demo dataset in the development DB so the live product surfaces are populated above public publication thresholds, and align those seats to the FRD-approved Phase 1 constituencies
 - Replace the pilot-default homepage map flow with an FRD-aligned national selector that exposes all 543 constituencies and only enters a constituency desk after selection
 - Remove prototype-only screen framing from the live app, enlarge the national map stage, and add an agents debug console aligned to Master Prompt v3 and the attached JSX research specs
+- Preload the 543-seat geojson into the Next.js app, fit the national map to mainland India with territorial insets, and replace the map datalist with real select controls so the homepage and constituency switcher render correctly on first paint
 
 ## Next session must start with
 
@@ -76,6 +77,7 @@ Current week: Week 1 of 8
 - Continue porting the remaining prototype-specific panels and map interactions into the production Next.js routes without changing the design system
 - Start replacing seeded demo-only national pulse fallbacks on the homepage with guaranteed live API-backed rendering
 - Continue converting the national map from a development-safe selector into a richer live heatmap with hover metrics and stronger constituency-level interactions
+- Verify the repaired national map visually in browser and continue improving hover metrics, active seat styling, and constituency detail fidelity without changing the Bharat-first design language
 - Use Master Prompt v3 as the source of truth for which agents are genuinely Phase 1 vs deferred, and continue wiring only the allowed Phase 1 agents into real runtime paths
 - Add onboarding/token management for MP, journalist, and admin access so the now-working internal routes are usable outside direct signed-token generation
 
@@ -89,3 +91,4 @@ Current week: Week 1 of 8
 - The live web submit flow currently uses a sandbox-style OTP field because UIDAI/WhatsApp verification services are not yet wired
 - Public screens are anchored to the FRD-approved Phase 1 demo constituencies: Thiruvananthapuram (`502`), Bengaluru South (`477` / seed row `Bangalore South`), and Gurugram (`38` / seed row `Gurgaon`)
 - The backend API normalizes `Bangalore South` → `Bengaluru South` and `Gurgaon` → `Gurugram` for user-facing summaries, while preserving the official seed asset values
+- The national selector now renders a real `<select>` with a selected constituency in the initial HTML, but the development server still needs periodic clean restarts because stale Next dev chunks have caused false frontend regressions during this build-out

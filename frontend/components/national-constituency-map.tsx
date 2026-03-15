@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import type { ConstituencyDirectoryItem, HeatmapPoint } from "@/lib/api";
 
 type ConstituencyFeature = {
-  type: "Feature";
+  type: string;
   properties: {
     id: number;
     name: string;
@@ -19,17 +19,19 @@ type ConstituencyFeature = {
 };
 
 type ConstituencyFeatureCollection = {
-  type: "FeatureCollection";
+  type: string;
   features: ConstituencyFeature[];
 };
 
 type ProjectedFeature = ConstituencyFeature["properties"] & {
   d: string;
+  transform?: string;
 };
 
 type NationalConstituencyMapProps = {
   constituencies: ConstituencyDirectoryItem[];
   heatmap: HeatmapPoint[];
+  collection: ConstituencyFeatureCollection;
   selectedId?: number;
 };
 
@@ -49,61 +51,59 @@ function badgeTone(severity: number | null | undefined) {
   return "neutral";
 }
 
-export function NationalConstituencyMap({ constituencies, heatmap, selectedId }: NationalConstituencyMapProps) {
+export function NationalConstituencyMap({
+  constituencies,
+  heatmap,
+  collection,
+  selectedId,
+}: NationalConstituencyMapProps) {
   const router = useRouter();
-  const [collection, setCollection] = useState<ConstituencyFeatureCollection | null>(null);
+  const defaultId = useMemo(
+    () => selectedId ?? heatmap.find((entry) => entry.severity_score !== null)?.id ?? constituencies[0]?.id ?? 1,
+    [constituencies, heatmap, selectedId],
+  );
   const [hoveredId, setHoveredId] = useState<number | null>(selectedId ?? null);
-  const [pendingId, setPendingId] = useState<number>(selectedId ?? constituencies[0]?.id ?? 1);
-  const [searchValue, setSearchValue] = useState("");
+  const [pendingId, setPendingId] = useState<number>(defaultId);
 
   useEffect(() => {
-    let cancelled = false;
-
-    fetch("/data/constituencies.geojson")
-      .then((response) => response.json())
-      .then((data: ConstituencyFeatureCollection) => {
-        if (!cancelled) setCollection(data);
-      })
-      .catch(() => {
-        if (!cancelled) setCollection({ type: "FeatureCollection", features: [] });
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (selectedId) {
-      setPendingId(selectedId);
-      setHoveredId(selectedId);
-    }
-  }, [selectedId]);
-
-  useEffect(() => {
-    const current = constituencies.find((entry) => entry.id === pendingId);
-    if (current) {
-      setSearchValue(`${current.name} — ${current.state}`);
-    }
-  }, [pendingId, constituencies]);
+    setPendingId(defaultId);
+    setHoveredId(selectedId ?? defaultId);
+  }, [defaultId, selectedId]);
 
   const heatmapById = useMemo(() => new Map(heatmap.map((entry) => [entry.id, entry])), [heatmap]);
   const constituencyById = useMemo(() => new Map(constituencies.map((entry) => [entry.id, entry])), [constituencies]);
 
   const projectedFeatures = useMemo<ProjectedFeature[]>(() => {
-    if (!collection || collection.features.length === 0) return [];
-    const projection = geoMercator().fitSize([530, 640], collection as never);
+    if (collection.features.length === 0) return [];
+    const insetTargets: Record<number, { x: number; y: number; width: number; height: number }> = {
+      482: { x: 38, y: 510, width: 52, height: 58 },   // Lakshadweep
+      542: { x: 392, y: 454, width: 76, height: 74 },  // Puducherry
+      543: { x: 418, y: 526, width: 82, height: 92 },  // Andaman and Nicobar Islands
+    };
+    const mainlandFeatures = collection.features.filter((feature) => !(feature.properties.id in insetTargets));
+    const projection = geoMercator().fitSize([530, 640], { ...collection, features: mainlandFeatures } as never);
     const pathBuilder = geoPath(projection);
-    return collection.features
-      .map((feature) => {
+    return collection.features.reduce<ProjectedFeature[]>((accumulator, feature) => {
         const d = pathBuilder(feature as never);
-        if (!d) return null;
-        return {
+        if (!d) return accumulator;
+        let transform: string | undefined;
+        const target = insetTargets[feature.properties.id];
+        if (target) {
+          const [[minX, minY], [maxX, maxY]] = pathBuilder.bounds(feature as never);
+          const width = Math.max(maxX - minX, 1);
+          const height = Math.max(maxY - minY, 1);
+          const scale = Math.min(target.width / width, target.height / height);
+          const translatedX = target.x + (target.width - width * scale) / 2 - minX * scale;
+          const translatedY = target.y + (target.height - height * scale) / 2 - minY * scale;
+          transform = `translate(${translatedX} ${translatedY}) scale(${scale})`;
+        }
+        accumulator.push({
           ...feature.properties,
           d,
-        };
-      })
-      .filter((feature): feature is ProjectedFeature => Boolean(feature));
+          transform,
+        });
+        return accumulator;
+      }, []);
   }, [collection]);
 
   const activeId = hoveredId ?? pendingId;
@@ -128,25 +128,21 @@ export function NationalConstituencyMap({ constituencies, heatmap, selectedId }:
       <div className="national-map-toolbar">
         <label className="map-select">
           <span>Select constituency / निर्वाचन क्षेत्र चुनें</span>
-          <input
-            list="constituency-directory"
-            value={searchValue}
+          <select
+            key={pendingId}
+            defaultValue={pendingId}
             onChange={(event) => {
-              const value = event.target.value;
-              setSearchValue(value);
-              const match = constituencies.find((entry) => `${entry.name} — ${entry.state}` === value);
-              if (match) {
-                setPendingId(match.id);
-                setHoveredId(match.id);
-              }
+              const nextId = Number(event.target.value);
+              setPendingId(nextId);
+              setHoveredId(nextId);
             }}
-            placeholder="Search constituency or state"
-          />
-          <datalist id="constituency-directory">
+          >
             {constituencies.map((entry) => (
-              <option key={entry.id} value={`${entry.name} — ${entry.state}`} />
+              <option key={entry.id} value={entry.id}>
+                {entry.name} — {entry.state}
+              </option>
             ))}
-          </datalist>
+          </select>
         </label>
         <button className="secondary-button map-open-button" type="button" onClick={() => openConstituency(pendingId)}>
           Open constituency
@@ -170,25 +166,26 @@ export function NationalConstituencyMap({ constituencies, heatmap, selectedId }:
                 .join(" ");
 
               return (
-                <path
-                  key={feature.id}
-                  d={feature.d}
-                  className={classes}
-                  onMouseEnter={() => setHoveredId(feature.id)}
-                  onMouseLeave={() => setHoveredId(selectedId ?? null)}
-                  onFocus={() => setHoveredId(feature.id)}
-                  onBlur={() => setHoveredId(selectedId ?? null)}
-                  onClick={() => openConstituency(feature.id)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${feature.name}, ${feature.state}`}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      openConstituency(feature.id);
-                    }
-                  }}
-                />
+                <g key={feature.id} transform={feature.transform}>
+                  <path
+                    d={feature.d}
+                    className={classes}
+                    onMouseEnter={() => setHoveredId(feature.id)}
+                    onMouseLeave={() => setHoveredId(selectedId ?? null)}
+                    onFocus={() => setHoveredId(feature.id)}
+                    onBlur={() => setHoveredId(selectedId ?? null)}
+                    onClick={() => openConstituency(feature.id)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${feature.name}, ${feature.state}`}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openConstituency(feature.id);
+                      }
+                    }}
+                  />
+                </g>
               );
             })}
           </g>

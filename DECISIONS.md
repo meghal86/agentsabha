@@ -235,3 +235,17 @@ Alternatives considered: Hide all non-Phase 1 agents entirely; begin implementin
 Reason: The user needs a practical debug view of the full system architecture without violating the prompt’s instruction to defer media and revenue agents in Phase 1.
 
 Consequences: The app now exposes an `/agents` debug route that is honest about current implementation depth while still reflecting the intended full architecture from the attached research materials.
+
+---
+
+## 2026-03-15 — Fit the India map to mainland and render constituency selection on first paint
+
+Context: The live homepage map was appearing as a tiny speck inside a large empty panel, and the constituency selector looked blank or useless to the user. Two issues caused this: the map was originally loaded client-side after first paint, and full-country geographic fitting was being visually distorted by remote territories and enclaves.
+
+Decision: Preload the 543-seat geojson into the Next.js app, fit the map projection to mainland India while rendering Lakshadweep, Puducherry, and Andaman & Nicobar as controlled insets, and replace the datalist text field with real `<select>` controls for both the homepage selector and constituency dashboard switcher.
+
+Alternatives considered: Keep the client-side fetch and wait for hydration; simplify the map to a symbolic outline; keep the text-input datalist with search.
+
+Reason: The user needs an immediately understandable national selector, not a delayed or ambiguous widget. Rendering real geometry on first paint and using true select controls makes the map-first flow legible and dependable.
+
+Consequences: The homepage and constituency selector now ship a real India map and a valid selected constituency in the initial HTML. The frontend bundle includes a local geojson copy, and remote territories are displayed as intentional insets rather than shrinking the mainland view.

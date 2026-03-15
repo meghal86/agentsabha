@@ -1,3 +1,5 @@
+import fallbackConstituencies from "@/data/constituencies-directory.json";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
 async function request<T>(path: string): Promise<T> {
@@ -43,7 +45,11 @@ export type ConstituencyDirectoryItem = {
 };
 
 export async function getConstituencies() {
-  return request<{ constituencies: ConstituencyDirectoryItem[] }>("/api/constituencies");
+  try {
+    return await request<{ constituencies: ConstituencyDirectoryItem[] }>("/api/constituencies");
+  } catch {
+    return { constituencies: fallbackConstituencies as ConstituencyDirectoryItem[] };
+  }
 }
 
 export type ConstituencyIssueCluster = {

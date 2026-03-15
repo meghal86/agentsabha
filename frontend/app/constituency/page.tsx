@@ -1,6 +1,7 @@
 import { NationalConstituencyMap } from "@/components/national-constituency-map";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getNationalHeatmap } from "@/lib/api";
 
 export default async function ConstituencyIndexPage() {
@@ -23,7 +24,11 @@ export default async function ConstituencyIndexPage() {
             </div>
           </div>
 
-          <NationalConstituencyMap constituencies={directory.constituencies} heatmap={heatmap.constituencies} />
+          <NationalConstituencyMap
+            constituencies={directory.constituencies}
+            heatmap={heatmap.constituencies}
+            collection={constituencyGeojson}
+          />
         </section>
       </main>
 

@@ -23,7 +23,8 @@ export function ConstituencySwitcher({
     <label className={`constituency-switcher ${className}`.trim()}>
       <span>{label}</span>
       <select
-        value={selectedId}
+        key={selectedId}
+        defaultValue={selectedId}
         onChange={(event) => {
           router.push(`/constituency/${event.target.value}`);
         }}

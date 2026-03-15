@@ -3,6 +3,7 @@ import Link from "next/link";
 import { NationalConstituencyMap } from "@/components/national-constituency-map";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getNationalHeatmap, getNationalPulse } from "@/lib/api";
 
 function toBadge(severity: number | null) {
@@ -62,7 +63,11 @@ export default async function HomePage() {
             </div>
 
             <div className="hero-map-panel">
-              <NationalConstituencyMap constituencies={directory.constituencies} heatmap={heatmap.constituencies} />
+              <NationalConstituencyMap
+                constituencies={directory.constituencies}
+                heatmap={heatmap.constituencies}
+                collection={constituencyGeojson}
+              />
             </div>
           </div>
 
