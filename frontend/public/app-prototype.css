@@ -73,6 +73,32 @@ textarea {
   margin-top: 24px;
 }
 
+.product-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+.compact-intro {
+  grid-template-columns: 1fr;
+}
+
+.product-title {
+  margin: 8px 0 0;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+.product-intro-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
 .screen-frame {
   padding: 28px 0 36px;
 }
@@ -310,8 +336,8 @@ textarea {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
-  gap: 42px;
+  grid-template-columns: minmax(320px, 0.84fr) minmax(620px, 1.16fr);
+  gap: 34px;
   align-items: center;
   min-height: 560px;
 }
@@ -472,6 +498,18 @@ textarea {
   width: 100%;
 }
 
+.hero-map-panel .national-map-card {
+  min-height: 100%;
+}
+
+.hero-map-panel .national-map-stage {
+  grid-template-columns: 1fr;
+}
+
+.hero-map-panel .national-hover-card {
+  min-height: 0;
+}
+
 .map-card,
 .logo-card,
 .issue-card,
@@ -559,7 +597,7 @@ textarea {
 .national-map-svg {
   display: block;
   width: 100%;
-  min-height: 640px;
+  min-height: 780px;
   margin: 0;
   background:
     linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.82)),
@@ -1220,6 +1258,35 @@ section {
   min-width: 250px;
 }
 
+.activation-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 18px;
+  margin: 18px 0 20px;
+  border: 1px solid var(--aged-border);
+  background: rgba(250, 243, 224, 0.9);
+}
+
+.activation-banner.active {
+  border-left: 4px solid var(--hariyali);
+}
+
+.activation-banner.inactive {
+  border-left: 4px solid var(--kesariya);
+}
+
+.activation-banner strong {
+  font-family: "Playfair Display", serif;
+  font-size: 1.2rem;
+}
+
+.activation-banner span {
+  color: var(--muted-ink);
+  max-width: 760px;
+}
+
 .dashboard-title h3 {
   margin: 2px 0 0;
   font-size: 2rem;
@@ -1677,12 +1744,116 @@ section {
 }
 
 .map-select select,
+.map-select input,
 .constituency-switcher select {
   width: 100%;
   border: 1.5px solid var(--neela);
   background: var(--haldi);
   padding: 12px 14px;
   color: var(--neela);
+}
+
+.agents-debug-groups {
+  display: grid;
+  gap: 20px;
+}
+
+.agents-debug-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.agent-debug-card {
+  border: 1px solid var(--aged-border);
+  background: var(--haath-kagaz);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.agent-debug-card.built {
+  border-top: 3px solid var(--hariyali);
+}
+
+.agent-debug-card.partial {
+  border-top: 3px solid var(--kesariya);
+}
+
+.agent-debug-card.deferred {
+  border-top: 3px solid var(--mitti);
+}
+
+.agent-debug-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.agent-debug-head h3 {
+  margin: 6px 0 0;
+  font-family: "Playfair Display", serif;
+  font-size: 1.4rem;
+}
+
+.agent-phase-badge {
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--aged-border);
+}
+
+.agent-phase-badge.built {
+  background: rgba(45, 106, 79, 0.12);
+}
+
+.agent-phase-badge.partial {
+  background: rgba(255, 153, 51, 0.14);
+}
+
+.agent-phase-badge.deferred {
+  background: rgba(160, 82, 45, 0.1);
+}
+
+.agent-debug-purpose,
+.agent-debug-scope,
+.agent-debug-status p {
+  margin: 0;
+  color: var(--muted-ink);
+  line-height: 1.65;
+}
+
+.agent-debug-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.agent-debug-metrics div,
+.agent-debug-status {
+  display: grid;
+  gap: 4px;
+}
+
+.agent-debug-metrics span,
+.agent-debug-status .summary-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.agent-debug-metrics strong {
+  font-family: "Playfair Display", serif;
+}
+
+.agent-debug-status ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted-ink);
+  line-height: 1.7;
 }
 
 .field-tools {
@@ -2429,7 +2600,9 @@ section {
   .dashboard-meta-board,
   .submit-layout,
   .submit-summary-grid,
-  .observer-main {
+  .observer-main,
+  .product-intro,
+  .agents-debug-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2445,6 +2618,10 @@ section {
   .national-map-stage,
   .national-map-toolbar {
     grid-template-columns: 1fr;
+  }
+
+  .national-map-svg {
+    min-height: 640px;
   }
 
   .hero-map-panel {
@@ -2476,7 +2653,9 @@ section {
   .section-heading,
   .dashboard-title,
   .map-header,
-  .screen-label-row {
+  .screen-label-row,
+  .activation-banner,
+  .agent-debug-head {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -2535,5 +2714,9 @@ section {
 
   .national-map-svg {
     min-height: 520px;
+  }
+
+  .agent-debug-metrics {
+    grid-template-columns: 1fr;
   }
 }

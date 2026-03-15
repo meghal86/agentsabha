@@ -221,3 +221,17 @@ Alternatives considered: Keep the symbolic homepage map and only add a simple dr
 Reason: The product’s claim is national in scope even in Phase 1. Observers and citizens both need a true national-first entry point, and the constituency desk should feel like a chosen drill-down, not the default landing state.
 
 Consequences: The frontend now carries a real 543-seat geographic asset and selector flow. The homepage, selector route, submit flow, and constituency dashboard are aligned around explicit seat choice rather than pilot hardcoding.
+
+---
+
+## 2026-03-15 — Follow Master Prompt v3 for live-vs-deferred agent visibility
+
+Context: The user supplied `AgentSabha_MasterPrompt_v3.pdf` plus JSX research files describing a much larger 47+ agent architecture. The live product had started mixing prototype framing, pilot language, and speculative agent breadth in ways that were confusing and inconsistent.
+
+Decision: Treat Master Prompt v3 as the product source of truth. Keep the live implementation focused on Phase 1 agents only, but add a dedicated debug page that shows the broader agent architecture with explicit status buckets: built now, partially built, and deferred by the master prompt.
+
+Alternatives considered: Hide all non-Phase 1 agents entirely; begin implementing media and revenue agents immediately; keep the attached JSX files as out-of-band references only.
+
+Reason: The user needs a practical debug view of the full system architecture without violating the prompt’s instruction to defer media and revenue agents in Phase 1.
+
+Consequences: The app now exposes an `/agents` debug route that is honest about current implementation depth while still reflecting the intended full architecture from the attached research materials.

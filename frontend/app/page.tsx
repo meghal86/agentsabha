@@ -32,14 +32,6 @@ export default async function HomePage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame bharat-ornament-frame">
-          <div className="screen-label-row">
-            <div>
-              <p className="eyebrow">DESKTOP SCREEN</p>
-              <h2>01 — Homepage</h2>
-            </div>
-            <p className="frame-note">Live production shell on the approved homepage composition.</p>
-          </div>
-
           <div className="homepage-frame">
             <div className="hero-copy">
               <p className="eyebrow">INDIA&apos;S CIVIC INTELLIGENCE PLATFORM</p>

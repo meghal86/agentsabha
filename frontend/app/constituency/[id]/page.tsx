@@ -89,6 +89,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
     issues.clusters.length > 0
       ? issues.clusters.reduce((sum, cluster) => sum + (cluster.severity ?? 0), 0) / issues.clusters.length
       : 0;
+  const isPubliclyActive = issues.total > 0;
 
   return (
     <div className="page-shell">
@@ -96,14 +97,6 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame bharat-ornament-frame dashboard-art-frame">
-          <div className="screen-label-row">
-            <div>
-              <p className="eyebrow">DESKTOP SCREEN</p>
-              <h2>02 — Constituency Dashboard</h2>
-            </div>
-            <p className="frame-note">Primary operational view for MPs, journalists, and district observers.</p>
-          </div>
-
           <div className="dashboard-masthead frame-panel">
             <div className="dashboard-header">
               <div>
@@ -136,6 +129,15 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className={`activation-banner ${isPubliclyActive ? "active" : "inactive"}`}>
+            <strong>{isPubliclyActive ? "Public constituency desk is active" : "Seat selected successfully"}</strong>
+            <span>
+              {isPubliclyActive
+                ? `${summary?.name ?? "This constituency"} has public clusters above the publication threshold and active parliamentary tracking.`
+                : `${summary?.name ?? "This constituency"} is available in the national map, but no public cluster has crossed the publication threshold yet.`}
+            </span>
           </div>
 
           <div className="dashboard-summary-grid">

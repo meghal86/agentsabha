@@ -12,14 +12,6 @@ export default async function SubmitPage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame narrow-screen">
-          <div className="screen-label-row">
-            <div>
-              <p className="eyebrow">DESKTOP SCREEN</p>
-              <h2>03 — Submit Issue</h2>
-            </div>
-            <p className="frame-note">Core citizen action. Live form flow running on top of the approved composition.</p>
-          </div>
-
           <div className="submit-masthead frame-panel">
             <div>
               <p className="eyebrow">CITIZEN ENTRY DESK</p>

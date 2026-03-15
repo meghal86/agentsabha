@@ -102,3 +102,16 @@ export async function getConstituencyTimeline(id: number | string) {
 export async function getNationalPulse() {
   return request<{ issues: NationalPulseIssue[] }>("/api/national/pulse");
 }
+
+export type DebugAgentStatus = {
+  agent_type: string;
+  last_run: string | null;
+  last_action: string | null;
+  error_code: string | null;
+  recent_runs: number;
+  active_constituencies: number[];
+};
+
+export async function getDebugAgents() {
+  return request<{ agents: DebugAgentStatus[] }>("/api/debug/agents");
+}

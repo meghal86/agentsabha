@@ -68,6 +68,7 @@ Current week: Week 1 of 8
 - Use deterministic hashed embeddings as the offline development fallback until OpenAI embeddings are configured
 - Seed a deterministic three-constituency demo dataset in the development DB so the live product surfaces are populated above public publication thresholds, and align those seats to the FRD-approved Phase 1 constituencies
 - Replace the pilot-default homepage map flow with an FRD-aligned national selector that exposes all 543 constituencies and only enters a constituency desk after selection
+- Remove prototype-only screen framing from the live app, enlarge the national map stage, and add an agents debug console aligned to Master Prompt v3 and the attached JSX research specs
 
 ## Next session must start with
 
@@ -75,6 +76,7 @@ Current week: Week 1 of 8
 - Continue porting the remaining prototype-specific panels and map interactions into the production Next.js routes without changing the design system
 - Start replacing seeded demo-only national pulse fallbacks on the homepage with guaranteed live API-backed rendering
 - Continue converting the national map from a development-safe selector into a richer live heatmap with hover metrics and stronger constituency-level interactions
+- Use Master Prompt v3 as the source of truth for which agents are genuinely Phase 1 vs deferred, and continue wiring only the allowed Phase 1 agents into real runtime paths
 - Add onboarding/token management for MP, journalist, and admin access so the now-working internal routes are usable outside direct signed-token generation
 
 ## Known issues

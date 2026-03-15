@@ -39,6 +39,27 @@ def test_public_constituency_directory_endpoint() -> None:
     assert response.json()["constituencies"][0]["name"] == "Kangra"
 
 
+def test_public_debug_agents_endpoint() -> None:
+    async def fake_debug_agents(_) -> dict:
+        return {
+            "agents": [
+                {
+                    "agent_type": "intake",
+                    "last_run": "2026-03-15T00:00:00+00:00",
+                    "last_action": "processed_issue",
+                    "error_code": None,
+                    "recent_runs": 3,
+                    "active_constituencies": [502],
+                }
+            ]
+        }
+
+    public.fetch_debug_agents = fake_debug_agents  # type: ignore[assignment]
+    response = client.get("/api/debug/agents")
+    assert response.status_code == 200
+    assert response.json()["agents"][0]["agent_type"] == "intake"
+
+
 def test_citizen_issue_requires_auth() -> None:
     response = client.get("/api/citizen/issue/example-issue")
     assert response.status_code == 401

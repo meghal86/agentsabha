@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active?: "home" | "constituency" | "submit" | "about" | "prototype";
+  active?: "home" | "constituency" | "submit" | "about" | "agents" | "prototype";
 };
 
 const navItems = [
@@ -9,7 +9,7 @@ const navItems = [
   { href: "/constituency", label: "Constituency", key: "constituency" },
   { href: "/submit", label: "Submit", key: "submit" },
   { href: "/about", label: "About", key: "about" },
-  { href: "/prototype", label: "Prototype", key: "prototype" },
+  { href: "/agents", label: "Agents", key: "agents" },
 ] as const;
 
 export function SiteHeader({ active }: SiteHeaderProps) {

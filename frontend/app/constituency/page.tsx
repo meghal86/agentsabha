@@ -15,12 +15,12 @@ export default async function ConstituencyIndexPage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame bharat-ornament-frame">
-          <div className="screen-label-row">
+          <div className="product-intro compact-intro">
             <div>
-              <p className="eyebrow">CONSTITUENCY SELECTOR</p>
-              <h2>Choose a Lok Sabha seat</h2>
+              <p className="eyebrow">NATIONAL SELECTOR</p>
+              <h1 className="product-title">Choose any Lok Sabha constituency</h1>
+              <p className="hero-body">Start from the India map, then open the constituency desk only after selecting a seat.</p>
             </div>
-            <p className="frame-note">Start from the national map, then open the constituency desk only after selecting a seat.</p>
           </div>
 
           <NationalConstituencyMap constituencies={directory.constituencies} heatmap={heatmap.constituencies} />

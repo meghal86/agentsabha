@@ -54,6 +54,7 @@ export function NationalConstituencyMap({ constituencies, heatmap, selectedId }:
   const [collection, setCollection] = useState<ConstituencyFeatureCollection | null>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(selectedId ?? null);
   const [pendingId, setPendingId] = useState<number>(selectedId ?? constituencies[0]?.id ?? 1);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -78,6 +79,13 @@ export function NationalConstituencyMap({ constituencies, heatmap, selectedId }:
       setHoveredId(selectedId);
     }
   }, [selectedId]);
+
+  useEffect(() => {
+    const current = constituencies.find((entry) => entry.id === pendingId);
+    if (current) {
+      setSearchValue(`${current.name} — ${current.state}`);
+    }
+  }, [pendingId, constituencies]);
 
   const heatmapById = useMemo(() => new Map(heatmap.map((entry) => [entry.id, entry])), [heatmap]);
   const constituencyById = useMemo(() => new Map(constituencies.map((entry) => [entry.id, entry])), [constituencies]);
@@ -120,13 +128,25 @@ export function NationalConstituencyMap({ constituencies, heatmap, selectedId }:
       <div className="national-map-toolbar">
         <label className="map-select">
           <span>Select constituency / निर्वाचन क्षेत्र चुनें</span>
-          <select value={pendingId} onChange={(event) => setPendingId(Number(event.target.value))}>
+          <input
+            list="constituency-directory"
+            value={searchValue}
+            onChange={(event) => {
+              const value = event.target.value;
+              setSearchValue(value);
+              const match = constituencies.find((entry) => `${entry.name} — ${entry.state}` === value);
+              if (match) {
+                setPendingId(match.id);
+                setHoveredId(match.id);
+              }
+            }}
+            placeholder="Search constituency or state"
+          />
+          <datalist id="constituency-directory">
             {constituencies.map((entry) => (
-              <option key={entry.id} value={entry.id}>
-                {entry.name} — {entry.state}
-              </option>
+              <option key={entry.id} value={`${entry.name} — ${entry.state}`} />
             ))}
-          </select>
+          </datalist>
         </label>
         <button className="secondary-button map-open-button" type="button" onClick={() => openConstituency(pendingId)}>
           Open constituency
