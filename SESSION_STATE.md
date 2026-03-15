@@ -1,6 +1,6 @@
 # AgentSabha Session State
 
-Last updated: 2026-03-14T23:15:00-05:00
+Last updated: 2026-03-15T01:05:00-05:00
 Last developer: LLM session
 Current phase: Phase 1
 Current week: Week 1 of 8
@@ -40,12 +40,16 @@ Current week: Week 1 of 8
 - Updated the production homepage and constituency dashboard to read against the seeded live data, including timeline and filed-action sections
 - Re-reviewed the FRD and `15 Questions Resolved` record, corrected the mistaken Varanasi/Bangalore Central/Chennai Central demo set, reseeded the live dev database, and repointed the app defaults to Thiruvananthapuram (`502`)
 - Applied a production art-system pass: stronger homepage Kolam in the hero, distinct Warli process illustrations, added dashboard Jaali section rules, and restrained Madhubani corner motifs on live pages
+- Replaced the placeholder clustering, question-draft, and MP-brief agents with deterministic database-backed implementations
+- Replaced the placeholder MP, journalist, and admin routers with signed-token, constituency-scoped DB-backed route logic
+- Added agent pipeline and internal-route tests; backend suite now passes with 18 tests
+- Executed clustering, snapshot, question-draft, and MP-brief tasks successfully against the live dev database
 
 ## In progress (DO NOT restart from scratch)
 
-- Integration layer: WhatsApp, Aadhaar sandbox, translation, transcription, and PDF generation are still stubs pending live wiring
+- Integration layer: WhatsApp, Aadhaar sandbox, translation, and transcription are still stubs pending live wiring
 - Intake route surface now processes issues, but live Anthropic/OpenAI-backed extraction quality and WhatsApp acknowledgements are not yet connected
-- Authenticated MP, journalist, and admin routes are still placeholder responses on top of the now-live schema
+- Internal authenticated routes are now DB-backed, but there is still no user-facing token issuance or onboarding flow for MPs, journalists, or admins
 - The production routes now use the approved prototype frame, but several deeper screen variants from 01-08 still live only in the preserved static prototype
 - The current live data visible on public screens is seeded development/demo data, not organic field traffic
 - The live demo data now aligns to the FRD-approved Phase 1 constituencies, but some static prototype reference pages still retain older narrative example content
@@ -66,15 +70,16 @@ Current week: Week 1 of 8
 
 ## Next session must start with
 
-- Wire live translation and WhatsApp acknowledgement services into the now-complete intake path
-- Implement authenticated MP/journalist/admin route logic on the live schema
+- Wire live translation, Aadhaar, transcription, and WhatsApp acknowledgement services into the now-complete intake path
 - Continue porting the remaining prototype-specific panels and map interactions into the production Next.js routes without changing the design system
 - Start replacing seeded demo-only national pulse fallbacks on the homepage with guaranteed live API-backed rendering
+- Add onboarding/token management for MP, journalist, and admin access so the now-working internal routes are usable outside direct signed-token generation
 
 ## Known issues
 
 - Docker is not installed on this machine, so Compose and Redis remain unverified locally
 - The backend now has real citizen lifecycle logic, but several external integrations remain stubbed
+- MP brief PDF generation uses WeasyPrint when native libraries are available and falls back to HTML bytes on this machine because the local macOS environment does not provide the required GTK/GObject libraries
 - Constituency seed currently includes name, state, region, and centroid; population and area remain null pending enrichment
 - Development is currently pointed at a Supabase `us-east-1` database, which is acceptable only as a temporary dev target and not as the production deployment region
 - The live web submit flow currently uses a sandbox-style OTP field because UIDAI/WhatsApp verification services are not yet wired

@@ -179,3 +179,31 @@ Alternatives considered: Leave the seed data as-is because it was only demo cont
 Reason: The live app must reflect the documented Phase 1 operating plan, and the user-facing product should use the modern public names even if the seed asset preserves official legacy naming.
 
 Consequences: Existing demo data for the mistaken seats must be cleared from the dev database and reseeded. Frontend links and copy now point to the correct pilot constituencies.
+
+---
+
+## 2026-03-15 — Use deterministic Phase 1 agents before live model orchestration
+
+Context: The FRD requires the clustering, question-draft, and MP-brief stages to exist as real pipeline steps, but live Anthropic-driven orchestration and external tool wiring are not yet fully configured.
+
+Decision: Implement a deterministic Phase 1 baseline for clustering, question drafting, and brief generation directly on the live schema. Use issue-type bucketing, severity/velocity rules, structured parliamentary templates, and generated brief artifacts so the end-to-end system can execute now.
+
+Alternatives considered: Leave the agents as placeholders until full LLM wiring is ready; hardcode fake outputs in the UI only.
+
+Reason: A deterministic baseline materially increases FRD completion and allows the real core loop to be exercised, tested, and demoed before model quality tuning and external integrations are finished.
+
+Consequences: The pipeline now works end-to-end in a development-safe form, but output quality is baseline operational quality rather than final parliamentary-grade quality. Live model prompting and fact/source rigor still need the next pass.
+
+---
+
+## 2026-03-15 — Fall back from WeasyPrint PDF generation when native libraries are missing
+
+Context: The repo uses WeasyPrint for MP brief rendering, but the current macOS environment does not have the native GTK/GObject libraries required for WeasyPrint to load.
+
+Decision: Keep WeasyPrint as the preferred renderer, but lazy-import it inside the PDF service and fall back to HTML bytes when the native libraries are unavailable.
+
+Alternatives considered: Remove PDF generation entirely; fail hard whenever WeasyPrint cannot load.
+
+Reason: The pipeline needs to remain executable on this machine while preserving the intended production renderer.
+
+Consequences: Brief generation now succeeds in development on this machine, but the generated artifact is HTML bytes unless the native WeasyPrint dependencies are installed. Production deployment should still use real PDF rendering.

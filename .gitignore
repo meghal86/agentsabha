@@ -24,4 +24,4 @@ coverage/
 *.jpg
 *.jpeg
 *.webp
-
+backend/generated/
