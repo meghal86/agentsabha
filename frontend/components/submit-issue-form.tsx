@@ -12,7 +12,7 @@ type SubmitState =
 
 export function SubmitIssueForm() {
   const [mobile, setMobile] = useState("+919999999999");
-  const [constituencyId, setConstituencyId] = useState("1");
+  const [constituencyId, setConstituencyId] = useState("148");
   const [otp, setOtp] = useState("123456");
   const [language, setLanguage] = useState("en");
   const [issueText, setIssueText] = useState("");
@@ -86,7 +86,7 @@ export function SubmitIssueForm() {
       <label>
         <span>Step 1 — Constituency</span>
         <input type="text" value={constituencyId} onChange={(event) => setConstituencyId(event.target.value)} placeholder="PIN code ya constituency ka naam..." />
-        <small>Use constituency id for now. Default pilot desk is `1`.</small>
+        <small>Use constituency id for now. Default pilot desk is `148` (Varanasi).</small>
       </label>
 
       <label>

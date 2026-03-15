@@ -54,7 +54,7 @@ export default async function HomePage() {
                   <span>Submit Your Issue</span>
                   <small>अपनी समस्या दर्ज करें</small>
                 </Link>
-                <Link className="secondary-button" href="/constituency/1">
+                <Link className="secondary-button" href="/constituency/148">
                   Find Your Constituency
                 </Link>
               </div>
@@ -76,7 +76,7 @@ export default async function HomePage() {
                   </div>
                   <span className="map-chip">{activeCount} active seats</span>
                 </div>
-                <Link className="map-link" href="/constituency/1" aria-label="Open constituency dashboard">
+                <Link className="map-link" href="/constituency/148" aria-label="Open constituency dashboard">
                   <svg className="india-map" viewBox="0 0 440 520">
                     <defs>
                       <linearGradient id="heatGradientHome" x1="0" x2="1">
@@ -196,7 +196,7 @@ export default async function HomePage() {
                       <blockquote>{issue.constituency_count} constituency agents are seeing the same pattern and escalating it together.</blockquote>
                       <footer>
                         <span>📍 National pulse</span>
-                        <Link href="/constituency/1">देखें →</Link>
+                        <Link href="/constituency/148">देखें →</Link>
                       </footer>
                     </article>
                   ),

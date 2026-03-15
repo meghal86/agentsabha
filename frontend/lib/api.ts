@@ -50,6 +50,17 @@ export type ParliamentaryActionSummary = {
   response_text: string | null;
 };
 
+export type TimelineDatum = {
+  week: string;
+  count: number;
+  severity_avg: number | null;
+};
+
+export type TimelineSeries = {
+  category: string;
+  data: TimelineDatum[];
+};
+
 export type NationalPulseIssue = {
   label: string;
   constituency_count: number;
@@ -69,6 +80,10 @@ export async function getConstituencyIssues(id: number | string) {
 
 export async function getConstituencyActions(id: number | string) {
   return request<{ constituency_id: number; actions: ParliamentaryActionSummary[] }>(`/api/constituency/${id}/actions`);
+}
+
+export async function getConstituencyTimeline(id: number | string) {
+  return request<{ constituency_id: number; timeline: TimelineSeries[] }>(`/api/constituency/${id}/timeline`);
 }
 
 export async function getNationalPulse() {

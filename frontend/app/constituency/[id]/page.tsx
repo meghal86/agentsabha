@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getConstituencyActions, getConstituencyIssues, getConstituencySummary } from "@/lib/api";
+import { getConstituencyActions, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
 
 function categoryLabel(category: string | null) {
   switch (category) {
@@ -44,17 +44,41 @@ function toneWidth(severity: number | null) {
   return `${Math.max(12, Math.min(96, Math.round((severity ?? 4) * 10)))}%`;
 }
 
+function buildTimelinePath(values: number[]) {
+  const width = 680;
+  const height = 160;
+  const paddingX = 40;
+  const paddingY = 20;
+  const max = Math.max(...values, 1);
+  return values
+    .map((value, index) => {
+      const x = paddingX + (index * (width - paddingX * 2)) / Math.max(values.length - 1, 1);
+      const y = height - paddingY - ((value / max) * (height - paddingY * 2));
+      return `${index === 0 ? "M" : "L"}${x} ${y}`;
+    })
+    .join(" ");
+}
+
 export default async function ConstituencyPage({ params }: { params: { id: string } }) {
-  const [summary, issues, actions] = await Promise.all([
+  const [summary, issues, actions, timeline] = await Promise.all([
     getConstituencySummary(params.id).catch(() => null),
     getConstituencyIssues(params.id).catch(() => ({ clusters: [], total: 0, page: 1 })),
     getConstituencyActions(params.id).catch(() => ({ actions: [] })),
+    getConstituencyTimeline(params.id).catch(() => ({ timeline: [] })),
   ]);
 
   const topCategory = issues.clusters[0];
   const totalReports = issues.clusters.reduce((sum, cluster) => sum + cluster.count, 0);
   const tatkalCount = issues.clusters.filter((cluster) => cluster.badge === "tatkal").length;
   const actionRows = actions.actions.slice(0, 3);
+  const timelineSeries =
+    timeline.timeline.find((series) => series.category === (topCategory?.category ?? "")) ?? timeline.timeline[0];
+  const timelineValues = timelineSeries?.data.map((point) => point.count) ?? [];
+  const timelinePath = timelineValues.length > 0 ? buildTimelinePath(timelineValues) : "";
+  const averageSeverity =
+    issues.clusters.length > 0
+      ? issues.clusters.reduce((sum, cluster) => sum + (cluster.severity ?? 0), 0) / issues.clusters.length
+      : 0;
 
   return (
     <div className="page-shell">
@@ -216,6 +240,49 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                     </footer>
                   </article>
                 ))}
+              </section>
+
+              <section className="tab-panel active" id="panel-timeline">
+                <div className="timeline-card">
+                  <div className="section-heading small">
+                    <p>ISSUE VOLUME OVER TIME</p>
+                    <h4>समय के साथ समस्याओं की संख्या</h4>
+                  </div>
+                  {timelineSeries ? (
+                    <svg viewBox="0 0 760 200" className="timeline-chart">
+                      <g className="chart-guides">
+                        <line x1="40" y1="180" x2="720" y2="180" />
+                        <line x1="40" y1="135" x2="720" y2="135" />
+                        <line x1="40" y1="90" x2="720" y2="90" />
+                        <line x1="40" y1="45" x2="720" y2="45" />
+                      </g>
+                      <path className="chart-line" d={timelinePath} />
+                      <g className="chart-points">
+                        {timelineSeries.data.map((point, index) => {
+                          const x = 40 + (index * 680) / Math.max(timelineSeries.data.length - 1, 1);
+                          const max = Math.max(...timelineValues, 1);
+                          const y = 180 - (point.count / max) * 140;
+                          return <circle key={point.week} cx={x} cy={y} r="5" />;
+                        })}
+                      </g>
+                    </svg>
+                  ) : (
+                    <p>No timeline yet.</p>
+                  )}
+                </div>
+              </section>
+
+              <section className="tab-panel active" id="panel-map">
+                <div className="map-summary">
+                  <div className="mini-map"></div>
+                  <div className="map-legend">
+                    <h4>Constituency signal / क्षेत्र संकेत</h4>
+                    <p>
+                      {summary?.name ?? "This seat"} currently has {issues.total} public clusters with an average severity of{" "}
+                      {averageSeverity ? averageSeverity.toFixed(1) : "—"}.
+                    </p>
+                  </div>
+                </div>
               </section>
 
               <section className="tab-panel active">

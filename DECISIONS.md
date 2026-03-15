@@ -151,3 +151,17 @@ Alternatives considered: Persist zero vectors; block intake entirely without Ope
 Reason: Zero vectors destroy clustering quality and make even local end-to-end flow unrealistic, while blocking intake would stall the build whenever keys are unavailable.
 
 Consequences: Development clustering is now structurally meaningful but not production-grade semantic quality. Real OpenAI embeddings remain mandatory before Phase 1 field use.
+
+---
+
+## 2026-03-14 — Seed the development database with deterministic Phase 1 demo data
+
+Context: The live app shells were correctly wired to the backend, but the development database only contained a single citizen issue, which left all public surfaces below the publication threshold and visually empty.
+
+Decision: Add and run a deterministic demo seeding script for exactly three Phase 1 constituencies: Varanasi (`148`), Bangalore Central (`476`), and Chennai Central (`506`). Populate each with public-sized clusters, issue timelines, filed actions, and audit activity.
+
+Alternatives considered: Leave the app technically live but visually sparse; lower the public cluster threshold; fake the UI with hardcoded frontend-only content.
+
+Reason: For credible product review, the screens need to be backed by real database rows flowing through the published APIs, while still respecting the three-constituency Phase 1 constraint.
+
+Consequences: The current local/staging-like preview is powered by seeded demo data rather than organic field traffic. This must be treated as development/demo state until real intake volume replaces it.
