@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { defaultPilotConstituency } from "@/lib/pilot";
 import { getNationalHeatmap, getNationalPulse } from "@/lib/api";
 
 function toBadge(severity: number | null) {
@@ -54,7 +55,7 @@ export default async function HomePage() {
                   <span>Submit Your Issue</span>
                   <small>अपनी समस्या दर्ज करें</small>
                 </Link>
-                <Link className="secondary-button" href="/constituency/148">
+                <Link className="secondary-button" href={`/constituency/${defaultPilotConstituency.id}`}>
                   Find Your Constituency
                 </Link>
               </div>
@@ -76,7 +77,7 @@ export default async function HomePage() {
                   </div>
                   <span className="map-chip">{activeCount} active seats</span>
                 </div>
-                <Link className="map-link" href="/constituency/148" aria-label="Open constituency dashboard">
+                <Link className="map-link" href={`/constituency/${defaultPilotConstituency.id}`} aria-label="Open constituency dashboard">
                   <svg className="india-map" viewBox="0 0 440 520">
                     <defs>
                       <linearGradient id="heatGradientHome" x1="0" x2="1">
@@ -135,7 +136,7 @@ export default async function HomePage() {
                 </Link>
                 <div className="hover-card">
                   <span className="stamp-badge road">सड़क (Roads)</span>
-                  <h3>Varanasi</h3>
+                  <h3>{defaultPilotConstituency.name}</h3>
                   <p>{leadIssue ? `${leadIssue.total_reports} reports • ${leadIssue.constituency_count} seats active` : "Pilot constituency live"}</p>
                   <span className="hover-meta">Click through to open the constituency desk</span>
                 </div>
@@ -196,7 +197,7 @@ export default async function HomePage() {
                       <blockquote>{issue.constituency_count} constituency agents are seeing the same pattern and escalating it together.</blockquote>
                       <footer>
                         <span>📍 National pulse</span>
-                        <Link href="/constituency/148">देखें →</Link>
+                        <Link href={`/constituency/${defaultPilotConstituency.id}`}>देखें →</Link>
                       </footer>
                     </article>
                   ),

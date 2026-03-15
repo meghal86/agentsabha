@@ -20,13 +20,20 @@ client = TestClient(app)
 
 def test_get_constituency_route_uses_summary_helper(monkeypatch) -> None:
     async def fake_summary(_, constituency_id: int) -> ConstituencySummary:
-        return ConstituencySummary(id=constituency_id, name="Varanasi", state="Uttar Pradesh", mp_name="Test MP", mp_party="Independent", population=123456)
+        return ConstituencySummary(
+            id=constituency_id,
+            name="Thiruvananthapuram",
+            state="Kerala",
+            mp_name="Test MP",
+            mp_party="Independent",
+            population=123456,
+        )
 
     monkeypatch.setattr(public, "fetch_constituency_summary", fake_summary)
 
     response = client.get("/api/constituency/77")
     assert response.status_code == 200
-    assert response.json()["name"] == "Varanasi"
+    assert response.json()["name"] == "Thiruvananthapuram"
 
 
 def test_get_constituency_issues_route_uses_cluster_helper(monkeypatch) -> None:

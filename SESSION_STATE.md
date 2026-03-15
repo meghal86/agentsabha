@@ -1,6 +1,6 @@
 # AgentSabha Session State
 
-Last updated: 2026-03-14T21:28:00-05:00
+Last updated: 2026-03-14T22:44:00-05:00
 Last developer: LLM session
 Current phase: Phase 1
 Current week: Week 1 of 8
@@ -36,8 +36,9 @@ Current week: Week 1 of 8
 - Ported the production homepage, constituency page, submit page, and about page onto the approved prototype visual frame
 - Added a working web submit flow in the production app that calls the live citizen verify → confirm → submit backend chain
 - Started the local stack and verified the live preview routes on `3000` against the backend on `8000`
-- Seeded the development database with a deterministic Phase 1 demo dataset for Varanasi, Bangalore Central, and Chennai Central
+- Seeded the development database with a deterministic Phase 1 demo dataset, later corrected to the FRD-approved Phase 1 trio: Thiruvananthapuram, Bengaluru South, and Gurugram
 - Updated the production homepage and constituency dashboard to read against the seeded live data, including timeline and filed-action sections
+- Re-reviewed the FRD and `15 Questions Resolved` record, corrected the mistaken Varanasi/Bangalore Central/Chennai Central demo set, reseeded the live dev database, and repointed the app defaults to Thiruvananthapuram (`502`)
 
 ## In progress (DO NOT restart from scratch)
 
@@ -46,6 +47,7 @@ Current week: Week 1 of 8
 - Authenticated MP, journalist, and admin routes are still placeholder responses on top of the now-live schema
 - The production routes now use the approved prototype frame, but several deeper screen variants from 01-08 still live only in the preserved static prototype
 - The current live data visible on public screens is seeded development/demo data, not organic field traffic
+- The live demo data now aligns to the FRD-approved Phase 1 constituencies, but some static prototype reference pages still retain older narrative example content
 
 ## Blocked
 
@@ -59,13 +61,14 @@ Current week: Week 1 of 8
 - Capture granular consent flags during citizen verification confirmation, and enforce `issue_storage` plus `mapping` before allowing submission
 - Use direct Postgres connection automatically for async app traffic whenever the supplied app URL is a PgBouncer transaction-pool endpoint
 - Use deterministic hashed embeddings as the offline development fallback until OpenAI embeddings are configured
-- Seed a deterministic three-constituency demo dataset in the development DB so the live product surfaces are populated above public publication thresholds
+- Seed a deterministic three-constituency demo dataset in the development DB so the live product surfaces are populated above public publication thresholds, and align those seats to the FRD-approved Phase 1 constituencies
 
 ## Next session must start with
 
 - Wire live translation and WhatsApp acknowledgement services into the now-complete intake path
 - Implement authenticated MP/journalist/admin route logic on the live schema
 - Continue porting the remaining prototype-specific panels and map interactions into the production Next.js routes without changing the design system
+- Start replacing seeded demo-only national pulse fallbacks on the homepage with guaranteed live API-backed rendering
 
 ## Known issues
 
@@ -74,4 +77,5 @@ Current week: Week 1 of 8
 - Constituency seed currently includes name, state, region, and centroid; population and area remain null pending enrichment
 - Development is currently pointed at a Supabase `us-east-1` database, which is acceptable only as a temporary dev target and not as the production deployment region
 - The live web submit flow currently uses a sandbox-style OTP field because UIDAI/WhatsApp verification services are not yet wired
-- Public screens are currently anchored to seeded demo constituencies (`148`, `476`, `506`) for presentation readiness
+- Public screens are anchored to the FRD-approved Phase 1 demo constituencies: Thiruvananthapuram (`502`), Bengaluru South (`477` / seed row `Bangalore South`), and Gurugram (`38` / seed row `Gurgaon`)
+- The backend API normalizes `Bangalore South` → `Bengaluru South` and `Gurgaon` → `Gurugram` for user-facing summaries, while preserving the official seed asset values

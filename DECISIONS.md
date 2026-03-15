@@ -158,10 +158,24 @@ Consequences: Development clustering is now structurally meaningful but not prod
 
 Context: The live app shells were correctly wired to the backend, but the development database only contained a single citizen issue, which left all public surfaces below the publication threshold and visually empty.
 
-Decision: Add and run a deterministic demo seeding script for exactly three Phase 1 constituencies: Varanasi (`148`), Bangalore Central (`476`), and Chennai Central (`506`). Populate each with public-sized clusters, issue timelines, filed actions, and audit activity.
+Decision: Add and run a deterministic demo seeding script for exactly three FRD-approved Phase 1 constituencies: Thiruvananthapuram (`502`), Bengaluru South (`477`, using the official seed row `Bangalore South`), and Gurugram (`38`, using the official seed row `Gurgaon`). Populate each with public-sized clusters, issue timelines, filed actions, and audit activity.
 
 Alternatives considered: Leave the app technically live but visually sparse; lower the public cluster threshold; fake the UI with hardcoded frontend-only content.
 
-Reason: For credible product review, the screens need to be backed by real database rows flowing through the published APIs, while still respecting the three-constituency Phase 1 constraint.
+Reason: For credible product review, the screens need to be backed by real database rows flowing through the published APIs, while still respecting the exact three-constituency Phase 1 constraint documented in the FRD and question-resolution record.
 
 Consequences: The current local/staging-like preview is powered by seeded demo data rather than organic field traffic. This must be treated as development/demo state until real intake volume replaces it.
+
+---
+
+## 2026-03-14 — Correct the demo constituencies to match the FRD
+
+Context: An earlier demo-data pass incorrectly used Varanasi, Bangalore Central, and Chennai Central. The FRD and the `15 Questions Resolved` decision record explicitly define the Phase 1 constituencies as Thiruvananthapuram, Bengaluru South, and Gurugram.
+
+Decision: Replace the mistaken demo constituencies in the seeding script, frontend defaults, and handoff documentation. Keep the official DataMeet constituency seed rows intact, but normalize user-facing names from `Bangalore South` to `Bengaluru South` and `Gurgaon` to `Gurugram`.
+
+Alternatives considered: Leave the seed data as-is because it was only demo content; rename the official seed rows directly in the database seed asset.
+
+Reason: The live app must reflect the documented Phase 1 operating plan, and the user-facing product should use the modern public names even if the seed asset preserves official legacy naming.
+
+Consequences: Existing demo data for the mistaken seats must be cleared from the dev database and reseeded. Frontend links and copy now point to the correct pilot constituencies.

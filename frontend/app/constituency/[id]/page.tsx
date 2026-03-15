@@ -18,6 +18,10 @@ function categoryLabel(category: string | null) {
       return "शिक्षा / Education";
     case "employment":
       return "रोज़गार / Employment";
+    case "housing":
+      return "मकान / Housing";
+    case "environment":
+      return "पर्यावरण / Environment";
     default:
       return "अन्य / Other";
   }
@@ -35,6 +39,10 @@ function badgeClass(category: string | null) {
       return "health";
     case "education":
       return "education";
+    case "housing":
+      return "sanitation";
+    case "environment":
+      return "water";
     default:
       return "neutral";
   }

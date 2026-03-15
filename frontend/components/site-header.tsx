@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { defaultPilotConstituency } from "@/lib/pilot";
 
 type SiteHeaderProps = {
   active?: "home" | "constituency" | "submit" | "about" | "prototype";
@@ -6,7 +7,7 @@ type SiteHeaderProps = {
 
 const navItems = [
   { href: "/", label: "Home", key: "home" },
-  { href: "/constituency/148", label: "Constituency", key: "constituency" },
+  { href: `/constituency/${defaultPilotConstituency.id}`, label: "Constituency", key: "constituency" },
   { href: "/submit", label: "Submit", key: "submit" },
   { href: "/about", label: "About", key: "about" },
   { href: "/prototype", label: "Prototype", key: "prototype" },

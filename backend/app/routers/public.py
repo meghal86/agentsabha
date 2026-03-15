@@ -28,10 +28,20 @@ from app.models.parliamentary_action import ParliamentaryAction
 
 router = APIRouter()
 settings = get_settings()
+DISPLAY_NAME_OVERRIDES = {
+    "Bangalore South": "Bengaluru South",
+    "Gurgaon": "Gurugram",
+}
 
 
 def _decimal_to_float(value: Decimal | None) -> float | None:
     return float(value) if value is not None else None
+
+
+def _display_constituency_name(name: str | None) -> str | None:
+    if name is None:
+        return None
+    return DISPLAY_NAME_OVERRIDES.get(name, name)
 
 
 async def fetch_constituency_summary(db: AsyncSession, constituency_id: int) -> ConstituencySummary:
@@ -42,7 +52,7 @@ async def fetch_constituency_summary(db: AsyncSession, constituency_id: int) -> 
 
     return ConstituencySummary(
         id=constituency.id,
-        name=constituency.name,
+        name=_display_constituency_name(constituency.name),
         state=constituency.state,
         mp_name=constituency.mp_name,
         mp_party=constituency.mp_party,

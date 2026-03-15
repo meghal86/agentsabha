@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { defaultPilotConstituency, phaseOnePilotConstituencies } from "@/lib/pilot";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -12,7 +13,7 @@ type SubmitState =
 
 export function SubmitIssueForm() {
   const [mobile, setMobile] = useState("+919999999999");
-  const [constituencyId, setConstituencyId] = useState("148");
+  const [constituencyId, setConstituencyId] = useState(String(defaultPilotConstituency.id));
   const [otp, setOtp] = useState("123456");
   const [language, setLanguage] = useState("en");
   const [issueText, setIssueText] = useState("");
@@ -86,7 +87,10 @@ export function SubmitIssueForm() {
       <label>
         <span>Step 1 — Constituency</span>
         <input type="text" value={constituencyId} onChange={(event) => setConstituencyId(event.target.value)} placeholder="PIN code ya constituency ka naam..." />
-        <small>Use constituency id for now. Default pilot desk is `148` (Varanasi).</small>
+        <small>
+          Use constituency id for now. Phase 1 pilot desks are{" "}
+          {phaseOnePilotConstituencies.map((item) => `${item.id} (${item.name})`).join(", ")}.
+        </small>
       </label>
 
       <label>
