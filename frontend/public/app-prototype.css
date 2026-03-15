@@ -336,10 +336,10 @@ textarea {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(320px, 0.84fr) minmax(620px, 1.16fr);
-  gap: 34px;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(700px, 1.28fr);
+  gap: 28px;
   align-items: center;
-  min-height: 560px;
+  min-height: 640px;
 }
 
 .homepage-frame::before {
@@ -500,6 +500,7 @@ textarea {
 
 .hero-map-panel .national-map-card {
   min-height: 100%;
+  padding: 24px 24px 28px;
 }
 
 .hero-map-panel .national-map-stage {
@@ -597,7 +598,7 @@ textarea {
 .national-map-svg {
   display: block;
   width: 100%;
-  min-height: 780px;
+  min-height: 860px;
   margin: 0;
   background:
     linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.82)),
@@ -636,8 +637,8 @@ textarea {
 .national-seat {
   cursor: pointer;
   transition: fill 120ms ease, opacity 120ms ease, stroke 120ms ease;
-  stroke: rgba(27, 42, 74, 0.22);
-  stroke-width: 0.65;
+  stroke: rgba(27, 42, 74, 0.28);
+  stroke-width: 0.85;
 }
 
 .national-seat.is-idle {
@@ -1600,17 +1601,113 @@ section {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 240px;
   gap: 18px;
-  align-items: center;
+  align-items: stretch;
 }
 
-.mini-map {
-  min-height: 260px;
-  background:
-    radial-gradient(circle at 20% 24%, rgba(255, 153, 51, 0.18) 0 26px, transparent 27px),
-    radial-gradient(circle at 54% 48%, rgba(200, 89, 42, 0.22) 0 36px, transparent 37px),
-    radial-gradient(circle at 74% 40%, rgba(200, 89, 42, 0.18) 0 22px, transparent 23px),
-    linear-gradient(135deg, rgba(27, 42, 74, 0.08), rgba(27, 42, 74, 0.02));
+.constituency-map-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  background: rgba(250, 243, 224, 0.72);
   border: 1px solid var(--aged-border);
+  border-radius: 18px;
+}
+
+.constituency-map-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.constituency-map-header h4,
+.constituency-map-footer strong {
+  margin: 0;
+  font-family: "Playfair Display", serif;
+  font-size: 1.6rem;
+}
+
+.constituency-map-header p,
+.constituency-map-footer span,
+.constituency-map-metric span,
+.constituency-map-empty span {
+  margin: 4px 0 0;
+  color: var(--muted-ink);
+}
+
+.constituency-shape-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 340px;
+  border: 1px solid rgba(226, 212, 176, 0.82);
+  background:
+    linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.9)),
+    radial-gradient(circle at 20px 20px, rgba(255, 153, 51, 0.08) 0 1px, transparent 1.2px) 0 0 / 40px 40px;
+}
+
+.constituency-map-bg {
+  fill: rgba(250, 243, 224, 0.88);
+}
+
+.constituency-map-focus {
+  fill: rgba(255, 153, 51, 0.18);
+}
+
+.constituency-shape {
+  fill: rgba(27, 42, 74, 0.08);
+  stroke: var(--neela);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+
+.constituency-shape.road {
+  fill: rgba(200, 89, 42, 0.24);
+}
+
+.constituency-shape.water {
+  fill: rgba(30, 107, 140, 0.24);
+}
+
+.constituency-shape.electricity {
+  fill: rgba(212, 131, 26, 0.24);
+}
+
+.constituency-shape.health {
+  fill: rgba(123, 63, 158, 0.2);
+}
+
+.constituency-shape.education {
+  fill: rgba(26, 107, 69, 0.22);
+}
+
+.constituency-shape.sanitation {
+  fill: rgba(139, 69, 19, 0.2);
+}
+
+.constituency-map-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-end;
+}
+
+.constituency-map-metric {
+  text-align: right;
+}
+
+.constituency-map-metric strong {
+  display: block;
+  font-family: "Playfair Display", serif;
+  font-size: 2rem;
+  color: var(--kesariya);
+}
+
+.constituency-map-empty {
+  display: grid;
+  place-items: center;
+  min-height: 340px;
+  text-align: center;
 }
 
 .map-legend,

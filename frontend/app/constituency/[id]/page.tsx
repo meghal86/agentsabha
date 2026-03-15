@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import { ConstituencyShapeMap } from "@/components/constituency-shape-map";
 import { ConstituencySwitcher } from "@/components/constituency-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getConstituencyActions, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
 
 function categoryLabel(category: string | null) {
@@ -296,7 +298,14 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
 
               <section className="tab-panel active" id="panel-map">
                 <div className="map-summary">
-                  <div className="mini-map"></div>
+                  <ConstituencyShapeMap
+                    collection={constituencyGeojson}
+                    constituencyId={Number(params.id)}
+                    constituencyName={summary?.name ?? `Constituency ${params.id}`}
+                    stateName={summary?.state ?? "Unknown state"}
+                    topCategory={topCategory?.category ?? null}
+                    averageSeverity={issues.total > 0 ? averageSeverity : null}
+                  />
                   <div className="map-legend">
                     <h4>Constituency signal / क्षेत्र संकेत</h4>
                     <p>
