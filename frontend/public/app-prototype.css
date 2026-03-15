@@ -77,6 +77,38 @@ textarea {
   padding: 28px 0 36px;
 }
 
+.bharat-ornament-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.bharat-ornament-frame::before,
+.bharat-ornament-frame::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background: url("/art/madhubani-corner.svg") no-repeat center / contain;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bharat-ornament-frame::before {
+  top: 46px;
+  left: -120px;
+}
+
+.bharat-ornament-frame::after {
+  right: -120px;
+  bottom: 24px;
+  transform: scaleX(-1) rotate(180deg);
+}
+
+.bharat-ornament-frame > * {
+  position: relative;
+  z-index: 1;
+}
+
 .screen-label-row {
   display: flex;
   justify-content: space-between;
@@ -289,15 +321,16 @@ textarea {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.75;
+  opacity: 0.92;
   background:
-    radial-gradient(circle at 20px 20px, rgba(255, 153, 51, 0.18) 0 1.6px, transparent 1.9px) 0 0 / 40px 40px,
-    radial-gradient(circle at 20px 20px, rgba(27, 42, 74, 0.1) 0 0.9px, transparent 1.2px) 0 0 / 40px 40px,
-    linear-gradient(rgba(27, 42, 74, 0.08), rgba(27, 42, 74, 0.08)) 20px 12px / 1px 16px no-repeat,
-    linear-gradient(rgba(27, 42, 74, 0.08), rgba(27, 42, 74, 0.08)) 12px 20px / 16px 1px no-repeat,
-    linear-gradient(45deg, transparent 47%, rgba(27, 42, 74, 0.05) 48%, rgba(27, 42, 74, 0.05) 52%, transparent 53%) 0 0 / 40px 40px,
-    linear-gradient(-45deg, transparent 47%, rgba(27, 42, 74, 0.05) 48%, rgba(27, 42, 74, 0.05) 52%, transparent 53%) 0 0 / 40px 40px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.75));
+    linear-gradient(180deg, rgba(245, 230, 200, 0.14), rgba(245, 230, 200, 0.02)),
+    radial-gradient(circle at 20px 20px, rgba(255, 153, 51, 0.22) 0 1.8px, transparent 2px) 0 0 / 40px 40px,
+    radial-gradient(circle at 20px 20px, rgba(27, 42, 74, 0.12) 0 1px, transparent 1.3px) 0 0 / 40px 40px,
+    linear-gradient(rgba(27, 42, 74, 0.1), rgba(27, 42, 74, 0.1)) 20px 9px / 1px 22px no-repeat,
+    linear-gradient(rgba(27, 42, 74, 0.1), rgba(27, 42, 74, 0.1)) 9px 20px / 22px 1px no-repeat,
+    linear-gradient(45deg, transparent 47%, rgba(27, 42, 74, 0.06) 48%, rgba(27, 42, 74, 0.06) 52%, transparent 53%) 0 0 / 40px 40px,
+    linear-gradient(-45deg, transparent 47%, rgba(27, 42, 74, 0.06) 48%, rgba(27, 42, 74, 0.06) 52%, transparent 53%) 0 0 / 40px 40px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.7));
 }
 
 .homepage-frame > * {
@@ -998,6 +1031,17 @@ section {
   background: rgba(250, 243, 224, 0.58);
   border: 1px solid var(--aged-border);
   padding: 24px;
+  overflow: hidden;
+}
+
+.steps-grid article::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 14px;
+  height: 1px;
+  background: rgba(27, 42, 74, 0.12);
 }
 
 .step-number {
@@ -1010,9 +1054,15 @@ section {
 }
 
 .step-illustration {
-  width: 112px;
-  height: 112px;
+  width: 126px;
+  height: 126px;
   margin-bottom: 18px;
+}
+
+.step-illustration img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .steps-grid h3 {
@@ -1042,6 +1092,16 @@ section {
 
 .dashboard-masthead {
   margin-bottom: 18px;
+}
+
+.dashboard-art-frame::before {
+  top: 120px;
+  left: -132px;
+}
+
+.dashboard-art-frame::after {
+  right: -132px;
+  bottom: 200px;
 }
 
 .dashboard-header {
@@ -2058,6 +2118,10 @@ section {
   height: 18px;
 }
 
+.dashboard-divider {
+  margin: 10px 0 16px;
+}
+
 .ceremonial-panel {
   position: relative;
   overflow: hidden;
@@ -2285,6 +2349,12 @@ section {
 @media (max-width: 780px) {
   .page-shell {
     width: min(100% - 24px, 100%);
+  }
+
+  .bharat-ornament-frame::before,
+  .bharat-ornament-frame::after {
+    width: 164px;
+    height: 164px;
   }
 
   .topbar,

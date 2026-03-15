@@ -30,7 +30,7 @@ export default async function HomePage() {
       <SiteHeader active="home" />
 
       <main className="screen-main">
-        <section className="screen-frame mandate-frame">
+        <section className="screen-frame mandate-frame bharat-ornament-frame">
           <div className="screen-label-row">
             <div>
               <p className="eyebrow">DESKTOP SCREEN</p>
@@ -214,14 +214,14 @@ export default async function HomePage() {
               </div>
               <div className="steps-grid compact-steps">
                 {[
-                  ["01", "Citizen submits", "Citizen issue arrives by web or WhatsApp in any language."],
-                  ["02", "Agent clusters", "The intake agent structures, translates, embeds, and groups similar issues."],
-                  ["03", "MP co-pilot", "The strongest clusters become briefs and draft parliamentary questions."],
-                ].map(([step, title, body]) => (
+                  ["01", "Citizen submits", "Citizen issue arrives by web or WhatsApp in any language.", "/art/warli-citizen.svg"],
+                  ["02", "Agent clusters", "The intake agent structures, translates, embeds, and groups similar issues.", "/art/warli-cluster.svg"],
+                  ["03", "MP co-pilot", "The strongest clusters become briefs and draft parliamentary questions.", "/art/warli-parliament.svg"],
+                ].map(([step, title, body, image]) => (
                   <article key={step}>
                     <span className="step-number">{step}</span>
                     <div className="step-illustration">
-                      <img src="/prototype/art/warli-scene.svg" alt="" />
+                      <img src={image} alt="" />
                     </div>
                     <h3>{title}</h3>
                     <p>{body}</p>

@@ -93,7 +93,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
       <SiteHeader active="constituency" />
 
       <main className="screen-main">
-        <section className="screen-frame mandate-frame">
+        <section className="screen-frame mandate-frame bharat-ornament-frame dashboard-art-frame">
           <div className="screen-label-row">
             <div>
               <p className="eyebrow">DESKTOP SCREEN</p>
@@ -250,6 +250,10 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                 ))}
               </section>
 
+              <div className="jaali-divider compact-divider dashboard-divider" aria-hidden="true">
+                <img src="/prototype/art/jaali-band.svg" alt="" />
+              </div>
+
               <section className="tab-panel active" id="panel-timeline">
                 <div className="timeline-card">
                   <div className="section-heading small">
@@ -292,6 +296,10 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                   </div>
                 </div>
               </section>
+
+              <div className="jaali-divider compact-divider dashboard-divider" aria-hidden="true">
+                <img src="/prototype/art/jaali-band.svg" alt="" />
+              </div>
 
               <section className="tab-panel active">
                 <div className="session-list">

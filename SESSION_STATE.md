@@ -1,6 +1,6 @@
 # AgentSabha Session State
 
-Last updated: 2026-03-14T22:44:00-05:00
+Last updated: 2026-03-14T23:15:00-05:00
 Last developer: LLM session
 Current phase: Phase 1
 Current week: Week 1 of 8
@@ -39,6 +39,7 @@ Current week: Week 1 of 8
 - Seeded the development database with a deterministic Phase 1 demo dataset, later corrected to the FRD-approved Phase 1 trio: Thiruvananthapuram, Bengaluru South, and Gurugram
 - Updated the production homepage and constituency dashboard to read against the seeded live data, including timeline and filed-action sections
 - Re-reviewed the FRD and `15 Questions Resolved` record, corrected the mistaken Varanasi/Bangalore Central/Chennai Central demo set, reseeded the live dev database, and repointed the app defaults to Thiruvananthapuram (`502`)
+- Applied a production art-system pass: stronger homepage Kolam in the hero, distinct Warli process illustrations, added dashboard Jaali section rules, and restrained Madhubani corner motifs on live pages
 
 ## In progress (DO NOT restart from scratch)
 
