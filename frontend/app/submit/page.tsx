@@ -1,8 +1,11 @@
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SubmitIssueForm } from "@/components/submit-issue-form";
+import { getConstituencies } from "@/lib/api";
 
-export default function SubmitPage() {
+export default async function SubmitPage() {
+  const directory = await getConstituencies().catch(() => ({ constituencies: [] }));
+
   return (
     <div className="page-shell">
       <SiteHeader active="submit" />
@@ -53,7 +56,7 @@ export default function SubmitPage() {
                 <span className="step-index">3</span>
               </div>
 
-              <SubmitIssueForm />
+              <SubmitIssueForm constituencies={directory.constituencies} />
 
               <div className="whatsapp-divider">— या / or —</div>
               <a className="whatsapp-button" href="https://wa.me/919999999999">

@@ -1,9 +1,9 @@
 import Link from "next/link";
 
+import { NationalConstituencyMap } from "@/components/national-constituency-map";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { defaultPilotConstituency } from "@/lib/pilot";
-import { getNationalHeatmap, getNationalPulse } from "@/lib/api";
+import { getConstituencies, getNationalHeatmap, getNationalPulse } from "@/lib/api";
 
 function toBadge(severity: number | null) {
   if (severity === null) return "neutral";
@@ -14,9 +14,10 @@ function toBadge(severity: number | null) {
 }
 
 export default async function HomePage() {
-  const [heatmap, pulse] = await Promise.all([
+  const [heatmap, pulse, directory] = await Promise.all([
     getNationalHeatmap().catch(() => ({ constituencies: [] })),
     getNationalPulse().catch(() => ({ issues: [] })),
+    getConstituencies().catch(() => ({ constituencies: [] })),
   ]);
 
   const activeCount = heatmap.constituencies.filter((point) => point.severity_score !== null).length || 3;
@@ -55,7 +56,7 @@ export default async function HomePage() {
                   <span>Submit Your Issue</span>
                   <small>अपनी समस्या दर्ज करें</small>
                 </Link>
-                <Link className="secondary-button" href={`/constituency/${defaultPilotConstituency.id}`}>
+                <Link className="secondary-button" href="/constituency">
                   Find Your Constituency
                 </Link>
               </div>
@@ -69,78 +70,7 @@ export default async function HomePage() {
             </div>
 
             <div className="hero-map-panel">
-              <div className="map-card ceremonial-panel">
-                <div className="map-header">
-                  <div>
-                    <span className="eyebrow">NATIONAL MAP</span>
-                    <h2>लोकसभा मानचित्र</h2>
-                  </div>
-                  <span className="map-chip">{activeCount} active seats</span>
-                </div>
-                <Link className="map-link" href={`/constituency/${defaultPilotConstituency.id}`} aria-label="Open constituency dashboard">
-                  <svg className="india-map" viewBox="0 0 440 520">
-                    <defs>
-                      <linearGradient id="heatGradientHome" x1="0" x2="1">
-                        <stop offset="0%" stopColor="#F5E6C8" />
-                        <stop offset="100%" stopColor="#C8592A" />
-                      </linearGradient>
-                    </defs>
-                    <path className="india-silhouette" d="M232 28l36 25 42 5 18 30-4 29 33 39-12 42-20 23 17 34-13 31-34 26-14 44-49 70-19-11-27 15-22-16 12-35-18-27-37-19-12-38-37-40 10-34 31-20 14-31-10-38 20-32 34-17 22-39 45-8z" />
-                    <g className="constituency-mesh home-map-mesh">
-                      {[
-                        "M181 100l24-24 28 10-11 32-29-15z",
-                        "M205 76l27-30 31 7-8 33-22 2z",
-                        "M233 86l22-1 17 18-8 34-31-18z",
-                        "M255 86l36-28 33 7-10 42-42-4z",
-                        "M314 65l32 5 9 28-15 27-26-18z",
-                        "M128 155l33-23 32 19-8 36-33 12z",
-                        "M161 132l32-19 20 38-20 30-26 6z",
-                        "M193 113l40-27 15 53-35 12z",
-                        "M233 86l39 17-9 42-15-6z",
-                        "M272 103l42 4-11 48-40-10z",
-                        "M314 107l26 18 5 35-42-5z",
-                        "M110 230l37-13 18 37-33 18-18-16z",
-                        "M147 217l36-13 17 30-35 20z",
-                        "M183 204l34-11 20 28-37 13z",
-                        "M217 193l31-12 21 25-32 15z",
-                        "M248 181l33-20 23 26-35 19z",
-                        "M281 161l22-6 24 27-23 24-23-19z",
-                        "M304 155l41 38-22 22-19-33z",
-                        "M132 272l33-18 17 31-31 16-19-16z",
-                        "M165 254l35-20 15 34-33 17z",
-                        "M200 234l37-13 16 36-38 11z",
-                        "M237 221l32-15 18 31-34 20z",
-                        "M269 206l35-19 16 28-33 22z",
-                        "M304 206l19-13 16 29-19 23z",
-                        "M142 317l34-12 16 32-30 19-20-17z",
-                        "M176 305l39-9 14 35-37 20z",
-                        "M215 296l39-9 18 31-43 13z",
-                        "M254 287l30-6 25 28-37 9z",
-                        "M284 281l25-10 17 34-17 27z",
-                        "M162 356l30-19 18 31-22 23-20-13z",
-                        "M192 351l37-20 20 31-39 22z",
-                        "M229 331l43-13 12 38-35 17z",
-                        "M272 318l37-9 9 50-34 8z",
-                        "M249 362l35-17 11 22-22 28-24-12z",
-                      ].map((d) => (
-                        <path key={d} d={d} />
-                      ))}
-                    </g>
-                    <g className="map-dots">
-                      <circle cx="220" cy="185" r="8" className="hot" />
-                      <circle cx="190" cy="255" r="6" />
-                      <circle cx="278" cy="266" r="7" />
-                      <circle cx="166" cy="330" r="5" />
-                    </g>
-                  </svg>
-                </Link>
-                <div className="hover-card">
-                  <span className="stamp-badge road">सड़क (Roads)</span>
-                  <h3>{defaultPilotConstituency.name}</h3>
-                  <p>{leadIssue ? `${leadIssue.total_reports} reports • ${leadIssue.constituency_count} seats active` : "Pilot constituency live"}</p>
-                  <span className="hover-meta">Click through to open the constituency desk</span>
-                </div>
-              </div>
+              <NationalConstituencyMap constituencies={directory.constituencies} heatmap={heatmap.constituencies} />
             </div>
           </div>
 
@@ -197,7 +127,7 @@ export default async function HomePage() {
                       <blockquote>{issue.constituency_count} constituency agents are seeing the same pattern and escalating it together.</blockquote>
                       <footer>
                         <span>📍 National pulse</span>
-                        <Link href={`/constituency/${defaultPilotConstituency.id}`}>देखें →</Link>
+                        <Link href="/constituency">देखें →</Link>
                       </footer>
                     </article>
                   ),

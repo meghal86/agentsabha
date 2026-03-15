@@ -14,6 +14,19 @@ class ConstituencySummary(BaseModel):
     population: Optional[int]
 
 
+class ConstituencyDirectoryItem(BaseModel):
+    id: int
+    name: str
+    state: str
+    mp_name: Optional[str]
+    lat: Optional[float]
+    lng: Optional[float]
+
+
+class ConstituencyDirectoryResponse(BaseModel):
+    constituencies: list[ConstituencyDirectoryItem]
+
+
 class ClusterSummary(BaseModel):
     label: Optional[str]
     count: int

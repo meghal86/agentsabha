@@ -67,12 +67,14 @@ Current week: Week 1 of 8
 - Use direct Postgres connection automatically for async app traffic whenever the supplied app URL is a PgBouncer transaction-pool endpoint
 - Use deterministic hashed embeddings as the offline development fallback until OpenAI embeddings are configured
 - Seed a deterministic three-constituency demo dataset in the development DB so the live product surfaces are populated above public publication thresholds, and align those seats to the FRD-approved Phase 1 constituencies
+- Replace the pilot-default homepage map flow with an FRD-aligned national selector that exposes all 543 constituencies and only enters a constituency desk after selection
 
 ## Next session must start with
 
 - Wire live translation, Aadhaar, transcription, and WhatsApp acknowledgement services into the now-complete intake path
 - Continue porting the remaining prototype-specific panels and map interactions into the production Next.js routes without changing the design system
 - Start replacing seeded demo-only national pulse fallbacks on the homepage with guaranteed live API-backed rendering
+- Continue converting the national map from a development-safe selector into a richer live heatmap with hover metrics and stronger constituency-level interactions
 - Add onboarding/token management for MP, journalist, and admin access so the now-working internal routes are usable outside direct signed-token generation
 
 ## Known issues

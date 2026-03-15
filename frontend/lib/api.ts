@@ -33,6 +33,19 @@ export type ConstituencySummary = {
   population: number | null;
 };
 
+export type ConstituencyDirectoryItem = {
+  id: number;
+  name: string;
+  state: string;
+  mp_name: string | null;
+  lat: number | null;
+  lng: number | null;
+};
+
+export async function getConstituencies() {
+  return request<{ constituencies: ConstituencyDirectoryItem[] }>("/api/constituencies");
+}
+
 export type ConstituencyIssueCluster = {
   label: string | null;
   count: number;

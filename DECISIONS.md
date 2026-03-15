@@ -207,3 +207,17 @@ Alternatives considered: Remove PDF generation entirely; fail hard whenever Weas
 Reason: The pipeline needs to remain executable on this machine while preserving the intended production renderer.
 
 Consequences: Brief generation now succeeds in development on this machine, but the generated artifact is HTML bytes unless the native WeasyPrint dependencies are installed. Production deployment should still use real PDF rendering.
+
+---
+
+## 2026-03-15 — Make the homepage national-first and constituency selection explicit
+
+Context: The live Next.js app was still using a pilot-oriented symbolic map and default constituency links, which conflicts with the FRD and the approved product direction. The user explicitly called out that the homepage must show the national India map and allow selection of any constituency, with constituency detail appearing only after selection.
+
+Decision: Add a live constituency directory, generate a 543-seat geojson asset aligned to database IDs, move the top-level `Constituency` nav to a selector route, and replace pilot-default homepage linking with a real national constituency selector map.
+
+Alternatives considered: Keep the symbolic homepage map and only add a simple dropdown; show only the three Phase 1 constituencies on the live map; continue linking directly to a default constituency desk from the header.
+
+Reason: The product’s claim is national in scope even in Phase 1. Observers and citizens both need a true national-first entry point, and the constituency desk should feel like a chosen drill-down, not the default landing state.
+
+Consequences: The frontend now carries a real 543-seat geographic asset and selector flow. The homepage, selector route, submit flow, and constituency dashboard are aligned around explicit seat choice rather than pilot hardcoding.

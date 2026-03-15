@@ -13,7 +13,9 @@ from app.database import get_db
 from app.models.agent_log import AgentLog
 from app.schemas.health import HealthResponse
 from app.schemas.public import (
+    ConstituencyDirectoryResponse,
     ConstituencyActionsResponse,
+    ConstituencyDirectoryItem,
     ConstituencyIssuesResponse,
     ConstituencySummary,
     ConstituencyTimelineResponse,
@@ -57,6 +59,24 @@ async def fetch_constituency_summary(db: AsyncSession, constituency_id: int) -> 
         mp_name=constituency.mp_name,
         mp_party=constituency.mp_party,
         population=constituency.population,
+    )
+
+
+async def fetch_constituency_directory(db: AsyncSession) -> ConstituencyDirectoryResponse:
+    result = await db.execute(select(Constituency).order_by(Constituency.state, Constituency.name))
+    rows = result.scalars().all()
+    return ConstituencyDirectoryResponse(
+        constituencies=[
+            ConstituencyDirectoryItem(
+                id=row.id,
+                name=_display_constituency_name(row.name),
+                state=row.state,
+                mp_name=row.mp_name,
+                lat=_decimal_to_float(row.lat),
+                lng=_decimal_to_float(row.lng),
+            )
+            for row in rows
+        ]
     )
 
 
@@ -289,6 +309,11 @@ async def health(db: AsyncSession = Depends(get_db)) -> HealthResponse:
 @router.get("/api/constituency/{id}", response_model=ConstituencySummary)
 async def get_constituency(id: int, db: AsyncSession = Depends(get_db)) -> ConstituencySummary:
     return await fetch_constituency_summary(db, id)
+
+
+@router.get("/api/constituencies", response_model=ConstituencyDirectoryResponse)
+async def get_constituencies(db: AsyncSession = Depends(get_db)) -> ConstituencyDirectoryResponse:
+    return await fetch_constituency_directory(db)
 
 
 @router.get("/api/constituency/{id}/issues", response_model=ConstituencyIssuesResponse)

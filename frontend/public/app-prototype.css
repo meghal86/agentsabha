@@ -492,6 +492,37 @@ textarea {
   padding: 22px;
 }
 
+.national-map-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.national-map-header {
+  align-items: center;
+}
+
+.national-map-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.map-select,
+.constituency-switcher {
+  display: grid;
+  gap: 8px;
+}
+
+.map-select span,
+.constituency-switcher span {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
 .map-header,
 .logo-card-head,
 .issue-top,
@@ -525,6 +556,17 @@ textarea {
   margin: 16px 0 10px;
 }
 
+.national-map-svg {
+  display: block;
+  width: 100%;
+  min-height: 640px;
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.82)),
+    radial-gradient(circle at 20px 20px, rgba(255, 153, 51, 0.08) 0 1px, transparent 1.2px) 0 0 / 40px 40px;
+  border: 1px solid rgba(226, 212, 176, 0.8);
+}
+
 .india-silhouette {
   fill: rgba(27, 42, 74, 0.06);
   stroke: rgba(27, 42, 74, 0.28);
@@ -546,6 +588,51 @@ textarea {
   display: block;
 }
 
+.national-map-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 18px;
+  align-items: start;
+}
+
+.national-seat {
+  cursor: pointer;
+  transition: fill 120ms ease, opacity 120ms ease, stroke 120ms ease;
+  stroke: rgba(27, 42, 74, 0.22);
+  stroke-width: 0.65;
+}
+
+.national-seat.is-idle {
+  fill: rgba(27, 42, 74, 0.035);
+}
+
+.national-seat.is-low {
+  fill: rgba(45, 106, 79, 0.2);
+}
+
+.national-seat.is-medium {
+  fill: rgba(255, 153, 51, 0.18);
+}
+
+.national-seat.is-warm {
+  fill: rgba(212, 131, 26, 0.28);
+}
+
+.national-seat.is-high {
+  fill: rgba(200, 89, 42, 0.4);
+}
+
+.national-seat.is-hovered,
+.national-seat:hover {
+  opacity: 0.9;
+  stroke: rgba(27, 42, 74, 0.42);
+}
+
+.national-seat.is-selected {
+  stroke: var(--kesariya);
+  stroke-width: 1.4;
+}
+
 .map-dots circle {
   fill: rgba(255, 153, 51, 0.72);
   stroke: var(--neela);
@@ -563,6 +650,15 @@ textarea {
   padding: 16px;
   background: rgba(245, 230, 200, 0.88);
   border-left: 2px solid var(--kesariya);
+}
+
+.national-hover-card {
+  min-height: 164px;
+  justify-content: flex-start;
+}
+
+.map-open-button {
+  white-space: nowrap;
 }
 
 .hover-card h3,
@@ -1120,6 +1216,10 @@ section {
   align-items: flex-end;
 }
 
+.dashboard-switcher {
+  min-width: 250px;
+}
+
 .dashboard-title h3 {
   margin: 2px 0 0;
   font-size: 2rem;
@@ -1567,11 +1667,21 @@ section {
 }
 
 .issue-form input,
+.issue-form select,
 .issue-form textarea {
   width: 100%;
   border: 1.5px solid var(--neela);
   background: var(--haldi);
   padding: 14px 16px;
+  color: var(--neela);
+}
+
+.map-select select,
+.constituency-switcher select {
+  width: 100%;
+  border: 1.5px solid var(--neela);
+  background: var(--haldi);
+  padding: 12px 14px;
   color: var(--neela);
 }
 
@@ -2332,6 +2442,11 @@ section {
     height: 520px;
   }
 
+  .national-map-stage,
+  .national-map-toolbar {
+    grid-template-columns: 1fr;
+  }
+
   .hero-map-panel {
     justify-self: stretch;
   }
@@ -2387,6 +2502,11 @@ section {
     width: 100%;
   }
 
+  .dashboard-switcher {
+    min-width: 100%;
+    width: 100%;
+  }
+
   .observer-map-stage {
     min-height: 440px;
     height: 440px;
@@ -2411,5 +2531,9 @@ section {
 
   .map-summary {
     grid-template-columns: 1fr;
+  }
+
+  .national-map-svg {
+    min-height: 520px;
   }
 }

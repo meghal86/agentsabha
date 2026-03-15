@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { defaultPilotConstituency, phaseOnePilotConstituencies } from "@/lib/pilot";
+
+import type { ConstituencyDirectoryItem } from "@/lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -11,9 +12,14 @@ type SubmitState =
   | { type: "success"; issueId: string; processingStatus: string }
   | { type: "error"; message: string };
 
-export function SubmitIssueForm() {
+type SubmitIssueFormProps = {
+  constituencies: ConstituencyDirectoryItem[];
+  defaultConstituencyId?: number;
+};
+
+export function SubmitIssueForm({ constituencies, defaultConstituencyId }: SubmitIssueFormProps) {
   const [mobile, setMobile] = useState("+919999999999");
-  const [constituencyId, setConstituencyId] = useState(String(defaultPilotConstituency.id));
+  const [constituencyId, setConstituencyId] = useState(String(defaultConstituencyId ?? constituencies[0]?.id ?? 1));
   const [otp, setOtp] = useState("123456");
   const [language, setLanguage] = useState("en");
   const [issueText, setIssueText] = useState("");
@@ -86,11 +92,14 @@ export function SubmitIssueForm() {
 
       <label>
         <span>Step 1 — Constituency</span>
-        <input type="text" value={constituencyId} onChange={(event) => setConstituencyId(event.target.value)} placeholder="PIN code ya constituency ka naam..." />
-        <small>
-          Use constituency id for now. Phase 1 pilot desks are{" "}
-          {phaseOnePilotConstituencies.map((item) => `${item.id} (${item.name})`).join(", ")}.
-        </small>
+        <select value={constituencyId} onChange={(event) => setConstituencyId(event.target.value)}>
+          {constituencies.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.name} — {entry.state}
+            </option>
+          ))}
+        </select>
+        <small>Select any Lok Sabha constituency. The same live intake flow runs regardless of seat.</small>
       </label>
 
       <label>

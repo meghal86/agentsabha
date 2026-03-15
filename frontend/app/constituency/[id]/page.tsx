@@ -1,8 +1,9 @@
 import Link from "next/link";
 
+import { ConstituencySwitcher } from "@/components/constituency-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getConstituencyActions, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
+import { getConstituencies, getConstituencyActions, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
 
 function categoryLabel(category: string | null) {
   switch (category) {
@@ -68,11 +69,12 @@ function buildTimelinePath(values: number[]) {
 }
 
 export default async function ConstituencyPage({ params }: { params: { id: string } }) {
-  const [summary, issues, actions, timeline] = await Promise.all([
+  const [summary, issues, actions, timeline, directory] = await Promise.all([
     getConstituencySummary(params.id).catch(() => null),
     getConstituencyIssues(params.id).catch(() => ({ clusters: [], total: 0, page: 1 })),
     getConstituencyActions(params.id).catch(() => ({ actions: [] })),
     getConstituencyTimeline(params.id).catch(() => ({ timeline: [] })),
+    getConstituencies().catch(() => ({ constituencies: [] })),
   ]);
 
   const topCategory = issues.clusters[0];
@@ -106,13 +108,19 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
             <div className="dashboard-header">
               <div>
                 <p className="breadcrumbs">India → {summary?.state ?? "Unknown"} → {summary?.name ?? `Constituency ${params.id}`}</p>
-                <div className="dashboard-title">
-                  <div>
-                    <h2>{summary?.name ?? `Constituency ${params.id}`}</h2>
-                    <h3>{summary?.name ?? `क्षेत्र ${params.id}`}</h3>
-                  </div>
+              <div className="dashboard-title">
+                <div>
+                  <h2>{summary?.name ?? `Constituency ${params.id}`}</h2>
+                  <h3>{summary?.name ?? `क्षेत्र ${params.id}`}</h3>
                 </div>
+                <ConstituencySwitcher
+                  constituencies={directory.constituencies}
+                  selectedId={Number(params.id)}
+                  label="Switch constituency / बदलें"
+                  className="dashboard-switcher"
+                />
               </div>
+            </div>
               <div className="dashboard-meta-board">
                 <div className="meta-stat">
                   <span className="meta-label">MP</span>
