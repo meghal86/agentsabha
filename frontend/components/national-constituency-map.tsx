@@ -28,6 +28,14 @@ type ProjectedFeature = ConstituencyFeature["properties"] & {
   transform?: string;
 };
 
+type InsetFrame = {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type NationalConstituencyMapProps = {
   constituencies: ConstituencyDirectoryItem[];
   heatmap: HeatmapPoint[];
@@ -73,8 +81,14 @@ export function NationalConstituencyMap({
   const heatmapById = useMemo(() => new Map(heatmap.map((entry) => [entry.id, entry])), [heatmap]);
   const constituencyById = useMemo(() => new Map(constituencies.map((entry) => [entry.id, entry])), [constituencies]);
 
-  const projectedFeatures = useMemo<ProjectedFeature[]>(() => {
-    if (collection.features.length === 0) return [];
+  const mapGeometry = useMemo(() => {
+    if (collection.features.length === 0) {
+      return {
+        projectedFeatures: [] as ProjectedFeature[],
+        mainlandOutline: "",
+        insetFrames: [] as InsetFrame[],
+      };
+    }
     const insetTargets: Record<number, { x: number; y: number; width: number; height: number }> = {
       482: { x: 38, y: 510, width: 52, height: 58 },   // Lakshadweep
       542: { x: 392, y: 454, width: 76, height: 74 },  // Puducherry
@@ -83,7 +97,12 @@ export function NationalConstituencyMap({
     const mainlandFeatures = collection.features.filter((feature) => !(feature.properties.id in insetTargets));
     const projection = geoMercator().fitSize([530, 640], { ...collection, features: mainlandFeatures } as never);
     const pathBuilder = geoPath(projection);
-    return collection.features.reduce<ProjectedFeature[]>((accumulator, feature) => {
+    const mainlandOutline = pathBuilder({ ...collection, features: mainlandFeatures } as never) ?? "";
+    const insetFrames = Object.entries(insetTargets).map(([id, target]) => ({
+      id: Number(id),
+      ...target,
+    }));
+    const projectedFeatures = collection.features.reduce<ProjectedFeature[]>((accumulator, feature) => {
         const d = pathBuilder(feature as never);
         if (!d) return accumulator;
         let transform: string | undefined;
@@ -104,6 +123,11 @@ export function NationalConstituencyMap({
         });
         return accumulator;
       }, []);
+    return {
+      projectedFeatures,
+      mainlandOutline,
+      insetFrames,
+    };
   }, [collection]);
 
   const activeId = hoveredId ?? pendingId;
@@ -151,8 +175,20 @@ export function NationalConstituencyMap({
 
       <div className="national-map-stage">
         <svg className="india-map national-map-svg" viewBox="0 0 530 640" aria-label="India map with all 543 Lok Sabha constituencies">
+          <path d={mapGeometry.mainlandOutline} className="national-outline" />
+          {mapGeometry.insetFrames.map((frame) => (
+            <rect
+              key={frame.id}
+              x={frame.x - 6}
+              y={frame.y - 6}
+              width={frame.width + 12}
+              height={frame.height + 12}
+              rx="6"
+              className="national-inset-frame"
+            />
+          ))}
           <g className="national-constituency-layer">
-            {projectedFeatures.map((feature) => {
+            {mapGeometry.projectedFeatures.map((feature) => {
               const severity = heatmapById.get(feature.id)?.severity_score;
               const isSelected = pendingId === feature.id;
               const isHovered = hoveredId === feature.id;

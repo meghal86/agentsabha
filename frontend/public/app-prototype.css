@@ -613,6 +613,20 @@ textarea {
   border: 1px solid rgba(226, 212, 176, 0.8);
 }
 
+.national-outline {
+  fill: rgba(27, 42, 74, 0.06);
+  stroke: rgba(27, 42, 74, 0.58);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.national-inset-frame {
+  fill: rgba(250, 243, 224, 0.92);
+  stroke: rgba(27, 42, 74, 0.24);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
 .india-silhouette {
   fill: rgba(27, 42, 74, 0.06);
   stroke: rgba(27, 42, 74, 0.28);
@@ -644,12 +658,12 @@ textarea {
 .national-seat {
   cursor: pointer;
   transition: fill 120ms ease, opacity 120ms ease, stroke 120ms ease;
-  stroke: rgba(27, 42, 74, 0.34);
-  stroke-width: 1;
+  stroke: rgba(27, 42, 74, 0.52);
+  stroke-width: 1.2;
 }
 
 .national-seat.is-idle {
-  fill: rgba(27, 42, 74, 0.1);
+  fill: rgba(27, 42, 74, 0.22);
 }
 
 .national-seat.is-low {
@@ -670,8 +684,8 @@ textarea {
 
 .national-seat.is-hovered,
 .national-seat:hover {
-  opacity: 0.9;
-  stroke: rgba(27, 42, 74, 0.42);
+  opacity: 1;
+  stroke: rgba(27, 42, 74, 0.72);
 }
 
 .national-seat.is-selected {
