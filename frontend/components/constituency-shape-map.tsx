@@ -1,19 +1,17 @@
-import { geoMercator, geoPath } from "d3-geo";
+import {
+  boundsForPolygons,
+  centroidFromBounds,
+  createProjector,
+  pathFromPolygons,
+  polygonsFromGeometry,
+  type ConstituencyFeatureCollection,
+} from "@/lib/map-geometry";
 
-type ConstituencyFeature = {
-  type: string;
-  properties: {
-    id: number;
-    name: string;
-    state: string;
-  };
-  geometry: unknown;
-};
-
-type ConstituencyFeatureCollection = {
-  type: string;
-  features: ConstituencyFeature[];
-};
+type ConstituencyFeature = ConstituencyFeatureCollection<{
+  id: number;
+  name: string;
+  state: string;
+}>["features"][number];
 
 type ConstituencyShapeMapProps = {
   collection: ConstituencyFeatureCollection;
@@ -68,13 +66,24 @@ export function ConstituencyShapeMap({
     );
   }
 
-  const projection = geoMercator().fitSize([760, 420], feature as never);
-  const pathBuilder = geoPath(projection);
-  const seatPath = pathBuilder(feature as never) ?? "";
-  const [[minX, minY], [maxX, maxY]] = pathBuilder.bounds(feature as never);
-  const focusCx = (minX + maxX) / 2;
-  const focusCy = (minY + maxY) / 2;
-  const focusRadius = Math.max(maxX - minX, maxY - minY) * 0.18;
+  const polygons = polygonsFromGeometry(feature.geometry);
+  const bounds = boundsForPolygons(polygons);
+
+  if (!bounds) {
+    return (
+      <div className="constituency-map-card">
+        <div className="constituency-map-empty">
+          <strong>{constituencyName}</strong>
+          <span>Constituency geometry is unavailable.</span>
+        </div>
+      </div>
+    );
+  }
+
+  const project = createProjector(bounds, 760, 420, 34);
+  const seatPath = pathFromPolygons(polygons, project);
+  const [focusCx, focusCy] = centroidFromBounds(bounds, project);
+  const focusRadius = Math.max(38, Math.min(110, Math.max(760 / 10, 420 / 4.8) * 0.18));
 
   return (
     <div className="constituency-map-card">
@@ -96,7 +105,7 @@ export function ConstituencyShapeMap({
         </defs>
         <rect x="0" y="0" width="760" height="420" className="constituency-map-bg" />
         <circle cx={focusCx} cy={focusCy} r={focusRadius} className="constituency-map-focus" />
-        <path d={seatPath} className={`constituency-shape ${toneClass(topCategory)}`} />
+        <path d={seatPath} className={`constituency-shape ${toneClass(topCategory)}`} fillRule="evenodd" />
       </svg>
 
       <div className="constituency-map-footer">

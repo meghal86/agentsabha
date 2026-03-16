@@ -1,31 +1,31 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { geoMercator, geoPath } from "d3-geo";
 import { useRouter } from "next/navigation";
 
 import type { ConstituencyDirectoryItem, HeatmapPoint } from "@/lib/api";
+import {
+  boundsForPolygons,
+  centroidFromBounds,
+  createProjector,
+  mergeBounds,
+  pathFromPolygons,
+  polygonsFromGeometry,
+  type ConstituencyFeatureCollection,
+} from "@/lib/map-geometry";
 
-type ConstituencyFeature = {
-  type: string;
-  properties: {
-    id: number;
-    name: string;
-    source_name: string;
-    state: string;
-    name_hi: string | null;
-  };
-  geometry: unknown;
+type ConstituencyProps = {
+  id: number;
+  name: string;
+  source_name: string;
+  state: string;
+  name_hi: string | null;
 };
 
-type ConstituencyFeatureCollection = {
-  type: string;
-  features: ConstituencyFeature[];
-};
-
-type ProjectedFeature = ConstituencyFeature["properties"] & {
+type ProjectedFeature = ConstituencyProps & {
   d: string;
-  transform?: string;
+  cx: number;
+  cy: number;
 };
 
 type InsetFrame = {
@@ -39,7 +39,7 @@ type InsetFrame = {
 type NationalConstituencyMapProps = {
   constituencies: ConstituencyDirectoryItem[];
   heatmap: HeatmapPoint[];
-  collection: ConstituencyFeatureCollection;
+  collection: ConstituencyFeatureCollection<ConstituencyProps>;
   selectedId?: number;
 };
 
@@ -85,47 +85,74 @@ export function NationalConstituencyMap({
     if (collection.features.length === 0) {
       return {
         projectedFeatures: [] as ProjectedFeature[],
-        mainlandOutline: "",
+        outlineFeatures: [] as ProjectedFeature[],
         insetFrames: [] as InsetFrame[],
       };
     }
+
+    const width = 530;
+    const height = 640;
     const insetTargets: Record<number, { x: number; y: number; width: number; height: number }> = {
-      482: { x: 38, y: 510, width: 52, height: 58 },   // Lakshadweep
-      542: { x: 392, y: 454, width: 76, height: 74 },  // Puducherry
-      543: { x: 418, y: 526, width: 82, height: 92 },  // Andaman and Nicobar Islands
+      482: { x: 36, y: 536, width: 84, height: 74 },
+      542: { x: 398, y: 498, width: 90, height: 72 },
+      543: { x: 402, y: 560, width: 96, height: 86 },
     };
+
     const mainlandFeatures = collection.features.filter((feature) => !(feature.properties.id in insetTargets));
-    const projection = geoMercator().fitSize([530, 640], { ...collection, features: mainlandFeatures } as never);
-    const pathBuilder = geoPath(projection);
-    const mainlandOutline = pathBuilder({ ...collection, features: mainlandFeatures } as never) ?? "";
+    const mainlandBounds = mergeBounds(mainlandFeatures.map((feature) => boundsForPolygons(polygonsFromGeometry(feature.geometry))));
+    if (!mainlandBounds) {
+      return {
+        projectedFeatures: [] as ProjectedFeature[],
+        outlineFeatures: [] as ProjectedFeature[],
+        insetFrames: [] as InsetFrame[],
+      };
+    }
+
+    const mainlandProject = createProjector(mainlandBounds, width, height, 28);
+    const outlineFeatures: ProjectedFeature[] = [];
+    const projectedFeatures = collection.features.reduce<ProjectedFeature[]>((accumulator, feature) => {
+      const polygons = polygonsFromGeometry(feature.geometry);
+      const featureBounds = boundsForPolygons(polygons);
+      if (!featureBounds || polygons.length === 0) return accumulator;
+
+      const insetTarget = insetTargets[feature.properties.id];
+      const project = insetTarget
+        ? createProjector(featureBounds, insetTarget.width, insetTarget.height, 2)
+        : mainlandProject;
+
+      const rawPath = pathFromPolygons(polygons, project);
+      if (!rawPath) return accumulator;
+
+      const d = insetTarget ? `M 0 0 ${rawPath}`.replace(/^M 0 0 /, "") : rawPath;
+      const translatedPath = insetTarget
+        ? rawPath.replace(/([0-9.-]+) ([0-9.-]+)/g, (_, x, y) => `${(Number(x) + insetTarget.x).toFixed(2)} ${(Number(y) + insetTarget.y).toFixed(2)}`)
+        : rawPath;
+      const [cx, cy] = insetTarget
+        ? [insetTarget.x + insetTarget.width / 2, insetTarget.y + insetTarget.height / 2]
+        : centroidFromBounds(featureBounds, mainlandProject);
+
+      const projected = {
+        ...feature.properties,
+        d: translatedPath,
+        cx,
+        cy,
+      };
+
+      accumulator.push(projected);
+      if (!insetTarget) {
+        outlineFeatures.push(projected);
+      }
+      return accumulator;
+    }, []);
+
     const insetFrames = Object.entries(insetTargets).map(([id, target]) => ({
       id: Number(id),
       ...target,
     }));
-    const projectedFeatures = collection.features.reduce<ProjectedFeature[]>((accumulator, feature) => {
-        const d = pathBuilder(feature as never);
-        if (!d) return accumulator;
-        let transform: string | undefined;
-        const target = insetTargets[feature.properties.id];
-        if (target) {
-          const [[minX, minY], [maxX, maxY]] = pathBuilder.bounds(feature as never);
-          const width = Math.max(maxX - minX, 1);
-          const height = Math.max(maxY - minY, 1);
-          const scale = Math.min(target.width / width, target.height / height);
-          const translatedX = target.x + (target.width - width * scale) / 2 - minX * scale;
-          const translatedY = target.y + (target.height - height * scale) / 2 - minY * scale;
-          transform = `translate(${translatedX} ${translatedY}) scale(${scale})`;
-        }
-        accumulator.push({
-          ...feature.properties,
-          d,
-          transform,
-        });
-        return accumulator;
-      }, []);
+
     return {
       projectedFeatures,
-      mainlandOutline,
+      outlineFeatures,
       insetFrames,
     };
   }, [collection]);
@@ -153,8 +180,7 @@ export function NationalConstituencyMap({
         <label className="map-select">
           <span>Select constituency / निर्वाचन क्षेत्र चुनें</span>
           <select
-            key={pendingId}
-            defaultValue={pendingId}
+            value={pendingId}
             onChange={(event) => {
               const nextId = Number(event.target.value);
               setPendingId(nextId);
@@ -175,7 +201,6 @@ export function NationalConstituencyMap({
 
       <div className="national-map-stage">
         <svg className="india-map national-map-svg" viewBox="0 0 530 640" aria-label="India map with all 543 Lok Sabha constituencies">
-          <path d={mapGeometry.mainlandOutline} className="national-outline" />
           {mapGeometry.insetFrames.map((frame) => (
             <rect
               key={frame.id}
@@ -187,6 +212,11 @@ export function NationalConstituencyMap({
               className="national-inset-frame"
             />
           ))}
+          <g className="national-outline-layer" aria-hidden="true">
+            {mapGeometry.outlineFeatures.map((feature) => (
+              <path key={`outline-${feature.id}`} d={feature.d} className="national-outline-seat" fillRule="evenodd" />
+            ))}
+          </g>
           <g className="national-constituency-layer">
             {mapGeometry.projectedFeatures.map((feature) => {
               const severity = heatmapById.get(feature.id)?.severity_score;
@@ -202,26 +232,26 @@ export function NationalConstituencyMap({
                 .join(" ");
 
               return (
-                <g key={feature.id} transform={feature.transform}>
-                  <path
-                    d={feature.d}
-                    className={classes}
-                    onMouseEnter={() => setHoveredId(feature.id)}
-                    onMouseLeave={() => setHoveredId(selectedId ?? null)}
-                    onFocus={() => setHoveredId(feature.id)}
-                    onBlur={() => setHoveredId(selectedId ?? null)}
-                    onClick={() => openConstituency(feature.id)}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${feature.name}, ${feature.state}`}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        openConstituency(feature.id);
-                      }
-                    }}
-                  />
-                </g>
+                <path
+                  key={feature.id}
+                  d={feature.d}
+                  className={classes}
+                  fillRule="evenodd"
+                  onMouseEnter={() => setHoveredId(feature.id)}
+                  onMouseLeave={() => setHoveredId(selectedId ?? null)}
+                  onFocus={() => setHoveredId(feature.id)}
+                  onBlur={() => setHoveredId(selectedId ?? null)}
+                  onClick={() => openConstituency(feature.id)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${feature.name}, ${feature.state}`}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openConstituency(feature.id);
+                    }
+                  }}
+                />
               );
             })}
           </g>
@@ -233,7 +263,9 @@ export function NationalConstituencyMap({
           </span>
           <h3>{activeConstituency?.name ?? "Select a constituency"}</h3>
           <p>
-            {activeConstituency ? `${activeConstituency.state}${activeConstituency.mp_name ? ` • MP ${activeConstituency.mp_name}` : ""}` : "All 543 constituencies are selectable from the national map."}
+            {activeConstituency
+              ? `${activeConstituency.state}${activeConstituency.mp_name ? ` • MP ${activeConstituency.mp_name}` : ""}`
+              : "All 543 constituencies are selectable from the national map."}
           </p>
           <span className="hover-meta">
             {activeHeat?.severity_score !== null && activeHeat?.severity_score !== undefined

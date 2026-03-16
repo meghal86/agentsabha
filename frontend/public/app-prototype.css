@@ -336,10 +336,10 @@ textarea {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 26px;
-  align-items: start;
-  min-height: auto;
+  grid-template-columns: minmax(320px, 0.84fr) minmax(620px, 1.16fr);
+  gap: 34px;
+  align-items: center;
+  min-height: 560px;
 }
 
 .homepage-frame::before {
@@ -494,28 +494,20 @@ textarea {
 }
 
 .hero-map-panel {
-  justify-self: stretch;
+  justify-self: end;
   width: 100%;
 }
 
 .hero-map-panel .national-map-card {
   min-height: 100%;
-  padding: 28px 28px 32px;
 }
 
 .hero-map-panel .national-map-stage {
-  position: relative;
   grid-template-columns: 1fr;
 }
 
 .hero-map-panel .national-hover-card {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: min(280px, calc(100% - 36px));
   min-height: 0;
-  z-index: 2;
-  background: rgba(250, 243, 224, 0.94);
 }
 
 .map-card,
@@ -605,7 +597,7 @@ textarea {
 .national-map-svg {
   display: block;
   width: 100%;
-  min-height: 980px;
+  min-height: 780px;
   margin: 0;
   background:
     linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.82)),
@@ -617,6 +609,13 @@ textarea {
   fill: rgba(27, 42, 74, 0.06);
   stroke: rgba(27, 42, 74, 0.58);
   stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.national-outline-seat {
+  fill: rgba(27, 42, 74, 0.1);
+  stroke: rgba(27, 42, 74, 0.44);
+  stroke-width: 1.6;
   stroke-linejoin: round;
 }
 
@@ -1883,6 +1882,34 @@ section {
   gap: 16px;
 }
 
+.roadmap-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.agent-roadmap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.agent-roadmap-bar {
+  width: 100%;
+  height: 10px;
+  border: 1px solid var(--aged-border);
+  background: rgba(27, 42, 74, 0.06);
+  overflow: hidden;
+}
+
+.agent-roadmap-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--kesariya), var(--hariyali));
+}
+
+.agent-roadmap-bar.small {
+  height: 8px;
+}
+
 .agent-debug-card {
   border: 1px solid var(--aged-border);
   background: var(--haath-kagaz);
@@ -2745,11 +2772,6 @@ section {
 
   .hero-map-panel {
     justify-self: stretch;
-  }
-
-  .hero-map-panel .national-hover-card {
-    position: static;
-    width: auto;
   }
 
   .pulse-bar article + article::before {

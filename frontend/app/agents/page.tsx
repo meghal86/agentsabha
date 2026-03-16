@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getDebugAgents } from "@/lib/api";
@@ -38,6 +40,17 @@ export default async function AgentsDebugPage() {
                 <strong>{agentSpecs.filter((agent) => agent.phase === "built").length} agents</strong>
                 <p>Phase 1 core loop agents currently implemented.</p>
               </article>
+            </div>
+          </div>
+
+          <div className="frame-panel full-width-panel">
+            <div className="agent-roadmap-actions">
+              <Link className="secondary-button" href="/agents-plan">
+                Open 47-agent plan
+              </Link>
+              <Link className="secondary-button" href="/constituency">
+                Back to product
+              </Link>
             </div>
           </div>
 
