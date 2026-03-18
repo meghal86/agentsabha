@@ -78,6 +78,11 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
     getConstituencyTimeline(params.id).catch(() => ({ timeline: [] })),
     getConstituencies().catch(() => ({ constituencies: [] })),
   ]);
+  const selectedId = Number(params.id);
+  const directoryEntry = directory.constituencies.find((entry) => entry.id === selectedId);
+  const displayName = summary?.name ?? directoryEntry?.name ?? `Constituency ${params.id}`;
+  const displayState = summary?.state ?? directoryEntry?.state ?? "Unknown state";
+  const displayMp = summary?.mp_name ?? directoryEntry?.mp_name ?? "Unassigned";
 
   const topCategory = issues.clusters[0];
   const totalReports = issues.clusters.reduce((sum, cluster) => sum + cluster.count, 0);
@@ -102,15 +107,15 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
           <div className="dashboard-masthead frame-panel">
             <div className="dashboard-header">
               <div>
-                <p className="breadcrumbs">India → {summary?.state ?? "Unknown"} → {summary?.name ?? `Constituency ${params.id}`}</p>
+                <p className="breadcrumbs">India → {displayState} → {displayName}</p>
               <div className="dashboard-title">
                 <div>
-                  <h2>{summary?.name ?? `Constituency ${params.id}`}</h2>
-                  <h3>{summary?.name ?? `क्षेत्र ${params.id}`}</h3>
+                  <h2>{displayName}</h2>
+                  <h3>{displayName}</h3>
                 </div>
                 <ConstituencySwitcher
                   constituencies={directory.constituencies}
-                  selectedId={Number(params.id)}
+                  selectedId={selectedId}
                   label="Switch constituency / बदलें"
                   className="dashboard-switcher"
                 />
@@ -119,7 +124,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
               <div className="dashboard-meta-board">
                 <div className="meta-stat">
                   <span className="meta-label">MP</span>
-                  <strong>{summary?.mp_name ?? "Unassigned"}</strong>
+                  <strong>{displayMp}</strong>
                 </div>
                 <div className="meta-stat">
                   <span className="meta-label">Agent</span>
@@ -137,8 +142,8 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
             <strong>{isPubliclyActive ? "Public constituency desk is active" : "Seat selected successfully"}</strong>
             <span>
               {isPubliclyActive
-                ? `${summary?.name ?? "This constituency"} has public clusters above the publication threshold and active parliamentary tracking.`
-                : `${summary?.name ?? "This constituency"} is available in the national map, but no public cluster has crossed the publication threshold yet.`}
+                ? `${displayName} has public clusters above the publication threshold and active parliamentary tracking.`
+                : `${displayName} is available in the national map, but no public cluster has crossed the publication threshold yet.`}
             </span>
           </div>
 
@@ -186,7 +191,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
 
               <section className="agent-panel">
                 <p>AGENT STATUS</p>
-                <h4>Agent {summary?.name ?? params.id}</h4>
+                <h4>Agent {displayName}</h4>
                 <span className="status-line">
                   <i></i> Active / सक्रिय
                 </span>
@@ -300,16 +305,16 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                 <div className="map-summary">
                   <ConstituencyShapeMap
                     collection={constituencyGeojson}
-                    constituencyId={Number(params.id)}
-                    constituencyName={summary?.name ?? `Constituency ${params.id}`}
-                    stateName={summary?.state ?? "Unknown state"}
+                    constituencyId={selectedId}
+                    constituencyName={displayName}
+                    stateName={displayState}
                     topCategory={topCategory?.category ?? null}
                     averageSeverity={issues.total > 0 ? averageSeverity : null}
                   />
                   <div className="map-legend">
                     <h4>Constituency signal / क्षेत्र संकेत</h4>
                     <p>
-                      {summary?.name ?? "This seat"} currently has {issues.total} public clusters with an average severity of{" "}
+                      {displayName} currently has {issues.total} public clusters with an average severity of{" "}
                       {averageSeverity ? averageSeverity.toFixed(1) : "—"}.
                     </p>
                   </div>

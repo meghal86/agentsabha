@@ -19,22 +19,22 @@ export default function AgentsPlanPage() {
         <section className="screen-frame mandate-frame bharat-ornament-frame">
           <div className="product-intro">
             <div>
-              <p className="eyebrow">47 AGENT BUILD PLAN</p>
+              <p className="eyebrow">46 AGENT BUILD PLAN</p>
               <h1 className="product-title">What is planned, what is built, and what is still missing</h1>
               <p className="hero-body">
-                This page separates the long-term 47-agent roadmap from the live product screens. It is based on Master Prompt v3 plus the attached research, galaxy, and media engine files.
+                This page follows the exact 46 formal agents defined in the AgentSabha prompts document. It separates that long-term roadmap from the live product screens and current repo state.
               </p>
             </div>
             <div className="product-intro-stats">
               <article className="summary-tile">
                 <span className="summary-kicker">Total planned</span>
                 <strong>{roadmapSummary.total} agents</strong>
-                <p>Curated roadmap count for the full AgentSabha system.</p>
+                <p>Exact formal agent count from the 46-prompts document.</p>
               </article>
               <article className="summary-tile accent-tile">
                 <span className="summary-kicker">Overall completion</span>
                 <strong>{roadmapSummary.overallCompletion}%</strong>
-                <p>Repo-level delivery estimate across all planned agents.</p>
+                <p>Repo-level delivery estimate across the formal 46-agent system.</p>
               </article>
             </div>
           </div>
@@ -74,10 +74,10 @@ export default function AgentsPlanPage() {
           <section className="frame-panel full-width-panel">
             <div className="section-heading compact-heading">
               <div>
-                <p>ROADMAP REGISTER</p>
-                <h2>47 planned agents</h2>
+                  <p>ROADMAP REGISTER</p>
+                  <h2>46 planned agents</h2>
+                </div>
               </div>
-            </div>
 
             <div className="agents-debug-grid roadmap-grid">
               {agentRoadmap.map((agent, index) => (
@@ -85,7 +85,7 @@ export default function AgentsPlanPage() {
                   <div className="agent-debug-head">
                     <div>
                       <span className="summary-kicker">
-                        #{String(index + 1).padStart(2, "0")} · {agent.layer}
+                        #{String(agent.number).padStart(2, "0")} · {agent.layer}
                       </span>
                       <h3>{agent.name}</h3>
                     </div>

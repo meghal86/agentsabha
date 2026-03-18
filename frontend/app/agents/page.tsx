@@ -26,19 +26,19 @@ export default async function AgentsDebugPage() {
               <p className="eyebrow">AGENT DEBUG CONSOLE</p>
               <h1 className="product-title">Which agents exist, and what are they doing now?</h1>
               <p className="hero-body">
-                This is the implementation/debug surface. It follows Master Prompt v3 strictly: Phase 1 shows only the core-loop agents as built, while later agents remain visible here as deferred architecture.
+                This is the implementation/debug surface. The formal product plan now follows the 46-agent prompts document, while this page shows what is actually implemented in the repo today.
               </p>
             </div>
             <div className="product-intro-stats">
               <article className="summary-tile">
-                <span className="summary-kicker">Master Prompt v3</span>
-                <strong>47+ total agents</strong>
-                <p>Across parliamentary, media, and intelligence layers.</p>
+                <span className="summary-kicker">Formal roadmap</span>
+                <strong>46 agents</strong>
+                <p>Exact prompt-defined system from the new document.</p>
               </article>
               <article className="summary-tile accent-tile">
                 <span className="summary-kicker">Built in this repo</span>
-                <strong>{agentSpecs.filter((agent) => agent.phase === "built").length} agents</strong>
-                <p>Phase 1 core loop agents currently implemented.</p>
+                <strong>{agentSpecs.filter((agent) => agent.phase === "built").length} core agents</strong>
+                <p>Plus supporting services such as MP brief generation outside the formal 46-agent list.</p>
               </article>
             </div>
           </div>
@@ -46,7 +46,7 @@ export default async function AgentsDebugPage() {
           <div className="frame-panel full-width-panel">
             <div className="agent-roadmap-actions">
               <Link className="secondary-button" href="/agents-plan">
-                Open 47-agent plan
+                Open 46-agent plan
               </Link>
               <Link className="secondary-button" href="/constituency">
                 Back to product
