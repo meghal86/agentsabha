@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from time import perf_counter
 
@@ -15,6 +16,66 @@ from app.utils.audit_logger import AuditEntry, build_audit_payload
 from app.utils.hashing import sha256_hex
 
 
+STATUTORY_HOOKS: dict[str, dict[str, str]] = {
+    "road": {
+        "title": "Ministry of Road Transport and Highways outcome budget and maintenance performance records",
+        "url": "https://morth.nic.in/",
+        "type": "ministry_record",
+        "date": "2026-03-01",
+    },
+    "water": {
+        "title": "Ministry of Jal Shakti programme guidelines under Jal Jeevan Mission",
+        "url": "https://jaljeevanmission.gov.in/",
+        "type": "scheme_guideline",
+        "date": "2026-03-01",
+    },
+    "power": {
+        "title": "Ministry of Power reliability and distribution reform records",
+        "url": "https://powermin.gov.in/",
+        "type": "ministry_record",
+        "date": "2026-03-01",
+    },
+    "health": {
+        "title": "Ministry of Health and Family Welfare service delivery norms under the National Health Mission",
+        "url": "https://nhm.gov.in/",
+        "type": "scheme_guideline",
+        "date": "2026-03-01",
+    },
+    "education": {
+        "title": "Ministry of Education implementation framework under Samagra Shiksha",
+        "url": "https://www.education.gov.in/",
+        "type": "scheme_guideline",
+        "date": "2026-03-01",
+    },
+    "employment": {
+        "title": "Ministry of Rural Development operational guidelines under MGNREGA",
+        "url": "https://nrega.nic.in/",
+        "type": "scheme_guideline",
+        "date": "2026-03-01",
+    },
+    "housing": {
+        "title": "Pradhan Mantri Awas Yojana implementation and monitoring guidelines",
+        "url": "https://pmay-urban.gov.in/",
+        "type": "scheme_guideline",
+        "date": "2026-03-01",
+    },
+    "environment": {
+        "title": "Central Pollution Control Board monitoring framework and compliance records",
+        "url": "https://cpcb.nic.in/",
+        "type": "government_record",
+        "date": "2026-03-01",
+    },
+    "other": {
+        "title": "Relevant Government of India departmental record for constituency grievance resolution",
+        "url": "https://www.india.gov.in/",
+        "type": "government_record",
+        "date": "2026-03-01",
+    },
+}
+
+MIN_VERIFIED_REPORTS = 10
+
+
 @dataclass
 class QuestionDraftAgent:
     model: str = "claude-sonnet-4-6"
@@ -28,7 +89,7 @@ class QuestionDraftAgent:
         clusters = (
             await db.execute(
                 select(IssueCluster)
-                .where(IssueCluster.constituency_id == constituency_id, IssueCluster.issue_count >= 10)
+                .where(IssueCluster.constituency_id == constituency_id, IssueCluster.issue_count >= MIN_VERIFIED_REPORTS)
                 .order_by(desc(IssueCluster.severity_avg), desc(IssueCluster.issue_count), desc(IssueCluster.last_updated))
                 .limit(3)
             )
@@ -41,32 +102,32 @@ class QuestionDraftAgent:
                     select(Issue)
                     .where(Issue.cluster_id == cluster.id)
                     .order_by(desc(Issue.created_at))
-                    .limit(3)
+                    .limit(5)
                 )
             ).scalars().all()
-            if not recent_issues:
+            if len(recent_issues) < min(3, MIN_VERIFIED_REPORTS) or cluster.issue_count < MIN_VERIFIED_REPORTS:
                 continue
 
-            action_type = "question_starred" if float(cluster.severity_avg or 0) >= 8 else "question_unstarred"
-            ministry = recent_issues[0].ministry_mapped or "Concerned Ministry"
-            citizen_count = cluster.issue_count
-            citations = [
-                {
-                    "title": f"Verified citizen report {issue.id}",
-                    "url": f"https://agentsabha.in/citations/issues/{issue.id}",
-                    "type": "verified_citizen_report",
-                    "date": issue.created_at.date().isoformat(),
-                }
-                for issue in recent_issues
-            ]
-            question_text = (
-                f"Will the Minister of {ministry} be pleased to state:\n"
-                f"(a) whether the Government has taken note of the '{cluster.label}' pattern reported from {constituency.name};\n"
-                f"(b) whether {citizen_count} verified citizens from {constituency.name} have reported repeated instances linked to this issue cluster;\n"
-                f"(c) the project, scheme, administrative action, or contract currently responsible for addressing this matter in the constituency;\n"
-                f"(d) the timeline within which corrective action, monitoring, and public communication will be completed;\n\n"
-                f"Constituency evidence: {citizen_count} verified citizens from {constituency.name} have reported this issue cluster.\n"
-                f"Statutory hook: To be raised under Rule 32 of Lok Sabha Rules of Procedure."
+            ministry = self._resolve_ministry(recent_issues)
+            if ministry is None:
+                continue
+
+            action_type = self._question_type(cluster)
+            rule = "Rule 32" if action_type == "question_starred" else "Rule 33"
+            citizen_count = int(cluster.issue_count or 0)
+            label = (cluster.label or cluster.category or "constituency grievance").strip()
+            evidence_summary = self._build_evidence_summary(recent_issues)
+            statutory_hook = self._statutory_hook(cluster)
+            citations = [statutory_hook, *self._issue_citations(recent_issues)]
+            question_text = self._build_question_text(
+                action_type=action_type,
+                rule=rule,
+                ministry=ministry,
+                constituency_name=constituency.name,
+                label=label,
+                citizen_count=citizen_count,
+                evidence_summary=evidence_summary,
+                statutory_hook=statutory_hook["title"],
             )
 
             existing_draft = await db.scalar(
@@ -87,7 +148,7 @@ class QuestionDraftAgent:
                     content=question_text,
                     source_citations=citations,
                     ministry=ministry,
-                    lok_sabha_rule="Rule 32",
+                    lok_sabha_rule=rule,
                     status="draft",
                 )
                 db.add(existing_draft)
@@ -97,7 +158,7 @@ class QuestionDraftAgent:
                 existing_draft.content = question_text
                 existing_draft.source_citations = citations
                 existing_draft.ministry = ministry
-                existing_draft.lok_sabha_rule = "Rule 32"
+                existing_draft.lok_sabha_rule = rule
 
         audit_payload = build_audit_payload(
             AuditEntry(
@@ -115,3 +176,77 @@ class QuestionDraftAgent:
         db.add(AgentLog(**audit_payload))
         await db.commit()
         return {"constituency_id": constituency_id, "drafts_created": drafts_created}
+
+    def _question_type(self, cluster: IssueCluster) -> str:
+        return "question_starred" if float(cluster.severity_avg or 0) >= 8 else "question_unstarred"
+
+    def _resolve_ministry(self, issues: list[Issue]) -> str | None:
+        ministry_counter = Counter(issue.ministry_mapped.strip() for issue in issues if issue.ministry_mapped)
+        if not ministry_counter:
+            return None
+        ministry, _ = ministry_counter.most_common(1)[0]
+        if ministry.lower() in {"concerned ministry", "unknown", "needs review"}:
+            return None
+        return ministry
+
+    def _statutory_hook(self, cluster: IssueCluster) -> dict[str, str]:
+        category = (cluster.category or "other").strip().lower()
+        return STATUTORY_HOOKS.get(category, STATUTORY_HOOKS["other"])
+
+    def _issue_citations(self, issues: list[Issue]) -> list[dict[str, str]]:
+        citations: list[dict[str, str]] = []
+        for issue in issues[:3]:
+            citations.append(
+                {
+                    "title": f"Verified citizen report from {issue.location_ward or issue.location_district or 'reported location'}",
+                    "url": f"https://agentsabha.in/citations/issues/{issue.id}",
+                    "type": "verified_citizen_report",
+                    "date": issue.created_at.date().isoformat(),
+                }
+            )
+        return citations
+
+    def _build_evidence_summary(self, issues: list[Issue]) -> str:
+        locations = [issue.location_ward or issue.location_district for issue in issues if issue.location_ward or issue.location_district]
+        if not locations:
+            return "multiple wards in the constituency"
+        ordered = list(dict.fromkeys(locations))
+        if len(ordered) == 1:
+            return ordered[0]
+        if len(ordered) == 2:
+            return f"{ordered[0]} and {ordered[1]}"
+        return f"{ordered[0]}, {ordered[1]}, and adjoining wards"
+
+    def _build_question_text(
+        self,
+        *,
+        action_type: str,
+        rule: str,
+        ministry: str,
+        constituency_name: str,
+        label: str,
+        citizen_count: int,
+        evidence_summary: str,
+        statutory_hook: str,
+    ) -> str:
+        opening = f"Will the Minister of {ministry} be pleased to state:"
+        if action_type == "question_starred":
+            body = [
+                f"(a) whether the Government has taken note of the recurring problem of {label} in {constituency_name};",
+                f"(b) whether {citizen_count} verified citizens from {constituency_name} have reported the issue across {evidence_summary};",
+                f"(c) the project, contract, scheme, or maintenance mechanism currently responsible for resolving this matter in the constituency; and",
+                f"(d) the time-bound corrective action, monitoring schedule, and accountability measures proposed by the Ministry;",
+            ]
+        else:
+            body = [
+                f"(a) whether the Government has reviewed reports of {label} in {constituency_name};",
+                f"(b) whether {citizen_count} verified citizen reports have been recorded across {evidence_summary}; and",
+                f"(c) the scheme-wise or project-wise action plan and timeline proposed to address the matter;",
+            ]
+
+        evidence_line = (
+            f"Constituency evidence: {citizen_count} verified citizens from {constituency_name} have reported this cluster."
+        )
+        hook_line = f"Statutory hook: {statutory_hook}."
+        footer = f"To be raised under {rule} of the Rules of Procedure and Conduct of Business in Lok Sabha."
+        return "\n".join([opening, *body, "", evidence_line, hook_line, footer])
