@@ -12,6 +12,7 @@ from app.models.agent_log import AgentLog
 from app.models.cluster import ClusterSnapshot, IssueCluster
 from app.models.issue import Issue
 from app.models.parliamentary_action import ParliamentaryAction
+from app.services.source_retrieval import SourceRetrievalService
 
 
 STARRED_CONSTITUENCY_ID = 4
@@ -100,6 +101,21 @@ async def _seed_conflicted_cluster(constituency_id: int) -> None:
         await ClusteringAgent().run(db, constituency_id)
 
 
+@pytest.fixture(autouse=True)
+def stub_source_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def fake_retrieve_primary_source(self, *, category: str | None, ministry: str | None = None, label: str | None = None):
+        return {
+            "title": f"Live source for {category or 'other'}",
+            "url": f"https://example.gov/{category or 'other'}",
+            "type": "government_record",
+            "date": "2026-03-20",
+            "retrieval_status": "live",
+            "source_domain": "example.gov",
+        }
+
+    monkeypatch.setattr(SourceRetrievalService, "retrieve_primary_source", fake_retrieve_primary_source)
+
+
 @pytest.mark.asyncio
 async def test_question_draft_agent_generates_starred_question_with_sources() -> None:
     await _cleanup(STARRED_CONSTITUENCY_ID)
@@ -126,8 +142,9 @@ async def test_question_draft_agent_generates_starred_question_with_sources() ->
             assert "(d)" in action.content
             assert "verified citizens" in action.content
             assert action.source_citations is not None
-            assert action.source_citations[0]["type"] in {"ministry_record", "scheme_guideline", "government_record"}
-            assert len(action.source_citations) >= 4
+            assert action.source_citations[0]["type"] == "government_record"
+            assert action.source_citations[0]["retrieval_status"] == "live"
+            assert len(action.source_citations) >= 5
     finally:
         await _cleanup(STARRED_CONSTITUENCY_ID)
 

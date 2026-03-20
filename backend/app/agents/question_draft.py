@@ -12,66 +12,9 @@ from app.models.cluster import IssueCluster
 from app.models.constituency import Constituency
 from app.models.issue import Issue
 from app.models.parliamentary_action import ParliamentaryAction
+from app.services.source_retrieval import SourceRetrievalService
 from app.utils.audit_logger import AuditEntry, build_audit_payload
 from app.utils.hashing import sha256_hex
-
-
-STATUTORY_HOOKS: dict[str, dict[str, str]] = {
-    "road": {
-        "title": "Ministry of Road Transport and Highways outcome budget and maintenance performance records",
-        "url": "https://morth.nic.in/",
-        "type": "ministry_record",
-        "date": "2026-03-01",
-    },
-    "water": {
-        "title": "Ministry of Jal Shakti programme guidelines under Jal Jeevan Mission",
-        "url": "https://jaljeevanmission.gov.in/",
-        "type": "scheme_guideline",
-        "date": "2026-03-01",
-    },
-    "power": {
-        "title": "Ministry of Power reliability and distribution reform records",
-        "url": "https://powermin.gov.in/",
-        "type": "ministry_record",
-        "date": "2026-03-01",
-    },
-    "health": {
-        "title": "Ministry of Health and Family Welfare service delivery norms under the National Health Mission",
-        "url": "https://nhm.gov.in/",
-        "type": "scheme_guideline",
-        "date": "2026-03-01",
-    },
-    "education": {
-        "title": "Ministry of Education implementation framework under Samagra Shiksha",
-        "url": "https://www.education.gov.in/",
-        "type": "scheme_guideline",
-        "date": "2026-03-01",
-    },
-    "employment": {
-        "title": "Ministry of Rural Development operational guidelines under MGNREGA",
-        "url": "https://nrega.nic.in/",
-        "type": "scheme_guideline",
-        "date": "2026-03-01",
-    },
-    "housing": {
-        "title": "Pradhan Mantri Awas Yojana implementation and monitoring guidelines",
-        "url": "https://pmay-urban.gov.in/",
-        "type": "scheme_guideline",
-        "date": "2026-03-01",
-    },
-    "environment": {
-        "title": "Central Pollution Control Board monitoring framework and compliance records",
-        "url": "https://cpcb.nic.in/",
-        "type": "government_record",
-        "date": "2026-03-01",
-    },
-    "other": {
-        "title": "Relevant Government of India departmental record for constituency grievance resolution",
-        "url": "https://www.india.gov.in/",
-        "type": "government_record",
-        "date": "2026-03-01",
-    },
-}
 
 MIN_VERIFIED_REPORTS = 10
 HIGH_PRIORITY_BADGES = {"tatkal", "rising"}
@@ -115,12 +58,16 @@ class QuestionDraftAgent:
             citizen_count = int(cluster.issue_count or 0)
             label = (cluster.label or cluster.category or "constituency grievance").strip()
             evidence_summary = self._build_evidence_summary(recent_issues)
-            statutory_hook = self._statutory_hook(cluster)
             cluster_citation = self._cluster_citation(cluster, constituency.name)
             ministry_resolution = self._resolve_ministry(recent_issues)
-            citations = [statutory_hook, cluster_citation, *self._issue_citations(recent_issues)]
             status = "draft"
             ministry = ministry_resolution["ministry"]
+            statutory_hook = await SourceRetrievalService().retrieve_primary_source(
+                category=cluster.category,
+                ministry=ministry,
+                label=label,
+            )
+            citations = [statutory_hook, cluster_citation, *self._issue_citations(recent_issues)]
             if ministry is None:
                 status = "needs_review"
                 question_text = self._build_review_text(
@@ -218,10 +165,6 @@ class QuestionDraftAgent:
                 "reason": "Citizen evidence points to multiple ministries and needs human review before filing.",
             }
         return {"ministry": ministry, "candidates": candidates, "reason": None}
-
-    def _statutory_hook(self, cluster: IssueCluster) -> dict[str, str]:
-        category = (cluster.category or "other").strip().lower()
-        return STATUTORY_HOOKS.get(category, STATUTORY_HOOKS["other"])
 
     def _cluster_citation(self, cluster: IssueCluster, constituency_name: str) -> dict[str, str]:
         return {

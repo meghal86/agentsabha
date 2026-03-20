@@ -15,6 +15,7 @@ from app.models.cluster import ClusterSnapshot, IssueCluster
 from app.models.issue import Issue
 from app.models.mp_brief import MPBrief
 from app.models.parliamentary_action import ParliamentaryAction
+from app.services.source_retrieval import SourceRetrievalService
 
 
 TEST_CONSTITUENCY_ID = 3
@@ -39,9 +40,21 @@ async def _cleanup() -> None:
 
 
 @pytest.mark.asyncio
-async def test_clustering_question_and_brief_pipeline() -> None:
+async def test_clustering_question_and_brief_pipeline(monkeypatch: pytest.MonkeyPatch) -> None:
     await _cleanup()
     pdf_path: Path | None = None
+
+    async def fake_retrieve_primary_source(self, *, category: str | None, ministry: str | None = None, label: str | None = None):
+        return {
+            "title": f"Live source for {category or 'other'}",
+            "url": f"https://example.gov/{category or 'other'}",
+            "type": "government_record",
+            "date": "2026-03-20",
+            "retrieval_status": "live",
+            "source_domain": "example.gov",
+        }
+
+    monkeypatch.setattr(SourceRetrievalService, "retrieve_primary_source", fake_retrieve_primary_source)
 
     try:
         async with AsyncSessionLocal() as db:
