@@ -14,11 +14,19 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
             "title": "Ministry of Road Transport and Highways official portal",
             "url": "https://morth.nic.in/",
             "type": "ministry_record",
+            "keywords": "road transport highway bridge flyover accident corridor bypass",
         },
         {
             "title": "National Highways Authority of India official portal",
             "url": "https://nhai.gov.in/",
             "type": "government_record",
+            "keywords": "national highway toll nhai expressway corridor bridge",
+        },
+        {
+            "title": "PMGSY rural roads programme portal",
+            "url": "https://pmgsy.nic.in/",
+            "type": "scheme_guideline",
+            "keywords": "rural village road school approach muddy road panchayat pmgsy",
         },
     ],
     "water": [
@@ -26,11 +34,19 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
             "title": "Jal Jeevan Mission official portal",
             "url": "https://jaljeevanmission.gov.in/",
             "type": "scheme_guideline",
+            "keywords": "tap water drinking water pipeline household connection supply jal",
         },
         {
             "title": "Department of Water Resources official portal",
             "url": "https://jalshakti-dowr.gov.in/",
             "type": "government_record",
+            "keywords": "drainage flood canal irrigation embankment stormwater river",
+        },
+        {
+            "title": "Swachh Bharat Mission Grameen official portal",
+            "url": "https://swachhbharatmission.ddws.gov.in/",
+            "type": "scheme_guideline",
+            "keywords": "drain blocked sewer sanitation waste water stagnation",
         },
     ],
     "power": [
@@ -50,11 +66,13 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
             "title": "National Health Mission official portal",
             "url": "https://nhm.gov.in/",
             "type": "scheme_guideline",
+            "keywords": "phc hospital clinic ambulance medicine nurse doctor nhm",
         },
         {
             "title": "Ministry of Health and Family Welfare official portal",
             "url": "https://main.mohfw.gov.in/",
             "type": "ministry_record",
+            "keywords": "health hospital medicine vaccination doctor public health mohfw",
         },
     ],
     "education": [
@@ -67,6 +85,7 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
             "title": "Samagra Shiksha programme portal",
             "url": "https://samagra.education.gov.in/",
             "type": "scheme_guideline",
+            "keywords": "school teacher classroom toilet scholarship dropout samagra",
         },
     ],
     "employment": [
@@ -74,11 +93,13 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
             "title": "MGNREGA official portal",
             "url": "https://nrega.nic.in/",
             "type": "scheme_guideline",
+            "keywords": "employment wage job mgnrega work card payment labour",
         },
         {
             "title": "Ministry of Rural Development official portal",
             "url": "https://rural.nic.in/",
             "type": "ministry_record",
+            "keywords": "employment livelihood rural development self help",
         },
     ],
     "housing": [
@@ -110,6 +131,7 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
             "title": "Government of India national portal",
             "url": "https://www.india.gov.in/",
             "type": "government_record",
+            "keywords": "government citizen grievance public service scheme",
         }
     ],
 }
@@ -130,9 +152,17 @@ class SourceRetrievalService:
         category: str | None,
         ministry: str | None = None,
         label: str | None = None,
+        issue_text: str | None = None,
+        issue_texts: list[str] | None = None,
     ) -> dict[str, str]:
         normalized_category = (category or "other").strip().lower()
-        candidates = SOURCE_CATALOG.get(normalized_category, SOURCE_CATALOG["other"])
+        candidates = self._rank_candidates(
+            SOURCE_CATALOG.get(normalized_category, SOURCE_CATALOG["other"]),
+            ministry=ministry,
+            label=label,
+            issue_text=issue_text,
+            issue_texts=issue_texts,
+        )
 
         for candidate in candidates:
             metadata = await self._fetch_metadata(candidate["url"])
@@ -160,6 +190,39 @@ class SourceRetrievalService:
             "retrieval_status": "fallback",
             "source_domain": parsed.netloc,
         }
+
+    def _rank_candidates(
+        self,
+        candidates: list[dict[str, str]],
+        *,
+        ministry: str | None,
+        label: str | None,
+        issue_text: str | None,
+        issue_texts: list[str] | None,
+    ) -> list[dict[str, str]]:
+        query = " ".join(
+            part.strip().lower()
+            for part in [ministry or "", label or "", issue_text or "", *(issue_texts or [])]
+            if part and part.strip()
+        )
+        if not query:
+            return candidates
+
+        scored: list[tuple[int, dict[str, str]]] = []
+        query_words = set(re.findall(r"[a-z]{3,}", query))
+        for candidate in candidates:
+            score = 0
+            keywords = set(re.findall(r"[a-z]{3,}", candidate.get("keywords", "").lower()))
+            title_words = set(re.findall(r"[a-z]{3,}", candidate.get("title", "").lower()))
+            url_words = set(re.findall(r"[a-z]{3,}", candidate.get("url", "").lower()))
+            score += len(query_words & keywords) * 5
+            score += len(query_words & title_words) * 2
+            score += len(query_words & url_words)
+            if ministry and ministry.lower() in candidate.get("title", "").lower():
+                score += 4
+            scored.append((score, candidate))
+
+        return [candidate for _, candidate in sorted(scored, key=lambda item: item[0], reverse=True)]
 
     async def _fetch_metadata(self, url: str) -> dict[str, str]:
         cached = self._cache.get(url)

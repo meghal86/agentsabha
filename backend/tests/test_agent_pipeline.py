@@ -44,7 +44,15 @@ async def test_clustering_question_and_brief_pipeline(monkeypatch: pytest.Monkey
     await _cleanup()
     pdf_path: Path | None = None
 
-    async def fake_retrieve_primary_source(self, *, category: str | None, ministry: str | None = None, label: str | None = None):
+    async def fake_retrieve_primary_source(
+        self,
+        *,
+        category: str | None,
+        ministry: str | None = None,
+        label: str | None = None,
+        issue_text: str | None = None,
+        issue_texts: list[str] | None = None,
+    ):
         return {
             "title": f"Live source for {category or 'other'}",
             "url": f"https://example.gov/{category or 'other'}",

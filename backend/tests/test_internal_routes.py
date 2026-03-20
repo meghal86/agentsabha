@@ -13,7 +13,7 @@ from app.routers import admin, journalist, mp
 from app.utils.auth_tokens import sign_payload
 
 
-TEST_CONSTITUENCY_ID = 4
+TEST_CONSTITUENCY_ID = 40
 
 
 async def _cleanup() -> None:
@@ -76,13 +76,24 @@ async def test_internal_routes_return_db_backed_data() -> None:
             mp_actions_response = await mp.get_mp_actions(TEST_CONSTITUENCY_ID, f"Bearer {mp_token}", db)
             assert len(mp_actions_response["actions"]) == 1
 
-            approve_response = await mp.approve_action(created_action_id, f"Bearer {mp_token}", db)
+            approve_response = await mp.approve_action(
+                created_action_id,
+                {
+                    "edited_content": "Edited filing-ready parliamentary draft text.",
+                    "approved_ministry": "Ministry of Road Transport and Highways",
+                },
+                f"Bearer {mp_token}",
+                db,
+            )
             assert approve_response["mp_approved"] is True
+            assert approve_response["content_updated"] is True
+            assert approve_response["ministry_updated"] is True
 
             journalist_response = await journalist.get_journalist_constituency_data(
                 TEST_CONSTITUENCY_ID, journalist_token, db
             )
             assert journalist_response["actions"][0]["status"] in {"draft", "submitted_to_mp"}
+            assert journalist_response["actions"][0]["content"] == "Edited filing-ready parliamentary draft text."
 
             admin_response = await admin.admin_agents_health(f"Bearer {admin_token}", db)
             assert any(agent["agent_type"] == "intake" for agent in admin_response["agents"])

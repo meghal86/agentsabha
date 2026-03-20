@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from math import log10
+import re
 from time import perf_counter
 
 from sqlalchemy import desc, select
@@ -30,46 +32,69 @@ class QuestionDraftAgent:
         if constituency is None:
             return {"constituency_id": constituency_id, "drafts_created": 0}
 
-        clusters = (
+        candidate_clusters = (
             await db.execute(
                 select(IssueCluster)
                 .where(IssueCluster.constituency_id == constituency_id, IssueCluster.issue_count >= MIN_VERIFIED_REPORTS)
-                .order_by(desc(IssueCluster.severity_avg), desc(IssueCluster.issue_count), desc(IssueCluster.last_updated))
-                .limit(3)
+                .order_by(desc(IssueCluster.last_updated))
+                .limit(8)
             )
         ).scalars().all()
 
         drafts_created = 0
         reviews_needed = 0
-        for cluster in clusters:
-            recent_issues = (
+        clusters: list[tuple[IssueCluster, list[Issue], float]] = []
+        seen_signatures: list[set[str]] = []
+        for cluster in candidate_clusters:
+            evidence_issues = (
                 await db.execute(
                     select(Issue)
                     .where(Issue.cluster_id == cluster.id)
                     .order_by(desc(Issue.created_at))
-                    .limit(10)
+                    .limit(20)
                 )
             ).scalars().all()
-            if len(recent_issues) < min(3, MIN_VERIFIED_REPORTS) or cluster.issue_count < MIN_VERIFIED_REPORTS:
+            if len(evidence_issues) < min(3, MIN_VERIFIED_REPORTS) or cluster.issue_count < MIN_VERIFIED_REPORTS:
                 continue
+            signature = self._cluster_signature(cluster, evidence_issues)
+            if any(self._signature_overlap(signature, existing) >= 0.75 for existing in seen_signatures):
+                continue
+            seen_signatures.append(signature)
+            score = self._cluster_rank_score(cluster, evidence_issues)
+            clusters.append((cluster, evidence_issues, score))
+
+        for cluster, evidence_issues, _score in sorted(clusters, key=lambda item: item[2], reverse=True)[:3]:
+            recent_issues = evidence_issues[:10]
 
             action_type = self._question_type(cluster)
             rule = "Rule 32" if action_type == "question_starred" else "Rule 33"
             citizen_count = int(cluster.issue_count or 0)
             label = (cluster.label or cluster.category or "constituency grievance").strip()
-            evidence_summary = self._build_evidence_summary(recent_issues)
-            cluster_citation = self._cluster_citation(cluster, constituency.name)
-            ministry_resolution = self._resolve_ministry(recent_issues)
+            evidence_summary = self._build_evidence_summary(evidence_issues)
+            cluster_citation = self._cluster_citation(cluster, constituency.name, rank_score=self._cluster_rank_score(cluster, evidence_issues))
+            ministry_resolution = self._resolve_ministry(evidence_issues)
             status = "draft"
             ministry = ministry_resolution["ministry"]
+            review_reasons: list[str] = []
             statutory_hook = await SourceRetrievalService().retrieve_primary_source(
                 category=cluster.category,
                 ministry=ministry,
                 label=label,
+                issue_text=label,
+                issue_texts=[issue.translated_text or issue.raw_text for issue in evidence_issues[:5]],
             )
-            citations = [statutory_hook, cluster_citation, *self._issue_citations(recent_issues)]
+            citations = [statutory_hook, cluster_citation, *self._issue_citations(evidence_issues)]
             if ministry is None:
                 status = "needs_review"
+                review_reasons.append(str(ministry_resolution["reason"] or "Ministry mapping is uncertain."))
+            if statutory_hook.get("retrieval_status") != "live":
+                status = "needs_review"
+                review_reasons.append("Primary source retrieval did not resolve to a live official source.")
+            if self._needs_escalated_review(evidence_issues):
+                status = "needs_review"
+                review_reasons.append("Citizen evidence is highly repetitive and requires stronger review before filing.")
+
+            if status == "needs_review":
                 question_text = self._build_review_text(
                     rule=rule,
                     constituency_name=constituency.name,
@@ -77,7 +102,7 @@ class QuestionDraftAgent:
                     citizen_count=citizen_count,
                     evidence_summary=evidence_summary,
                     suggested_ministries=ministry_resolution["candidates"],
-                    review_reason=ministry_resolution["reason"] or "Ministry mapping is uncertain.",
+                    review_reason=" ".join(dict.fromkeys(review_reasons)),
                 )
                 reviews_needed += 1
             else:
@@ -90,6 +115,7 @@ class QuestionDraftAgent:
                     citizen_count=citizen_count,
                     evidence_summary=evidence_summary,
                     statutory_hook=statutory_hook["title"],
+                    cluster=cluster,
                 )
 
             existing_draft = await db.scalar(
@@ -148,6 +174,34 @@ class QuestionDraftAgent:
             return "question_starred"
         return "question_unstarred"
 
+    def _cluster_rank_score(self, cluster: IssueCluster, issues: list[Issue]) -> float:
+        severity = float(cluster.severity_avg or 0)
+        issue_count = int(cluster.issue_count or len(issues) or 0)
+        velocity = float(cluster.velocity or 0)
+        badge = (cluster.badge or "").strip().lower()
+        urgency_bonus = 1.2 if any(issue.urgency_flag for issue in issues[:5]) else 0.0
+        badge_bonus = 1.4 if badge == "tatkal" else 0.7 if badge == "rising" else 0.0
+        return severity * 5 + log10(max(issue_count, 1)) * 4 + max(velocity, 0) / 10 + urgency_bonus + badge_bonus
+
+    def _cluster_signature(self, cluster: IssueCluster, issues: list[Issue]) -> set[str]:
+        label = re.sub(r"[^a-z0-9 ]+", " ", (cluster.label or cluster.category or "").lower())
+        tokens = [
+            token
+            for token in label.split()
+            if token not in {"the", "and", "for", "ward", "issue", "public", "near", "across"}
+        ]
+        if tokens:
+            return set(sorted(dict.fromkeys(tokens))[:5])
+        texts = " ".join((issue.translated_text or issue.raw_text or "").lower() for issue in issues[:3])
+        words = [word for word in re.findall(r"[a-z0-9]{4,}", texts) if word not in {"report", "reports", "issue", "broken"}]
+        return set(sorted(dict.fromkeys(words))[:5]) or {str(cluster.id)}
+
+    def _signature_overlap(self, left: set[str], right: set[str]) -> float:
+        union = left | right
+        if not union:
+            return 0.0
+        return len(left & right) / len(union)
+
     def _resolve_ministry(self, issues: list[Issue]) -> dict[str, object]:
         ministry_counter = Counter(issue.ministry_mapped.strip() for issue in issues if issue.ministry_mapped)
         if not ministry_counter:
@@ -166,17 +220,23 @@ class QuestionDraftAgent:
             }
         return {"ministry": ministry, "candidates": candidates, "reason": None}
 
-    def _cluster_citation(self, cluster: IssueCluster, constituency_name: str) -> dict[str, str]:
+    def _cluster_citation(self, cluster: IssueCluster, constituency_name: str, *, rank_score: float) -> dict[str, str]:
         return {
             "title": f"Issue cluster '{cluster.label or cluster.category or 'constituency grievance'}' in {constituency_name}",
             "url": f"https://agentsabha.in/citations/clusters/{cluster.id}",
             "type": "cluster_snapshot",
             "date": cluster.last_updated.date().isoformat(),
+            "rank_score": f"{rank_score:.2f}",
         }
 
     def _issue_citations(self, issues: list[Issue]) -> list[dict[str, str]]:
         citations: list[dict[str, str]] = []
-        for issue in issues[:3]:
+        seen_texts: set[str] = set()
+        for issue in issues:
+            signature = re.sub(r"\s+", " ", (issue.translated_text or issue.raw_text or "").strip().lower())
+            if signature in seen_texts:
+                continue
+            seen_texts.add(signature)
             citations.append(
                 {
                     "title": f"Verified citizen report from {issue.location_ward or issue.location_district or 'reported location'}",
@@ -185,7 +245,16 @@ class QuestionDraftAgent:
                     "date": issue.created_at.date().isoformat(),
                 }
             )
+            if len(citations) == 3:
+                break
         return citations
+
+    def _needs_escalated_review(self, issues: list[Issue]) -> bool:
+        texts = [re.sub(r"\s+", " ", (issue.translated_text or issue.raw_text or "").strip().lower()) for issue in issues[:8]]
+        if not texts:
+            return True
+        unique_ratio = len(set(texts)) / len(texts)
+        return unique_ratio < 0.45
 
     def _build_evidence_summary(self, issues: list[Issue]) -> str:
         locations = [issue.location_ward or issue.location_district for issue in issues if issue.location_ward or issue.location_district]
@@ -209,27 +278,28 @@ class QuestionDraftAgent:
         citizen_count: int,
         evidence_summary: str,
         statutory_hook: str,
+        cluster: IssueCluster,
     ) -> str:
         opening = f"Will the Minister of {ministry} be pleased to state:"
         if action_type == "question_starred":
             body = [
-                f"(a) whether the Government has taken note of the recurring problem of {label} in {constituency_name};",
-                f"(b) whether {citizen_count} verified citizens from {constituency_name} have reported the issue across {evidence_summary};",
-                f"(c) the project, contract, scheme, or maintenance mechanism currently responsible for resolving this matter in the constituency; and",
+                f"(a) whether the Government has taken cognisance of the recurring problem of {label} in {constituency_name};",
+                f"(b) whether it is a fact that {citizen_count} verified citizens from {constituency_name} have reported the issue across {evidence_summary};",
+                f"(c) the project, contract, scheme, maintenance mechanism, or implementing agency presently responsible for redressing this matter in the constituency; and",
                 f"(d) the time-bound corrective action, monitoring schedule, and accountability measures proposed by the Ministry;",
             ]
         else:
             body = [
                 f"(a) whether the Government has reviewed reports of {label} in {constituency_name};",
                 f"(b) whether {citizen_count} verified citizen reports have been recorded across {evidence_summary}; and",
-                f"(c) the scheme-wise or project-wise action plan and timeline proposed to address the matter;",
+                f"(c) the scheme-wise, project-wise, or agency-wise action plan and timeline proposed to address the matter;",
             ]
 
         evidence_line = (
-            f"Constituency evidence: {citizen_count} verified citizens from {constituency_name} have reported this cluster."
+            f"Constituency evidence: {citizen_count} verified citizens from {constituency_name} have reported this cluster, which is currently classified as '{cluster.badge or 'stable'}' with an average severity of {float(cluster.severity_avg or 0):.1f}."
         )
         hook_line = f"Statutory hook: {statutory_hook}."
-        footer = f"To be raised under {rule} of the Rules of Procedure and Conduct of Business in Lok Sabha."
+        footer = f"To be raised under {rule} of the Rules of Procedure and Conduct of Business in Lok Sabha, subject to review and approval by the Hon'ble Member."
         return "\n".join([opening, *body, "", evidence_line, hook_line, footer])
 
     def _build_review_text(

@@ -19,6 +19,8 @@ STARRED_CONSTITUENCY_ID = 4
 UNSTARRED_CONSTITUENCY_ID = 5
 BLOCKED_CONSTITUENCY_ID = 6
 REVIEW_CONSTITUENCY_ID = 7
+FALLBACK_SOURCE_CONSTITUENCY_ID = 8
+DUPLICATE_CONSTITUENCY_ID = 9
 
 
 async def _cleanup(constituency_id: int) -> None:
@@ -101,9 +103,60 @@ async def _seed_conflicted_cluster(constituency_id: int) -> None:
         await ClusteringAgent().run(db, constituency_id)
 
 
+async def _seed_manual_cluster(
+    constituency_id: int,
+    *,
+    label: str,
+    category: str,
+    issue_type: str,
+    severity: float,
+    ministry: str,
+    cluster_index: int,
+) -> None:
+    async with AsyncSessionLocal() as db:
+        cluster = IssueCluster(
+            constituency_id=constituency_id,
+            label=label,
+            category=category,
+            issue_count=10,
+            severity_avg=Decimal(str(severity)),
+            velocity=32,
+            badge="rising",
+        )
+        db.add(cluster)
+        await db.flush()
+        for idx in range(10):
+            db.add(
+                Issue(
+                    constituency_id=constituency_id,
+                    cluster_id=cluster.id,
+                    raw_text=f"{label} report {cluster_index}-{idx}",
+                    translated_text=f"{label} report {cluster_index}-{idx}",
+                    source_language="en",
+                    source_channel="web",
+                    issue_type=issue_type,
+                    severity_score=Decimal(str(severity)),
+                    urgency_flag=severity >= 8,
+                    location_district="Test District",
+                    location_ward=f"Ward {cluster_index}-{idx + 1}",
+                    affected_estimate=250,
+                    ministry_mapped=ministry,
+                )
+            )
+        await db.commit()
+
+
 @pytest.fixture(autouse=True)
 def stub_source_retrieval(monkeypatch: pytest.MonkeyPatch) -> None:
-    async def fake_retrieve_primary_source(self, *, category: str | None, ministry: str | None = None, label: str | None = None):
+    async def fake_retrieve_primary_source(
+        self,
+        *,
+        category: str | None,
+        ministry: str | None = None,
+        label: str | None = None,
+        issue_text: str | None = None,
+        issue_texts: list[str] | None = None,
+    ):
         return {
             "title": f"Live source for {category or 'other'}",
             "url": f"https://example.gov/{category or 'other'}",
@@ -228,3 +281,81 @@ async def test_question_draft_agent_marks_conflicting_ministry_evidence_for_revi
             assert action.source_citations[1]["type"] == "cluster_snapshot"
     finally:
         await _cleanup(REVIEW_CONSTITUENCY_ID)
+
+
+@pytest.mark.asyncio
+async def test_question_draft_agent_marks_fallback_source_for_review(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fallback_source(self, *, category: str | None, ministry: str | None = None, label: str | None = None, issue_text: str | None = None, issue_texts: list[str] | None = None):
+        return {
+            "title": "Fallback source",
+            "url": "https://example.gov/fallback",
+            "type": "government_record",
+            "date": "2026-03-20",
+            "retrieval_status": "fallback",
+            "source_domain": "example.gov",
+        }
+
+    monkeypatch.setattr(SourceRetrievalService, "retrieve_primary_source", fallback_source)
+
+    await _cleanup(FALLBACK_SOURCE_CONSTITUENCY_ID)
+    try:
+        await _seed_cluster(
+            FALLBACK_SOURCE_CONSTITUENCY_ID,
+            issue_type="road",
+            severity=8.1,
+            ministry="Ministry of Road Transport and Highways",
+            count=10,
+        )
+
+        async with AsyncSessionLocal() as db:
+            result = await QuestionDraftAgent().run(db, FALLBACK_SOURCE_CONSTITUENCY_ID)
+            assert result["drafts_created"] == 0
+            assert result["reviews_needed"] == 1
+
+            action = await db.scalar(
+                select(ParliamentaryAction).where(ParliamentaryAction.constituency_id == FALLBACK_SOURCE_CONSTITUENCY_ID)
+            )
+            assert action is not None
+            assert action.status == "needs_review"
+            assert "live official source" in action.content.lower()
+    finally:
+        await _cleanup(FALLBACK_SOURCE_CONSTITUENCY_ID)
+
+
+@pytest.mark.asyncio
+async def test_question_draft_agent_suppresses_duplicate_similar_clusters() -> None:
+    await _cleanup(DUPLICATE_CONSTITUENCY_ID)
+    try:
+        await _seed_manual_cluster(
+            DUPLICATE_CONSTITUENCY_ID,
+            label="Pothole road safety near school",
+            category="road",
+            issue_type="road",
+            severity=8.4,
+            ministry="Ministry of Road Transport and Highways",
+            cluster_index=1,
+        )
+        await _seed_manual_cluster(
+            DUPLICATE_CONSTITUENCY_ID,
+            label="Road safety pothole near school crossing",
+            category="road",
+            issue_type="road",
+            severity=8.2,
+            ministry="Ministry of Road Transport and Highways",
+            cluster_index=2,
+        )
+
+        async with AsyncSessionLocal() as db:
+            result = await QuestionDraftAgent().run(db, DUPLICATE_CONSTITUENCY_ID)
+            assert result["drafts_created"] == 1
+
+            actions = (
+                await db.execute(
+                    select(ParliamentaryAction).where(ParliamentaryAction.constituency_id == DUPLICATE_CONSTITUENCY_ID)
+                )
+            ).scalars().all()
+            assert len(actions) == 1
+    finally:
+        await _cleanup(DUPLICATE_CONSTITUENCY_ID)
