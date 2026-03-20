@@ -8,12 +8,103 @@ export type AgentRoadmapItem = {
   source: string;
   note: string;
   runtimeAgentType?: string;
+  completedWork?: string[];
+  remainingWork?: string[];
+  proofPoints?: string[];
+  nextStep?: string;
 };
 
 export const agentRoadmap: AgentRoadmapItem[] = [
-  { id: "intake", number: 1, name: "Intake Agent", layer: "Layer A — Citizen Issue Intake", status: "built", baseCompletion: 62, runtimeAgentType: "intake", source: "46 prompts doc", note: "Web intake, structuring, and issue persistence exist; WhatsApp, voice, and production verification remain incomplete." },
-  { id: "clustering", number: 2, name: "Clustering Agent", layer: "Layer A — Issue Pattern Intelligence", status: "built", baseCompletion: 56, runtimeAgentType: "clustering", source: "46 prompts doc", note: "Cluster creation, labels, velocity, and badges exist; continuity, multilingual robustness, and production hardening are still open." },
-  { id: "question-hour", number: 3, name: "Question Hour Draft Agent", layer: "Layer A — Parliamentary Questions", status: "built", baseCompletion: 52, runtimeAgentType: "question_draft", source: "46 prompts doc", note: "Rule 32 and Rule 33 drafting now exists, but richer source retrieval and full MP review quality gates are still pending." },
+  {
+    id: "intake",
+    number: 1,
+    name: "Intake Agent",
+    layer: "Layer A — Citizen Issue Intake",
+    status: "built",
+    baseCompletion: 62,
+    runtimeAgentType: "intake",
+    source: "46 prompts doc",
+    note: "Web intake, structuring, and issue persistence exist; WhatsApp, voice, and production verification remain incomplete.",
+    completedWork: [
+      "Web citizen submit path stores structured issues in the live database.",
+      "Prompt-backed extraction plus deterministic fallback parsing exists.",
+      "Issue type, urgency, severity, location, and ministry mapping are normalized.",
+      "Audit logging records intake runs for runtime inspection.",
+    ],
+    remainingWork: [
+      "Real WhatsApp webhook processing must persist issues through the same pipeline.",
+      "Voice-note transcription must move from placeholder to a real service.",
+      "Indic translation must run in production for multilingual intake.",
+      "Aadhaar and constituency verification must be fully enforced across all intake channels.",
+      "Duplicate, abuse, and empty-message handling need production-grade rules.",
+    ],
+    proofPoints: [
+      "Audit-log entries exist for agent_type=intake.",
+      "Backend intake tests are passing.",
+      "Live web submit flow already creates issue rows.",
+    ],
+    nextStep: "Wire WhatsApp text and voice messages into the same persisted intake pipeline.",
+  },
+  {
+    id: "clustering",
+    number: 2,
+    name: "Clustering Agent",
+    layer: "Layer A — Issue Pattern Intelligence",
+    status: "built",
+    baseCompletion: 56,
+    runtimeAgentType: "clustering",
+    source: "46 prompts doc",
+    note: "Cluster creation, labels, velocity, and badges exist; continuity, multilingual robustness, and production hardening are still open.",
+    completedWork: [
+      "Issue clusters are created from stored issues and linked back to issue rows.",
+      "Category labels, badge assignment, and weekly velocity logic exist.",
+      "Snapshot-aware velocity calculation is implemented.",
+      "Top-issue ledger and public cluster queries already read from clustered data.",
+    ],
+    remainingWork: [
+      "Cross-run cluster continuity and merge/split behavior need hardening.",
+      "Mixed-language and noisier intake data must be handled more reliably.",
+      "National pattern detection across constituencies is still too thin.",
+      "Public threshold vs internal threshold separation needs stricter enforcement.",
+      "Scheduled clustering under load needs operational verification.",
+    ],
+    proofPoints: [
+      "Clustering pipeline tests pass.",
+      "Cluster badges and velocity are visible on public screens from stored data.",
+      "Agent logs show clustering runs when executed.",
+    ],
+    nextStep: "Harden multilingual clustering quality and continuity across repeated runs.",
+  },
+  {
+    id: "question-hour",
+    number: 3,
+    name: "Question Hour Draft Agent",
+    layer: "Layer A — Parliamentary Questions",
+    status: "built",
+    baseCompletion: 52,
+    runtimeAgentType: "question_draft",
+    source: "46 prompts doc",
+    note: "Rule 32 and Rule 33 drafting now exists, but richer source retrieval and full MP review quality gates are still pending.",
+    completedWork: [
+      "Draft generation now distinguishes starred and unstarred parliamentary questions.",
+      "Rule 32 and Rule 33 are assigned correctly based on draft type.",
+      "Minimum verified-report gating is enforced before draft creation.",
+      "Drafts now include statutory hooks and verified-citizen citations.",
+    ],
+    remainingWork: [
+      "Primary-source retrieval must move beyond deterministic source hooks.",
+      "Needs-review routing is still missing when ministry or source confidence is weak.",
+      "Draft ranking across multiple strong clusters needs improvement.",
+      "MP approval and editing workflow remains incomplete.",
+      "Quality must be raised from structurally correct to filing-grade language consistently.",
+    ],
+    proofPoints: [
+      "Dedicated Agent 03 tests are passing.",
+      "Pipeline test still passes after the Rule 32/33 refactor.",
+      "Parliamentary drafts are being written into parliamentary_actions.",
+    ],
+    nextStep: "Add real source-retrieval and a needs-review path before expanding to Agent 04.",
+  },
   { id: "zero-hour", number: 4, name: "Zero Hour Agent", layer: "Layer A — Urgent Parliamentary Notices", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
   { id: "debate", number: 5, name: "Debate Agent", layer: "Layer A — Legislative Debate Participation", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
   { id: "bill-drafting", number: 6, name: "Bill Drafting Agent", layer: "Layer A — Private Members Bills", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
@@ -31,12 +122,12 @@ export const agentRoadmap: AgentRoadmapItem[] = [
 
   { id: "perspective-research", number: 17, name: "Perspective Research Agent", layer: "Layer C — Media Engine", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
   { id: "script-writer", number: 18, name: "Script Writer Agent", layer: "Layer C — Media Engine", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
-  { id: "fact-check", number: 19, name: "Fact Check Agent", layer: "Layer C — Media Engine", status: "partial", baseCompletion: 24, runtimeAgentType: "fact_check", source: "46 prompts doc", note: "Backend shell exists, but the hard-gate research workflow is not complete." },
+  { id: "fact-check", number: 19, name: "Fact Check Agent", layer: "Layer C — Media Engine", status: "partial", baseCompletion: 24, runtimeAgentType: "fact_check", source: "46 prompts doc", note: "Backend shell exists, but the hard-gate research workflow is not complete.", nextStep: "Implement claim extraction plus source verification before media generation is allowed." },
   { id: "voice-synthesis", number: 20, name: "Voice Synthesis Agent", layer: "Layer C — Media Engine", status: "partial", baseCompletion: 16, source: "46 prompts doc", note: "Placeholder exists, but no live audio pipeline exists." },
   { id: "data-visualisation", number: 21, name: "Data Visualisation Agent", layer: "Layer C — Media Engine", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
   { id: "video-assembly", number: 22, name: "Video Assembly Agent", layer: "Layer C — Media Engine", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
   { id: "reels-cutter", number: 23, name: "Reels Cutter Agent", layer: "Layer C — Media Engine", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
-  { id: "distribution", number: 24, name: "Distribution Agent", layer: "Layer C — Media Engine", status: "partial", baseCompletion: 22, runtimeAgentType: "distribution", source: "46 prompts doc", note: "Notification and dispatch paths exist in part, but not the full media distribution system." },
+  { id: "distribution", number: 24, name: "Distribution Agent", layer: "Layer C — Media Engine", status: "partial", baseCompletion: 22, runtimeAgentType: "distribution", source: "46 prompts doc", note: "Notification and dispatch paths exist in part, but not the full media distribution system.", nextStep: "Finish citizen notifications first, then media and external channel dispatch." },
 
   { id: "scheme-eligibility", number: 25, name: "Scheme Eligibility Agent", layer: "Layer D — Citizen Welfare", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
   { id: "rti-filing", number: 26, name: "RTI Filing Agent", layer: "Layer D — Citizen Welfare", status: "planned", baseCompletion: 0, source: "46 prompts doc", note: "Not built yet." },
@@ -126,4 +217,58 @@ export function buildRoadmapSummary(liveAgents: LiveRoadmapAgent[]) {
       liveAgents.reduce((sum, agent) => sum + agent.completion, 0) / Math.max(liveAgents.length, 1),
     ),
   };
+}
+
+export function getRoadmapDetails(agent: LiveRoadmapAgent) {
+  const completedWork =
+    agent.completedWork ??
+    (agent.status === "built"
+      ? [
+          "Core code path exists in the repo.",
+          "The agent is represented in the runtime status board.",
+          "The agent can be inspected through the delivery roadmap.",
+        ]
+      : agent.status === "partial"
+        ? [
+            "Some supporting code or schema pieces exist.",
+            "The agent is visible in the roadmap and delivery plan.",
+          ]
+        : ["The formal agent exists in the roadmap document."]);
+
+  const remainingWork =
+    agent.remainingWork ??
+    (agent.status === "built"
+      ? [
+          "Production-grade integrations are still required.",
+          "Operational monitoring and failure handling need hardening.",
+          "End-to-end quality must be proven with real traffic.",
+        ]
+      : agent.status === "partial"
+        ? [
+            "Primary runtime path is incomplete.",
+            "Agent-specific outputs are not yet fully reliable.",
+            "Definition of done must be converted into tests and live runs.",
+          ]
+        : [
+            "No implementation exists yet.",
+            "Prompt, runtime, persistence, and tests all remain to be built.",
+          ]);
+
+  const proofPoints =
+    agent.proofPoints ??
+    (agent.last_run
+      ? [
+          "Recent runtime activity exists in the audit log.",
+          `${agent.recent_runs} recent run(s) have been recorded.`,
+          `${agent.active_constituency_count} active constituencies are linked to this runtime snapshot.`,
+        ]
+      : ["No runtime proof recorded yet."]);
+
+  const nextStep =
+    agent.nextStep ??
+    (agent.status === "planned"
+      ? "Create the first implementation slice: prompt, runtime entrypoint, persistence, and tests."
+      : "Take the next incomplete integration and convert it into a tested runtime path.");
+
+  return { completedWork, remainingWork, proofPoints, nextStep };
 }
