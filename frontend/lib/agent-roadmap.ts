@@ -161,10 +161,8 @@ export const agentRoadmap: AgentRoadmapItem[] = [
 export type DebugAgentSnapshot = {
   agent_type: string;
   last_run: string | null;
-  last_action: string | null;
-  error_code: string | null;
   recent_runs: number;
-  active_constituencies: number[];
+  active_constituency_count: number;
 };
 
 export type LiveRoadmapAgent = AgentRoadmapItem & {
@@ -186,17 +184,15 @@ export function buildLiveRoadmap(agents: AgentRoadmapItem[], debugAgents: DebugA
         : (runtime.last_run ? 8 : 0) +
           (runtime.recent_runs >= 1 ? 5 : 0) +
           (runtime.recent_runs >= 5 ? 3 : 0) +
-          (runtime.active_constituencies.length > 0 ? 4 : 0) +
-          (!runtime.error_code && runtime.last_run ? 3 : 0);
-    const completion = Math.min(95, agent.baseCompletion + runtimeBoost);
+          (runtime.active_constituency_count > 0 ? 4 : 0) +
+          (runtime.last_run ? 3 : 0);
+    const completion = Math.min(100, agent.baseCompletion + runtimeBoost);
     const health =
       agent.status === "planned"
         ? "planned"
-        : runtime?.error_code
-          ? "attention"
-          : runtime?.last_run
-            ? "healthy"
-            : "idle";
+        : runtime?.last_run
+          ? "healthy"
+          : "idle";
 
     return {
       ...agent,
@@ -204,22 +200,39 @@ export function buildLiveRoadmap(agents: AgentRoadmapItem[], debugAgents: DebugA
       health,
       last_run: runtime?.last_run ?? null,
       recent_runs: runtime?.recent_runs ?? 0,
-      active_constituency_count: runtime?.active_constituencies.length ?? 0,
+      active_constituency_count: runtime?.active_constituency_count ?? 0,
     };
   });
 }
 
 export function buildRoadmapSummary(liveAgents: LiveRoadmapAgent[]) {
+  const activeAgents = liveAgents.filter((agent) => agent.status !== "planned");
   return {
     total: liveAgents.length,
     built: liveAgents.filter((agent) => agent.status === "built").length,
     partial: liveAgents.filter((agent) => agent.status === "partial").length,
     planned: liveAgents.filter((agent) => agent.status === "planned").length,
     live: liveAgents.filter((agent) => agent.last_run).length,
-    overallCompletion: Math.round(
+    activeCompletion: Math.round(
+      activeAgents.reduce((sum, agent) => sum + agent.completion, 0) / Math.max(activeAgents.length, 1),
+    ),
+    roadmapCoverage: Math.round(
       liveAgents.reduce((sum, agent) => sum + agent.completion, 0) / Math.max(liveAgents.length, 1),
     ),
   };
+}
+
+export function groupRoadmapByLayer(liveAgents: LiveRoadmapAgent[]) {
+  const groups = new Map<string, LiveRoadmapAgent[]>();
+  for (const agent of liveAgents) {
+    const bucket = groups.get(agent.layer) ?? [];
+    bucket.push(agent);
+    groups.set(agent.layer, bucket);
+  }
+  return Array.from(groups.entries()).map(([layer, agents]) => ({
+    layer,
+    agents: agents.sort((left, right) => left.number - right.number),
+  }));
 }
 
 export function getRoadmapDetails(agent: LiveRoadmapAgent) {

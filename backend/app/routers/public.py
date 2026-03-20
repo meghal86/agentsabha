@@ -319,6 +319,34 @@ async def fetch_debug_agents(db: AsyncSession) -> dict:
     }
 
 
+async def fetch_public_roadmap_runtime(db: AsyncSession) -> dict:
+    recent_rows = (await db.execute(select(AgentLog).order_by(desc(AgentLog.created_at)).limit(500))).scalars().all()
+
+    latest_by_agent: dict[str, AgentLog] = {}
+    run_counts: dict[str, int] = {}
+    active_constituencies: dict[str, set[int]] = {}
+
+    for row in recent_rows:
+        run_counts[row.agent_type] = run_counts.get(row.agent_type, 0) + 1
+        latest_by_agent.setdefault(row.agent_type, row)
+        if row.constituency_id is not None:
+            active_constituencies.setdefault(row.agent_type, set()).add(row.constituency_id)
+
+    ordered_types = ("intake", "clustering", "question_draft", "mp_brief", "distribution", "fact_check")
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "agents": [
+            {
+                "agent_type": agent_type,
+                "last_run": latest_by_agent[agent_type].created_at.isoformat() if agent_type in latest_by_agent else None,
+                "recent_runs": run_counts.get(agent_type, 0),
+                "active_constituency_count": len(active_constituencies.get(agent_type, set())),
+            }
+            for agent_type in ordered_types
+        ],
+    }
+
+
 @router.get("/health", response_model=HealthResponse)
 async def health(db: AsyncSession = Depends(get_db)) -> HealthResponse:
     db_status = "ok"
@@ -387,3 +415,8 @@ async def get_weekly_audit(db: AsyncSession = Depends(get_db)) -> WeeklyAuditRes
 @router.get("/api/debug/agents")
 async def get_debug_agents(db: AsyncSession = Depends(get_db)) -> dict:
     return await fetch_debug_agents(db)
+
+
+@router.get("/api/roadmap/runtime")
+async def get_roadmap_runtime(db: AsyncSession = Depends(get_db)) -> dict:
+    return await fetch_public_roadmap_runtime(db)

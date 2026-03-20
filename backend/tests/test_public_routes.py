@@ -127,3 +127,26 @@ def test_weekly_audit_route_uses_query_helper(monkeypatch) -> None:
     response = client.get("/api/audit/weekly")
     assert response.status_code == 200
     assert response.json()["geographic_balance"]["north"] == 4
+
+
+def test_roadmap_runtime_route_uses_helper(monkeypatch) -> None:
+    async def fake_runtime(_) -> dict:
+        return {
+            "generated_at": "2026-03-20T12:00:00+00:00",
+            "agents": [
+                {
+                    "agent_type": "intake",
+                    "last_run": "2026-03-20T11:59:00+00:00",
+                    "recent_runs": 12,
+                    "active_constituency_count": 3,
+                }
+            ],
+        }
+
+    monkeypatch.setattr(public, "fetch_public_roadmap_runtime", fake_runtime)
+
+    response = client.get("/api/roadmap/runtime")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["agents"][0]["agent_type"] == "intake"
+    assert payload["agents"][0]["active_constituency_count"] == 3

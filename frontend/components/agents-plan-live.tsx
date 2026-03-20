@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import type { DebugAgentStatus } from "@/lib/api";
-import { agentRoadmap, buildLiveRoadmap, buildRoadmapSummary, getRoadmapDetails } from "@/lib/agent-roadmap";
+import type { RoadmapRuntimeAgent } from "@/lib/api";
+import { agentRoadmap, buildLiveRoadmap, buildRoadmapSummary, getRoadmapDetails, groupRoadmapByLayer } from "@/lib/agent-roadmap";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -21,28 +21,46 @@ function healthLabel(health: "healthy" | "attention" | "idle" | "planned") {
   return "Planned";
 }
 
-async function fetchDebugAgents(): Promise<DebugAgentStatus[]> {
-  const response = await fetch(`${API_BASE_URL}/api/debug/agents`, { cache: "no-store" });
-  if (!response.ok) throw new Error(`Failed to fetch debug agents: ${response.status}`);
-  const payload = (await response.json()) as { agents: DebugAgentStatus[] };
-  return payload.agents;
+async function fetchRoadmapRuntime(): Promise<{ generated_at: string; agents: RoadmapRuntimeAgent[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/roadmap/runtime`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`Failed to fetch roadmap runtime: ${response.status}`);
+  return (await response.json()) as { generated_at: string; agents: RoadmapRuntimeAgent[] };
 }
 
-export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: DebugAgentStatus[] }) {
-  const [debugAgents, setDebugAgents] = useState(initialDebugAgents);
-  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
+function progressWidth(value: number) {
+  return `${Math.max(value, value > 0 ? 4 : 0)}%`;
+}
+
+export function AgentsPlanLive({
+  initialRuntimeAgents,
+  initialBackendAvailable,
+  initialGeneratedAt,
+}: {
+  initialRuntimeAgents: RoadmapRuntimeAgent[];
+  initialBackendAvailable: boolean;
+  initialGeneratedAt: string | null;
+}) {
+  const [runtimeAgents, setRuntimeAgents] = useState(initialRuntimeAgents);
+  const [backendAvailable, setBackendAvailable] = useState(initialBackendAvailable);
+  const [lastSuccessfulUpdate, setLastSuccessfulUpdate] = useState<string | null>(initialGeneratedAt);
+  const [lastAttemptAt, setLastAttemptAt] = useState<string>(new Date().toISOString());
 
   useEffect(() => {
     let cancelled = false;
+
     const refresh = async () => {
+      setLastAttemptAt(new Date().toISOString());
       try {
-        const agents = await fetchDebugAgents();
+        const payload = await fetchRoadmapRuntime();
         if (!cancelled) {
-          setDebugAgents(agents);
-          setLastUpdated(new Date().toISOString());
+          setRuntimeAgents(payload.agents);
+          setBackendAvailable(true);
+          setLastSuccessfulUpdate(payload.generated_at);
         }
       } catch {
-        // Keep last successful snapshot on screen.
+        if (!cancelled) {
+          setBackendAvailable(false);
+        }
       }
     };
 
@@ -53,12 +71,13 @@ export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: Deb
     };
   }, []);
 
-  const liveRoadmap = useMemo(() => buildLiveRoadmap(agentRoadmap, debugAgents), [debugAgents]);
+  const liveRoadmap = useMemo(() => buildLiveRoadmap(agentRoadmap, runtimeAgents), [runtimeAgents]);
   const summary = useMemo(() => buildRoadmapSummary(liveRoadmap), [liveRoadmap]);
+  const groupedRoadmap = useMemo(() => groupRoadmapByLayer(liveRoadmap), [liveRoadmap]);
   const focusAgents = useMemo(
     () =>
       liveRoadmap
-        .filter((agent) => agent.status !== "planned")
+        .filter((agent) => agent.status === "built")
         .sort((left, right) => left.completion - right.completion)
         .slice(0, 3),
     [liveRoadmap],
@@ -68,28 +87,38 @@ export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: Deb
     <>
       <div className="product-intro">
         <div>
-          <p className="eyebrow">46 AGENT BUILD PLAN</p>
+          <p className="eyebrow">{summary.total} AGENT BUILD PLAN</p>
           <h1 className="product-title">What is planned, what is built, and what is live right now</h1>
           <p className="hero-body">
-            This board now combines the formal 46-agent roadmap with live runtime signals from the backend. Percentages are computed from implementation state plus recent runs, not frozen design-time numbers.
+            This board combines the formal AgentSabha roadmap with live runtime signals from the backend. It is meant to be a delivery document, not just a design-time checklist.
           </p>
-          <p className="frame-note">Live refresh every 15 seconds · Last updated {new Date(lastUpdated).toLocaleTimeString()}</p>
+          <p className="frame-note">
+            Refresh every 15 seconds · Last successful update{" "}
+            {lastSuccessfulUpdate ? new Date(lastSuccessfulUpdate).toLocaleTimeString() : "never"} · Last poll attempt{" "}
+            {new Date(lastAttemptAt).toLocaleTimeString()}
+          </p>
         </div>
-        <div className="product-intro-stats">
+        <div className="product-intro-stats product-intro-stats-grid">
           <article className="summary-tile">
             <span className="summary-kicker">Total planned</span>
             <strong>{summary.total} agents</strong>
             <p>Exact formal agent count from the 46-prompts document.</p>
           </article>
           <article className="summary-tile accent-tile">
-            <span className="summary-kicker">Overall completion</span>
-            <strong>{summary.overallCompletion}%</strong>
-            <p>Computed from live runtime plus implementation maturity.</p>
+            <span className="summary-kicker">Active delivery completion</span>
+            <strong>{summary.activeCompletion}%</strong>
+            <p>Average completion across built and partial agents only.</p>
           </article>
         </div>
       </div>
 
-      <div className="dashboard-summary-grid">
+      {!backendAvailable ? (
+        <div className="backend-warning-banner">
+          Backend offline or unreachable. Showing static roadmap data only. Runtime health, runs, and constituency counts may be stale.
+        </div>
+      ) : null}
+
+      <div className="dashboard-summary-grid roadmap-summary-grid">
         <article className="summary-tile">
           <span className="summary-kicker">Built now</span>
           <strong>{summary.built}</strong>
@@ -103,18 +132,21 @@ export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: Deb
         <article className="summary-tile">
           <span className="summary-kicker">Live recently</span>
           <strong>{summary.live}</strong>
-          <p>Agents with recent runtime activity in the audit log.</p>
+          <p>Agents with runtime activity recorded in the audit log.</p>
         </article>
         <article className="summary-tile accent-tile">
-          <span className="summary-kicker">Not started</span>
-          <strong>{summary.planned}</strong>
-          <p>Still roadmap only, not yet implemented in runtime code.</p>
+          <span className="summary-kicker">Roadmap coverage</span>
+          <strong>{summary.roadmapCoverage}%</strong>
+          <p>Average coverage across the full 46-agent roadmap.</p>
         </article>
       </div>
 
       <div className="frame-panel full-width-panel">
-        <div className="agent-roadmap-bar">
-          <span style={{ width: `${summary.overallCompletion}%` }}></span>
+        <div className="agent-roadmap-meter">
+          <div className="agent-roadmap-bar">
+            <span style={{ width: progressWidth(summary.activeCompletion) }}></span>
+          </div>
+          <strong>{summary.activeCompletion}% active delivery completion</strong>
         </div>
         <div className="agent-roadmap-actions">
           <Link className="secondary-button" href="/agents">
@@ -144,7 +176,7 @@ export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: Deb
           </article>
           <article className="summary-tile accent-tile">
             <span className="summary-kicker">3. Build in order</span>
-            <p>Finish the weakest active agents first. The next delivery focus should stay on the lowest-completion built or partial agents, not planned future layers.</p>
+            <p>Finish the weakest Layer A built agents first. Planned future layers should not displace Phase 1 completion work.</p>
           </article>
         </div>
         <div className="agent-next-steps">
@@ -161,75 +193,55 @@ export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: Deb
         </div>
       </section>
 
-      <section className="frame-panel full-width-panel">
-        <div className="section-heading compact-heading">
-          <div>
-            <p>ROADMAP REGISTER</p>
-            <h2>46 planned agents</h2>
+      {groupedRoadmap.map((group) => (
+        <section key={group.layer} className="frame-panel full-width-panel">
+          <div className="section-heading compact-heading">
+            <div>
+              <p>LAYER GROUP</p>
+              <h2>{group.layer}</h2>
+            </div>
           </div>
-        </div>
 
-        <div className="agents-debug-grid roadmap-grid">
-          {liveRoadmap.map((agent) => (
-            <details key={agent.id} className={`agent-debug-card ${statusTone(agent.status)} roadmap-detail-card`}>
-              <summary className="roadmap-detail-summary">
-                <div className="agent-debug-head">
-                  <div>
-                    <span className="summary-kicker">
-                      #{String(agent.number).padStart(2, "0")} · {agent.layer}
-                    </span>
-                    <h3>{agent.name}</h3>
-                  </div>
-                  <span className={`agent-phase-badge ${statusTone(agent.status)}`}>
-                    {agent.status === "built" ? "Built" : agent.status === "partial" ? "Partial" : "Planned"}
-                  </span>
-                </div>
-                <p className="agent-debug-purpose">{agent.note}</p>
-                <div className="agent-debug-metrics">
-                  <div>
-                    <span>Completion</span>
-                    <strong>{agent.completion}%</strong>
-                  </div>
-                  <div>
-                    <span>Runtime</span>
-                    <strong>{healthLabel(agent.health)}</strong>
-                  </div>
-                  <div>
-                    <span>Recent runs</span>
-                    <strong>{agent.recent_runs}</strong>
-                  </div>
-                  <div>
-                    <span>Constituencies</span>
-                    <strong>{agent.active_constituency_count}</strong>
-                  </div>
-                </div>
-                <div className="agent-debug-status">
-                  <span className="summary-kicker">Last run</span>
-                  <p>{agent.last_run ? new Date(agent.last_run).toLocaleString() : "No runtime entry yet."}</p>
-                </div>
-                <div className="agent-roadmap-bar small">
-                  <span style={{ width: `${agent.completion}%` }}></span>
-                </div>
-              </summary>
+          <div className="agents-debug-grid roadmap-grid">
+            {group.agents.map((agent) => {
+              const details = getRoadmapDetails(agent);
+              return (
+                <details key={agent.id} className={`agent-debug-card ${statusTone(agent.status)} roadmap-detail-card`}>
+                  <summary className="roadmap-detail-summary">
+                    <div className="agent-debug-head">
+                      <div>
+                        <span className="summary-kicker">#{String(agent.number).padStart(2, "0")}</span>
+                        <h3>{agent.name}</h3>
+                      </div>
+                      <span className={`agent-phase-badge ${statusTone(agent.status)}`}>
+                        {agent.status === "built" ? "Built" : agent.status === "partial" ? "Partial" : "Planned"}
+                      </span>
+                    </div>
+                    <p className="agent-debug-purpose">{agent.note}</p>
+                    <div className="agent-debug-summaryline">
+                      <span>{agent.completion}% complete</span>
+                      <span>{healthLabel(agent.health)}</span>
+                    </div>
+                    <div className="agent-roadmap-bar small">
+                      <span style={{ width: progressWidth(agent.completion) }}></span>
+                    </div>
+                  </summary>
 
-              {(() => {
-                const details = getRoadmapDetails(agent);
-                return (
                   <div className="roadmap-detail-body">
                     <div className="roadmap-detail-grid">
                       <section className="roadmap-detail-section">
                         <span className="summary-kicker">Completed</span>
                         <ul>
-                          {details.completedWork.map((item) => (
-                            <li key={item}>{item}</li>
+                          {details.completedWork.map((item, index) => (
+                            <li key={`${agent.id}-completed-${index}`}>{item}</li>
                           ))}
                         </ul>
                       </section>
                       <section className="roadmap-detail-section">
                         <span className="summary-kicker">Left to build</span>
                         <ul>
-                          {details.remainingWork.map((item) => (
-                            <li key={item}>{item}</li>
+                          {details.remainingWork.map((item, index) => (
+                            <li key={`${agent.id}-remaining-${index}`}>{item}</li>
                           ))}
                         </ul>
                       </section>
@@ -238,23 +250,35 @@ export function AgentsPlanLive({ initialDebugAgents }: { initialDebugAgents: Deb
                       <section className="roadmap-detail-section">
                         <span className="summary-kicker">Proof</span>
                         <ul>
-                          {details.proofPoints.map((item) => (
-                            <li key={item}>{item}</li>
+                          {details.proofPoints.map((item, index) => (
+                            <li key={`${agent.id}-proof-${index}`}>{item}</li>
                           ))}
                         </ul>
                       </section>
+                      <section className="roadmap-detail-section">
+                        <span className="summary-kicker">Runtime snapshot</span>
+                        <p>
+                          Last run: {agent.last_run ? new Date(agent.last_run).toLocaleString() : "No runtime entry yet."}
+                          <br />
+                          Recent runs: {agent.recent_runs}
+                          <br />
+                          Active constituencies: {agent.active_constituency_count}
+                        </p>
+                      </section>
+                    </div>
+                    <div className="roadmap-detail-grid">
                       <section className="roadmap-detail-section">
                         <span className="summary-kicker">Next step</span>
                         <p>{details.nextStep}</p>
                       </section>
                     </div>
                   </div>
-                );
-              })()}
-            </details>
-          ))}
-        </div>
-      </section>
+                </details>
+              );
+            })}
+          </div>
+        </section>
+      ))}
     </>
   );
 }

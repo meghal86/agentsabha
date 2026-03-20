@@ -48,7 +48,15 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
   }, []);
 
   const roadmapByRuntime = useMemo(() => {
-    const liveRoadmap = buildLiveRoadmap(agentRoadmap, debugAgents);
+    const liveRoadmap = buildLiveRoadmap(
+      agentRoadmap,
+      debugAgents.map((agent) => ({
+        agent_type: agent.agent_type,
+        last_run: agent.last_run,
+        recent_runs: agent.recent_runs,
+        active_constituency_count: agent.active_constituencies.length,
+      })),
+    );
     return new Map(liveRoadmap.filter((agent) => agent.runtimeAgentType).map((agent) => [agent.runtimeAgentType, agent]));
   }, [debugAgents]);
 

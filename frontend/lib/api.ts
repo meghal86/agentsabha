@@ -121,3 +121,14 @@ export type DebugAgentStatus = {
 export async function getDebugAgents() {
   return request<{ agents: DebugAgentStatus[] }>("/api/debug/agents");
 }
+
+export type RoadmapRuntimeAgent = {
+  agent_type: string;
+  last_run: string | null;
+  recent_runs: number;
+  active_constituency_count: number;
+};
+
+export async function getRoadmapRuntime() {
+  return request<{ generated_at: string; agents: RoadmapRuntimeAgent[] }>("/api/roadmap/runtime");
+}
