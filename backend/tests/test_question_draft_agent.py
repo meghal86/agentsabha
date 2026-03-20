@@ -17,6 +17,7 @@ from app.models.parliamentary_action import ParliamentaryAction
 STARRED_CONSTITUENCY_ID = 4
 UNSTARRED_CONSTITUENCY_ID = 5
 BLOCKED_CONSTITUENCY_ID = 6
+REVIEW_CONSTITUENCY_ID = 7
 
 
 async def _cleanup(constituency_id: int) -> None:
@@ -57,6 +58,41 @@ async def _seed_cluster(
                     location_district="Test District",
                     location_ward=f"Ward {idx + 1}",
                     affected_estimate=250,
+                    ministry_mapped=ministry,
+                )
+            )
+        await db.commit()
+        await ClusteringAgent().run(db, constituency_id)
+
+
+async def _seed_conflicted_cluster(constituency_id: int) -> None:
+    async with AsyncSessionLocal() as db:
+        ministries = [
+            "Ministry of Jal Shakti",
+            "Ministry of Rural Development",
+            "Ministry of Jal Shakti",
+            "Ministry of Rural Development",
+            "Ministry of Jal Shakti",
+            "Ministry of Rural Development",
+            "Ministry of Jal Shakti",
+            "Ministry of Rural Development",
+            "Ministry of Jal Shakti",
+            "Ministry of Rural Development",
+        ]
+        for idx, ministry in enumerate(ministries):
+            db.add(
+                Issue(
+                    constituency_id=constituency_id,
+                    raw_text=f"Flooded low-lying road and blocked drains report {idx}",
+                    translated_text=f"Flooded low-lying road and blocked drains report {idx}",
+                    source_language="en",
+                    source_channel="web",
+                    issue_type="water",
+                    severity_score=Decimal("7.8"),
+                    urgency_flag=True,
+                    location_district="Test District",
+                    location_ward=f"Ward {idx + 1}",
+                    affected_estimate=300,
                     ministry_mapped=ministry,
                 )
             )
@@ -141,10 +177,37 @@ async def test_question_draft_agent_skips_cluster_when_ministry_is_uncertain() -
         async with AsyncSessionLocal() as db:
             result = await QuestionDraftAgent().run(db, BLOCKED_CONSTITUENCY_ID)
             assert result["drafts_created"] == 0
+            assert result["reviews_needed"] == 1
 
             action = await db.scalar(
                 select(ParliamentaryAction).where(ParliamentaryAction.constituency_id == BLOCKED_CONSTITUENCY_ID)
             )
-            assert action is None
+            assert action is not None
+            assert action.status == "needs_review"
+            assert "requires review before filing" in action.content
+            assert action.ministry is None
     finally:
         await _cleanup(BLOCKED_CONSTITUENCY_ID)
+
+
+@pytest.mark.asyncio
+async def test_question_draft_agent_marks_conflicting_ministry_evidence_for_review() -> None:
+    await _cleanup(REVIEW_CONSTITUENCY_ID)
+    try:
+        await _seed_conflicted_cluster(REVIEW_CONSTITUENCY_ID)
+
+        async with AsyncSessionLocal() as db:
+            result = await QuestionDraftAgent().run(db, REVIEW_CONSTITUENCY_ID)
+            assert result["drafts_created"] == 0
+            assert result["reviews_needed"] == 1
+
+            action = await db.scalar(
+                select(ParliamentaryAction).where(ParliamentaryAction.constituency_id == REVIEW_CONSTITUENCY_ID)
+            )
+            assert action is not None
+            assert action.status == "needs_review"
+            assert "multiple ministries" in action.content.lower()
+            assert action.source_citations is not None
+            assert action.source_citations[1]["type"] == "cluster_snapshot"
+    finally:
+        await _cleanup(REVIEW_CONSTITUENCY_ID)

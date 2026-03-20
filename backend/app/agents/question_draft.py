@@ -74,6 +74,7 @@ STATUTORY_HOOKS: dict[str, dict[str, str]] = {
 }
 
 MIN_VERIFIED_REPORTS = 10
+HIGH_PRIORITY_BADGES = {"tatkal", "rising"}
 
 
 @dataclass
@@ -96,20 +97,17 @@ class QuestionDraftAgent:
         ).scalars().all()
 
         drafts_created = 0
+        reviews_needed = 0
         for cluster in clusters:
             recent_issues = (
                 await db.execute(
                     select(Issue)
                     .where(Issue.cluster_id == cluster.id)
                     .order_by(desc(Issue.created_at))
-                    .limit(5)
+                    .limit(10)
                 )
             ).scalars().all()
             if len(recent_issues) < min(3, MIN_VERIFIED_REPORTS) or cluster.issue_count < MIN_VERIFIED_REPORTS:
-                continue
-
-            ministry = self._resolve_ministry(recent_issues)
-            if ministry is None:
                 continue
 
             action_type = self._question_type(cluster)
@@ -118,24 +116,41 @@ class QuestionDraftAgent:
             label = (cluster.label or cluster.category or "constituency grievance").strip()
             evidence_summary = self._build_evidence_summary(recent_issues)
             statutory_hook = self._statutory_hook(cluster)
-            citations = [statutory_hook, *self._issue_citations(recent_issues)]
-            question_text = self._build_question_text(
-                action_type=action_type,
-                rule=rule,
-                ministry=ministry,
-                constituency_name=constituency.name,
-                label=label,
-                citizen_count=citizen_count,
-                evidence_summary=evidence_summary,
-                statutory_hook=statutory_hook["title"],
-            )
+            cluster_citation = self._cluster_citation(cluster, constituency.name)
+            ministry_resolution = self._resolve_ministry(recent_issues)
+            citations = [statutory_hook, cluster_citation, *self._issue_citations(recent_issues)]
+            status = "draft"
+            ministry = ministry_resolution["ministry"]
+            if ministry is None:
+                status = "needs_review"
+                question_text = self._build_review_text(
+                    rule=rule,
+                    constituency_name=constituency.name,
+                    label=label,
+                    citizen_count=citizen_count,
+                    evidence_summary=evidence_summary,
+                    suggested_ministries=ministry_resolution["candidates"],
+                    review_reason=ministry_resolution["reason"] or "Ministry mapping is uncertain.",
+                )
+                reviews_needed += 1
+            else:
+                question_text = self._build_question_text(
+                    action_type=action_type,
+                    rule=rule,
+                    ministry=ministry,
+                    constituency_name=constituency.name,
+                    label=label,
+                    citizen_count=citizen_count,
+                    evidence_summary=evidence_summary,
+                    statutory_hook=statutory_hook["title"],
+                )
 
             existing_draft = await db.scalar(
                 select(ParliamentaryAction)
                 .where(
                     ParliamentaryAction.constituency_id == constituency_id,
                     ParliamentaryAction.cluster_id == cluster.id,
-                    ParliamentaryAction.status.in_(("draft", "submitted_to_mp")),
+                    ParliamentaryAction.status.in_(("draft", "submitted_to_mp", "needs_review")),
                 )
                 .order_by(desc(ParliamentaryAction.created_at))
                 .limit(1)
@@ -149,16 +164,18 @@ class QuestionDraftAgent:
                     source_citations=citations,
                     ministry=ministry,
                     lok_sabha_rule=rule,
-                    status="draft",
+                    status=status,
                 )
                 db.add(existing_draft)
-                drafts_created += 1
+                if status == "draft":
+                    drafts_created += 1
             else:
                 existing_draft.action_type = action_type
                 existing_draft.content = question_text
                 existing_draft.source_citations = citations
                 existing_draft.ministry = ministry
                 existing_draft.lok_sabha_rule = rule
+                existing_draft.status = status
 
         audit_payload = build_audit_payload(
             AuditEntry(
@@ -166,7 +183,7 @@ class QuestionDraftAgent:
                 constituency_id=constituency_id,
                 action="draft_questions_generated",
                 input_hash=sha256_hex(f"{constituency_id}:{len(clusters)}"),
-                output_hash=sha256_hex(f"{constituency_id}:{drafts_created}"),
+                output_hash=sha256_hex(f"{constituency_id}:{drafts_created}:{reviews_needed}"),
                 model_version=self.model,
                 tokens_used=0,
                 latency_ms=int((perf_counter() - started) * 1000),
@@ -175,23 +192,44 @@ class QuestionDraftAgent:
         )
         db.add(AgentLog(**audit_payload))
         await db.commit()
-        return {"constituency_id": constituency_id, "drafts_created": drafts_created}
+        return {"constituency_id": constituency_id, "drafts_created": drafts_created, "reviews_needed": reviews_needed}
 
     def _question_type(self, cluster: IssueCluster) -> str:
-        return "question_starred" if float(cluster.severity_avg or 0) >= 8 else "question_unstarred"
+        severity = float(cluster.severity_avg or 0)
+        badge = (cluster.badge or "").strip().lower()
+        if severity >= 8 or (severity >= 7.5 and badge in HIGH_PRIORITY_BADGES):
+            return "question_starred"
+        return "question_unstarred"
 
-    def _resolve_ministry(self, issues: list[Issue]) -> str | None:
+    def _resolve_ministry(self, issues: list[Issue]) -> dict[str, object]:
         ministry_counter = Counter(issue.ministry_mapped.strip() for issue in issues if issue.ministry_mapped)
         if not ministry_counter:
-            return None
-        ministry, _ = ministry_counter.most_common(1)[0]
+            return {"ministry": None, "candidates": [], "reason": "No ministry mapping is present in the current evidence."}
+        ministry, count = ministry_counter.most_common(1)[0]
         if ministry.lower() in {"concerned ministry", "unknown", "needs review"}:
-            return None
-        return ministry
+            return {"ministry": None, "candidates": [ministry], "reason": "The most common ministry mapping is still unresolved."}
+        total = sum(ministry_counter.values())
+        confidence = count / max(total, 1)
+        candidates = [name for name, _ in ministry_counter.most_common(3)]
+        if confidence < 0.6 and len(ministry_counter) > 1:
+            return {
+                "ministry": None,
+                "candidates": candidates,
+                "reason": "Citizen evidence points to multiple ministries and needs human review before filing.",
+            }
+        return {"ministry": ministry, "candidates": candidates, "reason": None}
 
     def _statutory_hook(self, cluster: IssueCluster) -> dict[str, str]:
         category = (cluster.category or "other").strip().lower()
         return STATUTORY_HOOKS.get(category, STATUTORY_HOOKS["other"])
+
+    def _cluster_citation(self, cluster: IssueCluster, constituency_name: str) -> dict[str, str]:
+        return {
+            "title": f"Issue cluster '{cluster.label or cluster.category or 'constituency grievance'}' in {constituency_name}",
+            "url": f"https://agentsabha.in/citations/clusters/{cluster.id}",
+            "type": "cluster_snapshot",
+            "date": cluster.last_updated.date().isoformat(),
+        }
 
     def _issue_citations(self, issues: list[Issue]) -> list[dict[str, str]]:
         citations: list[dict[str, str]] = []
@@ -250,3 +288,30 @@ class QuestionDraftAgent:
         hook_line = f"Statutory hook: {statutory_hook}."
         footer = f"To be raised under {rule} of the Rules of Procedure and Conduct of Business in Lok Sabha."
         return "\n".join([opening, *body, "", evidence_line, hook_line, footer])
+
+    def _build_review_text(
+        self,
+        *,
+        rule: str,
+        constituency_name: str,
+        label: str,
+        citizen_count: int,
+        evidence_summary: str,
+        suggested_ministries: list[str],
+        review_reason: str,
+    ) -> str:
+        candidate_line = (
+            f"Suggested ministries for review: {', '.join(suggested_ministries)}."
+            if suggested_ministries
+            else "Suggested ministries for review: none confidently identified."
+        )
+        return "\n".join(
+            [
+                "Question draft requires review before filing.",
+                f"Proposed subject: {label} in {constituency_name}.",
+                f"Constituency evidence: {citizen_count} verified citizens from {constituency_name} have reported the issue across {evidence_summary}.",
+                f"Review reason: {review_reason}",
+                candidate_line,
+                f"If approved after ministry validation, the matter should proceed under {rule}.",
+            ]
+        )
