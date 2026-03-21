@@ -16,6 +16,10 @@ beat_schedule = {
         "task": "app.tasks.generate_draft_questions",
         "schedule": crontab(hour=1, minute=30),
     },
+    "zero-hour-overnight-watch": {
+        "task": "app.tasks.generate_zero_hour_notices",
+        "schedule": crontab(hour="20,21,22,23,0,1,2,3,4,5,6,7,8", minute=15),
+    },
     "mp-brief-generation": {
         "task": "app.tasks.generate_mp_briefs",
         "schedule": crontab(day_of_week="friday", hour=2, minute=30),
@@ -33,4 +37,3 @@ beat_schedule = {
         "schedule": crontab(day_of_week="friday", hour=14, minute=30),
     },
 }
-

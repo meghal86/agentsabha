@@ -6,4 +6,4 @@ settings = get_settings()
 
 celery_app = Celery("agentsabha", broker=settings.redis_url, backend=settings.redis_url)
 celery_app.config_from_object("celery_config")
-
+celery_app.autodiscover_tasks(["app.tasks"])
