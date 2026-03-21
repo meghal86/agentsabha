@@ -73,6 +73,7 @@ class Settings(BaseSettings):
     tatkal_severity_threshold: float = Field(default=8.0, alias="TATKAL_SEVERITY_THRESHOLD")
     tatkal_new_reports_threshold: int = Field(default=50, alias="TATKAL_NEW_REPORTS_THRESHOLD")
     tatkal_max_age_hours: int = Field(default=24, alias="TATKAL_MAX_AGE_HOURS")
+    question_draft_shadow_mode: bool = Field(default=False, alias="QUESTION_DRAFT_SHADOW_MODE")
 
     @property
     def sqlalchemy_async_database_url(self) -> str:

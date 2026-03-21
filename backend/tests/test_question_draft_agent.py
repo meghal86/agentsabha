@@ -21,6 +21,7 @@ BLOCKED_CONSTITUENCY_ID = 6
 REVIEW_CONSTITUENCY_ID = 7
 FALLBACK_SOURCE_CONSTITUENCY_ID = 8
 DUPLICATE_CONSTITUENCY_ID = 9
+SHADOW_CONSTITUENCY_ID = 12
 
 
 async def _cleanup(constituency_id: int) -> None:
@@ -198,6 +199,9 @@ async def test_question_draft_agent_generates_starred_question_with_sources() ->
             assert action.source_citations[0]["type"] == "government_record"
             assert action.source_citations[0]["retrieval_status"] == "live"
             assert len(action.source_citations) >= 5
+            metadata_entry = next(citation for citation in action.source_citations if citation["type"] == "agent_metadata")
+            assert metadata_entry["confidence_score"] >= 0.7
+            assert metadata_entry["shadow_mode"] is False
     finally:
         await _cleanup(STARRED_CONSTITUENCY_ID)
 
@@ -359,3 +363,42 @@ async def test_question_draft_agent_suppresses_duplicate_similar_clusters() -> N
             assert len(actions) == 1
     finally:
         await _cleanup(DUPLICATE_CONSTITUENCY_ID)
+
+
+@pytest.mark.asyncio
+async def test_question_draft_agent_shadow_mode_does_not_persist_actions(monkeypatch: pytest.MonkeyPatch) -> None:
+    class ShadowSettings:
+        question_draft_shadow_mode = True
+
+    monkeypatch.setattr("app.agents.question_draft.get_settings", lambda: ShadowSettings())
+
+    await _cleanup(SHADOW_CONSTITUENCY_ID)
+    try:
+        await _seed_cluster(
+            SHADOW_CONSTITUENCY_ID,
+            issue_type="road",
+            severity=8.6,
+            ministry="Ministry of Road Transport and Highways",
+            count=10,
+        )
+
+        async with AsyncSessionLocal() as db:
+            result = await QuestionDraftAgent().run(db, SHADOW_CONSTITUENCY_ID)
+            assert result["shadow_mode"] is True
+            assert result["shadow_drafts"] >= 1
+            assert result["drafts_created"] == 0
+
+            action = await db.scalar(
+                select(ParliamentaryAction).where(ParliamentaryAction.constituency_id == SHADOW_CONSTITUENCY_ID)
+            )
+            assert action is None
+
+            audit = await db.scalar(
+                select(AgentLog)
+                .where(AgentLog.constituency_id == SHADOW_CONSTITUENCY_ID, AgentLog.agent_type == "question_draft")
+                .order_by(AgentLog.created_at.desc())
+            )
+            assert audit is not None
+            assert audit.action == "draft_questions_generated_shadow"
+    finally:
+        await _cleanup(SHADOW_CONSTITUENCY_ID)

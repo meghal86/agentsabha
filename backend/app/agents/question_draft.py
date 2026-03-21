@@ -9,6 +9,7 @@ from time import perf_counter
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.models.agent_log import AgentLog
 from app.models.cluster import IssueCluster
 from app.models.constituency import Constituency
@@ -28,6 +29,7 @@ class QuestionDraftAgent:
 
     async def run(self, db: AsyncSession, constituency_id: int) -> dict:
         started = perf_counter()
+        settings = get_settings()
         constituency = await db.scalar(select(Constituency).where(Constituency.id == constituency_id))
         if constituency is None:
             return {"constituency_id": constituency_id, "drafts_created": 0}
@@ -43,6 +45,7 @@ class QuestionDraftAgent:
 
         drafts_created = 0
         reviews_needed = 0
+        shadow_drafts = 0
         clusters: list[tuple[IssueCluster, list[Issue], float]] = []
         seen_signatures: list[set[str]] = []
         for cluster in candidate_clusters:
@@ -71,7 +74,8 @@ class QuestionDraftAgent:
             citizen_count = int(cluster.issue_count or 0)
             label = (cluster.label or cluster.category or "constituency grievance").strip()
             evidence_summary = self._build_evidence_summary(evidence_issues)
-            cluster_citation = self._cluster_citation(cluster, constituency.name, rank_score=self._cluster_rank_score(cluster, evidence_issues))
+            rank_score = self._cluster_rank_score(cluster, evidence_issues)
+            cluster_citation = self._cluster_citation(cluster, constituency.name, rank_score=rank_score)
             ministry_resolution = self._resolve_ministry(evidence_issues)
             status = "draft"
             ministry = ministry_resolution["ministry"]
@@ -83,16 +87,25 @@ class QuestionDraftAgent:
                 issue_text=label,
                 issue_texts=[issue.translated_text or issue.raw_text for issue in evidence_issues[:5]],
             )
+            live_source = statutory_hook.get("retrieval_status") == "live"
             citations = [statutory_hook, cluster_citation, *self._issue_citations(evidence_issues)]
             if ministry is None:
                 status = "needs_review"
                 review_reasons.append(str(ministry_resolution["reason"] or "Ministry mapping is uncertain."))
-            if statutory_hook.get("retrieval_status") != "live":
+            if not live_source:
                 status = "needs_review"
                 review_reasons.append("Primary source retrieval did not resolve to a live official source.")
             if self._needs_escalated_review(evidence_issues):
                 status = "needs_review"
                 review_reasons.append("Citizen evidence is highly repetitive and requires stronger review before filing.")
+            confidence_score = self._draft_confidence_score(
+                cluster=cluster,
+                issues=evidence_issues,
+                rank_score=rank_score,
+                ministry_confidence=float(ministry_resolution.get("confidence") or 0.0),
+                live_source=live_source,
+                review_reasons=review_reasons,
+            )
 
             if status == "needs_review":
                 question_text = self._build_review_text(
@@ -117,6 +130,20 @@ class QuestionDraftAgent:
                     statutory_hook=statutory_hook["title"],
                     cluster=cluster,
                 )
+            citations.append(
+                self._agent_metadata_citation(
+                    confidence_score=confidence_score,
+                    rank_score=rank_score,
+                    ministry_confidence=float(ministry_resolution.get("confidence") or 0.0),
+                    status=status,
+                    shadow_mode=settings.question_draft_shadow_mode,
+                    review_reasons=review_reasons,
+                )
+            )
+
+            if settings.question_draft_shadow_mode:
+                shadow_drafts += 1
+                continue
 
             existing_draft = await db.scalar(
                 select(ParliamentaryAction)
@@ -154,9 +181,9 @@ class QuestionDraftAgent:
             AuditEntry(
                 agent_type="question_draft",
                 constituency_id=constituency_id,
-                action="draft_questions_generated",
+                action="draft_questions_generated_shadow" if settings.question_draft_shadow_mode else "draft_questions_generated",
                 input_hash=sha256_hex(f"{constituency_id}:{len(clusters)}"),
-                output_hash=sha256_hex(f"{constituency_id}:{drafts_created}:{reviews_needed}"),
+                output_hash=sha256_hex(f"{constituency_id}:{drafts_created}:{reviews_needed}:{shadow_drafts}"),
                 model_version=self.model,
                 tokens_used=0,
                 latency_ms=int((perf_counter() - started) * 1000),
@@ -165,7 +192,13 @@ class QuestionDraftAgent:
         )
         db.add(AgentLog(**audit_payload))
         await db.commit()
-        return {"constituency_id": constituency_id, "drafts_created": drafts_created, "reviews_needed": reviews_needed}
+        return {
+            "constituency_id": constituency_id,
+            "drafts_created": drafts_created,
+            "reviews_needed": reviews_needed,
+            "shadow_drafts": shadow_drafts,
+            "shadow_mode": settings.question_draft_shadow_mode,
+        }
 
     def _question_type(self, cluster: IssueCluster) -> str:
         severity = float(cluster.severity_avg or 0)
@@ -181,7 +214,15 @@ class QuestionDraftAgent:
         badge = (cluster.badge or "").strip().lower()
         urgency_bonus = 1.2 if any(issue.urgency_flag for issue in issues[:5]) else 0.0
         badge_bonus = 1.4 if badge == "tatkal" else 0.7 if badge == "rising" else 0.0
-        return severity * 5 + log10(max(issue_count, 1)) * 4 + max(velocity, 0) / 10 + urgency_bonus + badge_bonus
+        location_diversity = len(
+            {
+                (issue.location_ward or issue.location_district or "").strip().lower()
+                for issue in issues
+                if (issue.location_ward or issue.location_district)
+            }
+        )
+        diversity_bonus = min(location_diversity, 6) * 0.35
+        return severity * 5 + log10(max(issue_count, 1)) * 4 + max(velocity, 0) / 10 + urgency_bonus + badge_bonus + diversity_bonus
 
     def _cluster_signature(self, cluster: IssueCluster, issues: list[Issue]) -> set[str]:
         label = re.sub(r"[^a-z0-9 ]+", " ", (cluster.label or cluster.category or "").lower())
@@ -205,10 +246,20 @@ class QuestionDraftAgent:
     def _resolve_ministry(self, issues: list[Issue]) -> dict[str, object]:
         ministry_counter = Counter(issue.ministry_mapped.strip() for issue in issues if issue.ministry_mapped)
         if not ministry_counter:
-            return {"ministry": None, "candidates": [], "reason": "No ministry mapping is present in the current evidence."}
+            return {
+                "ministry": None,
+                "candidates": [],
+                "reason": "No ministry mapping is present in the current evidence.",
+                "confidence": 0.0,
+            }
         ministry, count = ministry_counter.most_common(1)[0]
         if ministry.lower() in {"concerned ministry", "unknown", "needs review"}:
-            return {"ministry": None, "candidates": [ministry], "reason": "The most common ministry mapping is still unresolved."}
+            return {
+                "ministry": None,
+                "candidates": [ministry],
+                "reason": "The most common ministry mapping is still unresolved.",
+                "confidence": 0.0,
+            }
         total = sum(ministry_counter.values())
         confidence = count / max(total, 1)
         candidates = [name for name, _ in ministry_counter.most_common(3)]
@@ -217,8 +268,9 @@ class QuestionDraftAgent:
                 "ministry": None,
                 "candidates": candidates,
                 "reason": "Citizen evidence points to multiple ministries and needs human review before filing.",
+                "confidence": confidence,
             }
-        return {"ministry": ministry, "candidates": candidates, "reason": None}
+        return {"ministry": ministry, "candidates": candidates, "reason": None, "confidence": confidence}
 
     def _cluster_citation(self, cluster: IssueCluster, constituency_name: str, *, rank_score: float) -> dict[str, str]:
         return {
@@ -256,6 +308,49 @@ class QuestionDraftAgent:
         unique_ratio = len(set(texts)) / len(texts)
         return unique_ratio < 0.45
 
+    def _draft_confidence_score(
+        self,
+        *,
+        cluster: IssueCluster,
+        issues: list[Issue],
+        rank_score: float,
+        ministry_confidence: float,
+        live_source: bool,
+        review_reasons: list[str],
+    ) -> float:
+        severity_component = min(float(cluster.severity_avg or 0) / 10, 1.0) * 0.28
+        ministry_component = min(max(ministry_confidence, 0.0), 1.0) * 0.24
+        evidence_uniqueness = 1.0 - (0.35 if self._needs_escalated_review(issues) else 0.0)
+        evidence_component = evidence_uniqueness * 0.18
+        source_component = 0.18 if live_source else 0.05
+        ranking_component = min(rank_score / 60, 1.0) * 0.12
+        penalty = min(len(review_reasons) * 0.08, 0.24)
+        score = severity_component + ministry_component + evidence_component + source_component + ranking_component - penalty
+        return round(min(max(score, 0.0), 1.0), 2)
+
+    def _agent_metadata_citation(
+        self,
+        *,
+        confidence_score: float,
+        rank_score: float,
+        ministry_confidence: float,
+        status: str,
+        shadow_mode: bool,
+        review_reasons: list[str],
+    ) -> dict[str, str | float | bool | list[str]]:
+        return {
+            "title": "Agent drafting metadata",
+            "url": "https://agentsabha.in/citations/agent-metadata/question-draft",
+            "type": "agent_metadata",
+            "date": "",
+            "confidence_score": confidence_score,
+            "rank_score": round(rank_score, 2),
+            "ministry_confidence": round(ministry_confidence, 2),
+            "status": status,
+            "shadow_mode": shadow_mode,
+            "review_reasons": review_reasons,
+        }
+
     def _build_evidence_summary(self, issues: list[Issue]) -> str:
         locations = [issue.location_ward or issue.location_district for issue in issues if issue.location_ward or issue.location_district]
         if not locations:
@@ -283,23 +378,23 @@ class QuestionDraftAgent:
         opening = f"Will the Minister of {ministry} be pleased to state:"
         if action_type == "question_starred":
             body = [
-                f"(a) whether the Government has taken cognisance of the recurring problem of {label} in {constituency_name};",
+                f"(a) whether the Government has taken cognisance of the recurring problem of {label} in the Lok Sabha constituency of {constituency_name};",
                 f"(b) whether it is a fact that {citizen_count} verified citizens from {constituency_name} have reported the issue across {evidence_summary};",
-                f"(c) the project, contract, scheme, maintenance mechanism, or implementing agency presently responsible for redressing this matter in the constituency; and",
-                f"(d) the time-bound corrective action, monitoring schedule, and accountability measures proposed by the Ministry;",
+                f"(c) the project-wise, contract-wise, scheme-wise, or implementing-agency-wise arrangement presently responsible for redressing this matter in the constituency; and",
+                f"(d) the time-bound corrective action, monitoring schedule, financial provision, and accountability measures proposed by the Ministry;",
             ]
         else:
             body = [
-                f"(a) whether the Government has reviewed reports of {label} in {constituency_name};",
+                f"(a) whether the Government has reviewed reports of {label} in the Lok Sabha constituency of {constituency_name};",
                 f"(b) whether {citizen_count} verified citizen reports have been recorded across {evidence_summary}; and",
-                f"(c) the scheme-wise, project-wise, or agency-wise action plan and timeline proposed to address the matter;",
+                f"(c) the scheme-wise, project-wise, agency-wise, and timeline-bound action proposed to address the matter;",
             ]
 
         evidence_line = (
-            f"Constituency evidence: {citizen_count} verified citizens from {constituency_name} have reported this cluster, which is currently classified as '{cluster.badge or 'stable'}' with an average severity of {float(cluster.severity_avg or 0):.1f}."
+            f"Constituency evidence: {citizen_count} verified citizens from {constituency_name} have reported this cluster, which is presently classified as '{cluster.badge or 'stable'}' with an average severity of {float(cluster.severity_avg or 0):.1f}."
         )
-        hook_line = f"Statutory hook: {statutory_hook}."
-        footer = f"To be raised under {rule} of the Rules of Procedure and Conduct of Business in Lok Sabha, subject to review and approval by the Hon'ble Member."
+        hook_line = f"Statutory and documentary basis: {statutory_hook}."
+        footer = f"To be raised under {rule} of the Rules of Procedure and Conduct of Business in Lok Sabha, subject to review, editing, and approval by the Hon'ble Member."
         return "\n".join([opening, *body, "", evidence_line, hook_line, footer])
 
     def _build_review_text(
