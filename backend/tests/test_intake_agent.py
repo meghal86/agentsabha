@@ -54,3 +54,16 @@ async def test_intake_agent_uses_metadata_location_when_text_is_sparse() -> None
     assert result["location_ward"] == "Ward 22"
     assert result["ministry_mapped"] == "Ministry of Jal Shakti"
     assert result["issue_summary"]
+
+
+@pytest.mark.asyncio
+async def test_intake_agent_does_not_cross_severity_8_without_explicit_safety_risk() -> None:
+    agent = IntakeAgent()
+
+    result = await agent.run(
+        "Our road has been broken for 3 years and people are complaining every day, but it has become a chronic inconvenience.",
+        {"channel": "web", "language": "en"},
+    )
+
+    assert result["urgency_flag"] is False
+    assert result["severity_score"] <= Decimal("7.9")

@@ -11,10 +11,10 @@ import httpx
 SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
     "road": [
         {
-            "title": "Ministry of Road Transport and Highways official portal",
-            "url": "https://morth.nic.in/",
-            "type": "ministry_record",
-            "keywords": "road transport highway bridge flyover accident corridor bypass",
+            "title": "CAG audit reports on construction and maintenance of roads",
+            "url": "https://cag.gov.in/en/audit-report?page=13&report_type%5B0%5D=54&title=highway+audit&ts=allwords",
+            "type": "cag_audit_report",
+            "keywords": "road transport highway bridge flyover accident corridor bypass audit cag",
         },
         {
             "title": "National Highways Authority of India official portal",
@@ -31,10 +31,10 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
     ],
     "water": [
         {
-            "title": "Jal Jeevan Mission official portal",
-            "url": "https://jaljeevanmission.gov.in/",
-            "type": "scheme_guideline",
-            "keywords": "tap water drinking water pipeline household connection supply jal",
+            "title": "CAG performance audits on rural and urban water supply schemes",
+            "url": "https://cag.gov.in/en/audit-report?title=maintenance",
+            "type": "cag_audit_report",
+            "keywords": "tap water drinking water pipeline household connection supply jal audit cag",
         },
         {
             "title": "Department of Water Resources official portal",
@@ -51,22 +51,24 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
     ],
     "power": [
         {
-            "title": "Ministry of Power official portal",
-            "url": "https://powermin.gov.in/",
-            "type": "ministry_record",
+            "title": "CAG compliance audits of energy and power clusters",
+            "url": "https://cag.gov.in/en/audit-report?title=govt+of+maharashtra",
+            "type": "cag_audit_report",
+            "keywords": "power electricity outage transformer voltage load shedding audit cag energy",
         },
         {
             "title": "National Power Portal",
             "url": "https://npp.gov.in/",
             "type": "government_record",
+            "keywords": "power electricity feeder outage transformer generation substation",
         },
     ],
     "health": [
         {
-            "title": "National Health Mission official portal",
-            "url": "https://nhm.gov.in/",
-            "type": "scheme_guideline",
-            "keywords": "phc hospital clinic ambulance medicine nurse doctor nhm",
+            "title": "CAG reports on public health infrastructure and health services",
+            "url": "https://cag.gov.in/en/audit-report?title=public+health+infrastructure",
+            "type": "cag_audit_report",
+            "keywords": "phc hospital clinic ambulance medicine nurse doctor nhm audit cag health",
         },
         {
             "title": "Ministry of Health and Family Welfare official portal",
@@ -77,9 +79,10 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
     ],
     "education": [
         {
-            "title": "Ministry of Education official portal",
-            "url": "https://www.education.gov.in/",
-            "type": "ministry_record",
+            "title": "CAG reports covering Samagra Shiksha and school education delivery",
+            "url": "https://cag.gov.in/en/audit-report?title=samagra+shiksha",
+            "type": "cag_audit_report",
+            "keywords": "school education teacher classroom student textbook scholarship audit cag",
         },
         {
             "title": "Samagra Shiksha programme portal",
@@ -90,10 +93,10 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
     ],
     "employment": [
         {
-            "title": "MGNREGA official portal",
-            "url": "https://nrega.nic.in/",
-            "type": "scheme_guideline",
-            "keywords": "employment wage job mgnrega work card payment labour",
+            "title": "CAG audit reports on a decade of MGNREGS implementation",
+            "url": "https://cag.gov.in/en/audit-report?title=A+decade+of+MGNREGS",
+            "type": "cag_audit_report",
+            "keywords": "employment wage job mgnrega work card payment labour audit cag",
         },
         {
             "title": "Ministry of Rural Development official portal",
@@ -104,26 +107,30 @@ SOURCE_CATALOG: dict[str, list[dict[str, str]]] = {
     ],
     "housing": [
         {
-            "title": "Pradhan Mantri Awas Yojana Urban official portal",
-            "url": "https://pmay-urban.gov.in/",
-            "type": "scheme_guideline",
+            "title": "CAG audit reports on housing and urban development implementation",
+            "url": "https://cag.gov.in/en/audit-report?title=pmay",
+            "type": "cag_audit_report",
+            "keywords": "housing house home shelter roof slum pmay urban audit cag",
         },
         {
             "title": "Ministry of Housing and Urban Affairs official portal",
             "url": "https://mohua.gov.in/",
             "type": "ministry_record",
+            "keywords": "housing urban shelter slum pmay mohua",
         },
     ],
     "environment": [
         {
-            "title": "Central Pollution Control Board official portal",
-            "url": "https://cpcb.nic.in/",
-            "type": "government_record",
+            "title": "CAG audit reports on environment and pollution control",
+            "url": "https://cag.gov.in/en/audit-report?title=pollution",
+            "type": "cag_audit_report",
+            "keywords": "air pollution waste sewage garbage contamination cpcb audit cag",
         },
         {
             "title": "Ministry of Environment, Forest and Climate Change official portal",
             "url": "https://moef.gov.in/",
             "type": "ministry_record",
+            "keywords": "environment pollution forest climate waste sewage",
         },
     ],
     "other": [

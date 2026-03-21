@@ -152,7 +152,10 @@ class IntakeAgent:
         if issue_type not in MINISTRY_MAP:
             issue_type = fallback["issue_type"]
 
-        severity_value = self._coerce_decimal(payload.get("severity_score"), fallback["severity_score"])
+        severity_value = self._cap_non_urgent_severity(
+            self._coerce_decimal(payload.get("severity_score"), fallback["severity_score"]),
+            text,
+        )
         urgency_flag = bool(payload.get("urgency_flag")) if payload.get("urgency_flag") is not None else severity_value >= Decimal("8.0")
         location_district = self._clean_string(payload.get("location_district")) or fallback["location_district"]
         location_ward = self._clean_string(payload.get("location_ward")) or fallback["location_ward"]
@@ -187,8 +190,9 @@ class IntakeAgent:
     def _estimate_severity(self, text: str) -> Decimal:
         normalized = text.lower()
         severity = Decimal("5.0")
+        explicit_safety_risk = any(term in normalized for term in URGENCY_TERMS)
 
-        if any(term in normalized for term in URGENCY_TERMS):
+        if explicit_safety_risk:
             severity = Decimal("8.4")
         elif any(term in normalized for term in HIGH_SEVERITY_TERMS):
             severity = Decimal("7.0")
@@ -199,6 +203,9 @@ class IntakeAgent:
             severity += Decimal("0.4")
         elif "months" in normalized or "month" in normalized:
             severity += Decimal("0.2")
+
+        if not explicit_safety_risk:
+            severity = min(severity, Decimal("7.9"))
 
         return min(max(severity, Decimal("1.0")), Decimal("10.0")).quantize(Decimal("0.1"))
 
@@ -272,6 +279,12 @@ class IntakeAgent:
             return fallback
         numeric = min(max(numeric, Decimal("1.0")), Decimal("10.0"))
         return numeric.quantize(Decimal("0.1"))
+
+    def _cap_non_urgent_severity(self, severity: Decimal, text: str) -> Decimal:
+        normalized = text.lower()
+        if any(term in normalized for term in URGENCY_TERMS):
+            return severity
+        return min(severity, Decimal("7.9")).quantize(Decimal("0.1"))
 
     def _coerce_int(self, value: Any, fallback: int | None) -> int | None:
         if value is None:

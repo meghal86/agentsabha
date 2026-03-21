@@ -14,6 +14,7 @@ from app.config import get_settings
 from app.models.agent_log import AgentLog
 from app.models.cluster import ClusterSnapshot, IssueCluster
 from app.models.issue import Issue
+from app.models.parliamentary_action import ParliamentaryAction
 from app.utils.audit_logger import AuditEntry, build_audit_payload
 from app.utils.hashing import sha256_hex
 
@@ -172,8 +173,26 @@ class ClusteringAgent:
                 else Decimal("5.0")
             )
             cluster_age_hours = max((now - first_seen).total_seconds() / 3600, 0)
+            ministry_response_confirmed = False
+            if existing_cluster is not None:
+                ministry_response_confirmed = bool(
+                    await db.scalar(
+                        select(ParliamentaryAction.id)
+                        .where(
+                            ParliamentaryAction.cluster_id == existing_cluster.id,
+                            (
+                                ParliamentaryAction.response_received.is_not(None)
+                                | ParliamentaryAction.response_text.is_not(None)
+                                | (ParliamentaryAction.status == "response_received")
+                            ),
+                        )
+                        .limit(1)
+                    )
+                )
             badge = "stable"
-            if (
+            if ministry_response_confirmed:
+                badge = "resolved"
+            elif (
                 float(severity_avg) >= settings.tatkal_severity_threshold
                 and cluster_age_hours <= settings.tatkal_max_age_hours
                 and current_count >= settings.tatkal_new_reports_threshold
@@ -181,7 +200,7 @@ class ClusteringAgent:
                 badge = "tatkal"
             elif float(velocity) >= 25:
                 badge = "rising"
-            elif cluster_age_hours >= 24 * 30:
+            elif cluster_age_hours >= 24 * 30 and not ministry_response_confirmed:
                 badge = "chronic"
 
             national_count = (
