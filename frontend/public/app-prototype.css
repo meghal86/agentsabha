@@ -1036,6 +1036,8 @@ section {
   text-transform: uppercase;
   transform: rotate(-1.6deg);
   box-shadow: 2px 2px 0 rgba(27, 42, 74, 0.06);
+  cursor: pointer;
+  appearance: none;
 }
 
 .stamp-badge::before {
@@ -1079,6 +1081,11 @@ section {
   background: var(--neela);
   color: var(--haath-kagaz);
   border-color: var(--neela);
+}
+
+.stamp-badge:focus-visible {
+  outline: 2px solid var(--kesariya);
+  outline-offset: 2px;
 }
 
 .trend-up {
@@ -2153,6 +2160,11 @@ section {
   width: 100%;
   background: #1f8f5b;
   color: #f6fffb;
+}
+
+.whatsapp-button.disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
 }
 
 .phone-frame {

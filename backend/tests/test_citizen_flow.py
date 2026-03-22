@@ -83,6 +83,7 @@ async def test_citizen_verify_submit_dissent_and_erase_flow(monkeypatch: pytest.
                 constituency_id=1,
                 language="en",
                 location="Ward 14",
+                category_hint="road",
             ),
             confirm_response.jwt,
         )

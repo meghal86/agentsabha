@@ -34,13 +34,15 @@ async def process_issue_intake(db: AsyncSession, issue_id: UUID | str) -> Issue:
             "channel": issue.source_channel,
             "issue_id": str(issue.id),
             "constituency_id": issue.constituency_id,
+            "location": issue.location_ward,
+            "category_hint": issue.issue_type,
         },
     )
     embedding = await EmbeddingService().embed_text(translated_text)
 
     issue.translated_text = translated_text
     issue.source_language = source_language
-    issue.issue_type = intake.get("issue_type")
+    issue.issue_type = intake.get("issue_type") or issue.issue_type
     issue.severity_score = intake.get("severity_score")
     issue.urgency_flag = bool(intake.get("urgency_flag"))
     issue.location_district = intake.get("location_district")

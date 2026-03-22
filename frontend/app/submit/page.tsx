@@ -5,6 +5,8 @@ import { getConstituencies } from "@/lib/api";
 
 export default async function SubmitPage() {
   const directory = await getConstituencies().catch(() => ({ constituencies: [] }));
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "") ?? "";
+  const whatsappHref = whatsappNumber ? `https://wa.me/${whatsappNumber}` : null;
 
   return (
     <div className="page-shell">
@@ -51,9 +53,15 @@ export default async function SubmitPage() {
               <SubmitIssueForm constituencies={directory.constituencies} />
 
               <div className="whatsapp-divider">— या / or —</div>
-              <a className="whatsapp-button" href="https://wa.me/919999999999">
-                WhatsApp se turant bhejein / Submit via WhatsApp instantly
-              </a>
+              {whatsappHref ? (
+                <a className="whatsapp-button" href={whatsappHref} target="_blank" rel="noreferrer">
+                  WhatsApp se turant bhejein / Submit via WhatsApp instantly
+                </a>
+              ) : (
+                <div className="whatsapp-button disabled" aria-disabled="true">
+                  WhatsApp number not configured yet
+                </div>
+              )}
             </div>
           </div>
         </section>

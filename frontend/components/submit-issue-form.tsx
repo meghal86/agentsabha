@@ -5,6 +5,14 @@ import { FormEvent, useState } from "react";
 import type { ConstituencyDirectoryItem } from "@/lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const CATEGORY_OPTIONS = [
+  { value: "road", label: "🛣️ सड़क", className: "road" },
+  { value: "water", label: "💧 पानी", className: "water" },
+  { value: "power", label: "⚡ बिजली", className: "electricity" },
+  { value: "health", label: "🏥 स्वास्थ्य", className: "health" },
+  { value: "education", label: "📚 शिक्षा", className: "education" },
+  { value: "environment", label: "🗑️ सफाई", className: "sanitation" },
+] as const;
 
 type SubmitState =
   | { type: "idle" }
@@ -18,13 +26,22 @@ type SubmitIssueFormProps = {
 };
 
 export function SubmitIssueForm({ constituencies, defaultConstituencyId }: SubmitIssueFormProps) {
-  const [mobile, setMobile] = useState("+919999999999");
+  const [mobile, setMobile] = useState("");
   const [constituencyId, setConstituencyId] = useState(String(defaultConstituencyId ?? constituencies[0]?.id ?? 1));
   const [otp, setOtp] = useState("123456");
   const [language, setLanguage] = useState("en");
   const [issueText, setIssueText] = useState("");
-  const [location, setLocation] = useState("Ward 14");
+  const [location, setLocation] = useState("");
+  const [categoryHint, setCategoryHint] = useState<string | null>(null);
   const [state, setState] = useState<SubmitState>({ type: "idle" });
+
+  function getFriendlyError(error: unknown) {
+    if (!(error instanceof Error)) return "Unknown submission error";
+    if (error.message === "Failed to fetch") {
+      return `Backend unreachable at ${API_BASE_URL}. Start the API server and try again.`;
+    }
+    return error.message;
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,6 +85,7 @@ export function SubmitIssueForm({ constituencies, defaultConstituencyId }: Submi
           constituency_id: Number(constituencyId),
           language,
           location,
+          category_hint: categoryHint,
         }),
       });
       if (!submitResponse.ok) {
@@ -77,8 +95,10 @@ export function SubmitIssueForm({ constituencies, defaultConstituencyId }: Submi
       const submitPayload = await submitResponse.json();
       setState({ type: "success", issueId: submitPayload.issue_id, processingStatus: submitPayload.processing_status });
       setIssueText("");
+      setLocation("");
+      setCategoryHint(null);
     } catch (error) {
-      setState({ type: "error", message: error instanceof Error ? error.message : "Unknown submission error" });
+      setState({ type: "error", message: getFriendlyError(error) });
     }
   }
 
@@ -86,8 +106,8 @@ export function SubmitIssueForm({ constituencies, defaultConstituencyId }: Submi
     <form className="issue-form" onSubmit={handleSubmit}>
       <label>
         <span>Step 0 — Mobile verification</span>
-        <input type="text" value={mobile} onChange={(event) => setMobile(event.target.value)} placeholder="+91..." />
-        <small>Development flow uses the live citizen verify endpoints.</small>
+        <input type="text" value={mobile} onChange={(event) => setMobile(event.target.value)} placeholder="+91..." required />
+        <small>Uses the live citizen verify endpoints. Enter your test mobile number in E.164 format.</small>
       </label>
 
       <label>
@@ -104,7 +124,7 @@ export function SubmitIssueForm({ constituencies, defaultConstituencyId }: Submi
 
       <label>
         <span>OTP</span>
-        <input type="text" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="123456" />
+        <input type="text" value={otp} onChange={(event) => setOtp(event.target.value)} placeholder="123456" required />
         <small>Sandbox-friendly for the current build.</small>
       </label>
 
@@ -131,14 +151,27 @@ export function SubmitIssueForm({ constituencies, defaultConstituencyId }: Submi
       <fieldset>
         <legend>Step 3 — Category (optional)</legend>
         <div className="category-stamps">
-          <button className="stamp-badge road selected" type="button">🛣️ सड़क</button>
-          <button className="stamp-badge water" type="button">💧 पानी</button>
-          <button className="stamp-badge electricity" type="button">⚡ बिजली</button>
-          <button className="stamp-badge health" type="button">🏥 स्वास्थ्य</button>
-          <button className="stamp-badge education" type="button">📚 शिक्षा</button>
-          <button className="stamp-badge sanitation" type="button">🗑️ सफाई</button>
-          <button className="stamp-badge neutral" type="button">Ya AI detect karne do</button>
+          {CATEGORY_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              className={`stamp-badge ${option.className} ${categoryHint === option.value ? "selected" : ""}`}
+              type="button"
+              aria-pressed={categoryHint === option.value}
+              onClick={() => setCategoryHint((current) => (current === option.value ? null : option.value))}
+            >
+              {option.label}
+            </button>
+          ))}
+          <button
+            className={`stamp-badge neutral ${categoryHint === null ? "selected" : ""}`}
+            type="button"
+            aria-pressed={categoryHint === null}
+            onClick={() => setCategoryHint(null)}
+          >
+            Ya AI detect karne do
+          </button>
         </div>
+        <small>{categoryHint ? `Selected category: ${categoryHint}` : "No category selected. AI will detect it from the issue text."}</small>
       </fieldset>
 
       <button className="submit-button" type="submit" disabled={state.type === "submitting"}>

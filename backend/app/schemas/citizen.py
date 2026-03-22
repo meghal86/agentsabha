@@ -39,6 +39,7 @@ class CitizenSubmitRequest(BaseModel):
     constituency_id: int = Field(ge=1, le=543)
     language: Optional[str] = None
     location: Optional[str] = None
+    category_hint: Optional[str] = None
 
 
 class CitizenSubmitResponse(BaseModel):

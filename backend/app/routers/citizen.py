@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import asyncio
 from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from kombu.exceptions import KombuError
+from redis.asyncio import from_url as redis_from_url
 from sqlalchemy import delete, desc, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.database import get_db
 from app.models.citizen import Citizen
 from app.models.cluster import IssueCluster
@@ -36,6 +39,7 @@ from app.utils.auth_tokens import sign_payload, verify_token
 from app.utils.hashing import sha256_hex
 
 router = APIRouter(prefix="/api/citizen", tags=["citizen"])
+settings = get_settings()
 
 REQUIRED_SUBMISSION_CONSENTS = ("issue_storage", "mapping")
 
@@ -97,6 +101,18 @@ def _assert_submission_consents(citizen: Citizen) -> None:
 
 
 async def _process_or_queue_issue(db: AsyncSession, issue: Issue) -> str:
+    redis = None
+    try:
+        redis = redis_from_url(settings.redis_url, encoding="utf-8", decode_responses=True)
+        await asyncio.wait_for(redis.ping(), timeout=0.4)
+    except Exception:
+        if redis is not None:
+            await redis.aclose()
+        await process_issue_intake(db, issue.id)
+        return "processed_inline"
+    else:
+        await redis.aclose()
+
     payload = {"issue_id": str(issue.id)}
     try:
         process_citizen_issue.delay(payload)
@@ -175,6 +191,8 @@ async def submit_issue_for_citizen(
         translated_text=None,
         source_language=payload.language,
         source_channel="web",
+        issue_type=payload.category_hint,
+        location_ward=payload.location,
     )
     db.add(issue)
     citizen.last_active = datetime.now(timezone.utc)

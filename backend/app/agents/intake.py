@@ -125,6 +125,9 @@ class IntakeAgent:
 
     def _fallback_extract(self, text: str, metadata: dict[str, Any]) -> dict[str, Any]:
         issue_type = self._detect_issue_type(text)
+        category_hint = self._clean_string(metadata.get("category_hint"))
+        if category_hint in MINISTRY_MAP and issue_type == "other":
+            issue_type = category_hint
         severity = self._estimate_severity(text)
         urgency_flag = severity >= Decimal("8.0")
         location_district, location_ward = self._extract_locations(text, metadata)
@@ -148,9 +151,12 @@ class IntakeAgent:
     def _normalize_payload(self, payload: dict[str, Any], text: str, metadata: dict[str, Any]) -> dict[str, Any]:
         fallback = self._fallback_extract(text, metadata)
 
+        category_hint = self._clean_string(metadata.get("category_hint"))
         issue_type = payload.get("issue_type") or fallback["issue_type"]
         if issue_type not in MINISTRY_MAP:
             issue_type = fallback["issue_type"]
+        if category_hint in MINISTRY_MAP and issue_type == "other":
+            issue_type = category_hint
 
         severity_value = self._cap_non_urgent_severity(
             self._coerce_decimal(payload.get("severity_score"), fallback["severity_score"]),
