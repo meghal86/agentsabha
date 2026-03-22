@@ -177,13 +177,13 @@ export function ConstituencyDeskTabs({
                     <span>{cluster.velocity !== null ? `${cluster.velocity.toFixed(0)}% change` : "steady pattern"}</span>
                   </div>
                 </div>
-                <div className="citizen-quote">
-                  <span className="quote-mark">&quot;</span>
-                  <div>
-                    <p>This cluster has crossed the public threshold and is now visible in the constituency desk.</p>
-                    <small>Live backend data • severity {cluster.severity?.toFixed(1) ?? "—"}</small>
-                  </div>
-                </div>
+                    <div className="citizen-quote">
+                      <span className="quote-mark">&quot;</span>
+                      <div>
+                    <p>This cluster has crossed the public threshold and is now visible on this constituency page.</p>
+                        <small>Live backend data • severity {cluster.severity?.toFixed(1) ?? "—"}</small>
+                      </div>
+                    </div>
                 <footer>
                   <span>📍 {displayName}</span>
                   <Link href="/submit">Add more evidence →</Link>
