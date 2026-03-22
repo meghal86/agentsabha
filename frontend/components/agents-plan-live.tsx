@@ -44,8 +44,10 @@ export function AgentsPlanLive({
   const [backendAvailable, setBackendAvailable] = useState(initialBackendAvailable);
   const [lastSuccessfulUpdate, setLastSuccessfulUpdate] = useState<string | null>(initialGeneratedAt);
   const [lastAttemptAt, setLastAttemptAt] = useState<string>(new Date().toISOString());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     let cancelled = false;
 
     const refresh = async () => {
@@ -83,6 +85,12 @@ export function AgentsPlanLive({
     [liveRoadmap],
   );
 
+  const formatTimestamp = (value: string | null, fallback: string) => {
+    if (!value) return fallback;
+    if (!mounted) return "Updating…";
+    return new Date(value).toLocaleTimeString();
+  };
+
   return (
     <>
       <div className="product-intro">
@@ -94,8 +102,7 @@ export function AgentsPlanLive({
           </p>
           <p className="frame-note">
             Refresh every 15 seconds · Last successful update{" "}
-            {lastSuccessfulUpdate ? new Date(lastSuccessfulUpdate).toLocaleTimeString() : "never"} · Last poll attempt{" "}
-            {new Date(lastAttemptAt).toLocaleTimeString()}
+            {formatTimestamp(lastSuccessfulUpdate, "never")} · Last poll attempt {formatTimestamp(lastAttemptAt, "never")}
           </p>
         </div>
         <div className="product-intro-stats product-intro-stats-grid">
@@ -258,7 +265,7 @@ export function AgentsPlanLive({
                       <section className="roadmap-detail-section">
                         <span className="summary-kicker">Runtime snapshot</span>
                         <p>
-                          Last run: {agent.last_run ? new Date(agent.last_run).toLocaleString() : "No runtime entry yet."}
+                          Last run: {agent.last_run ? (mounted ? new Date(agent.last_run).toLocaleString() : "Updating…") : "No runtime entry yet."}
                           <br />
                           Recent runs: {agent.recent_runs}
                           <br />

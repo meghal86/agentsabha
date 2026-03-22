@@ -25,8 +25,10 @@ async function fetchDebugAgents(): Promise<DebugAgentStatus[]> {
 export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: DebugAgentStatus[] }) {
   const [debugAgents, setDebugAgents] = useState(initialDebugAgents);
   const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     let cancelled = false;
     const refresh = async () => {
       try {
@@ -62,6 +64,12 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
 
   const debugByType = useMemo(() => new Map(debugAgents.map((entry) => [entry.agent_type, entry])), [debugAgents]);
 
+  const formatTime = (value: string | null) => {
+    if (!value) return "Not yet";
+    if (!mounted) return "Updating…";
+    return new Date(value).toLocaleTimeString();
+  };
+
   return (
     <>
       <div className="product-intro">
@@ -71,7 +79,7 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
           <p className="hero-body">
             This is the live build-status surface. It shows actual runtime activity from the backend audit log and refreshes every 15 seconds.
           </p>
-          <p className="frame-note">Last updated {new Date(lastUpdated).toLocaleTimeString()}</p>
+          <p className="frame-note">Last updated {mounted ? new Date(lastUpdated).toLocaleTimeString() : "Updating…"}</p>
         </div>
         <div className="product-intro-stats">
           <article className="summary-tile">
@@ -136,7 +144,7 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
                         </div>
                         <div>
                           <span>Last run</span>
-                          <strong>{debugEntry?.last_run ? new Date(debugEntry.last_run).toLocaleTimeString() : "Not yet"}</strong>
+                          <strong>{formatTime(debugEntry?.last_run ?? null)}</strong>
                         </div>
                       </div>
                       <div className="agent-debug-status">
