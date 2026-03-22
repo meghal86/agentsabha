@@ -195,10 +195,10 @@ export function ConstituencyDeskTabs({
               recentIssues.map((issue, index) => (
                 <article className="issue-card full" key={issue.id}>
                   <span className="issue-rank">{index + 1}</span>
-                  <div className="issue-top">
-                    <span className={`stamp-badge ${badgeClass(issue.category)}`}>{categoryLabel(issue.category)}</span>
-                    <span className="trend-up">{issue.clustered ? "clustered" : "pending cluster"}</span>
-                  </div>
+                    <div className="issue-top">
+                      <span className={`stamp-badge ${badgeClass(issue.category)}`}>{categoryLabel(issue.category)}</span>
+                      <span className="trend-up">{issue.clustered ? "clustered" : "clustering live · needs 5 similar reports"}</span>
+                    </div>
                   <h3>{issue.text_preview}</h3>
                   <p className="issue-subhead">{displayName} live intake row, waiting for more evidence before public publication.</p>
                   <div className="issue-progress">
@@ -212,11 +212,11 @@ export function ConstituencyDeskTabs({
                   </div>
                   <div className="citizen-quote">
                     <span className="quote-mark">&quot;</span>
-                    <div>
-                      <p>This issue has been received by Agent {displayName} and is currently part of the live intake queue.</p>
-                      <small>{issue.clustered ? "Clustered internally" : "Below public threshold"} • severity {issue.severity?.toFixed(1) ?? "—"}</small>
+                      <div>
+                        <p>This issue has been received by Agent {displayName} and is currently part of the live intake queue.</p>
+                        <small>{issue.clustered ? "Clustered internally" : "Clustering triggered; waiting for enough similar reports"} • severity {issue.severity?.toFixed(1) ?? "—"}</small>
+                      </div>
                     </div>
-                  </div>
                   <footer>
                     <span>📍 {displayName}</span>
                     <Link href="/submit">Add more evidence →</Link>

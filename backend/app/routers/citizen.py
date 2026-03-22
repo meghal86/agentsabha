@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.database import get_db
+from app.agents.clustering import ClusteringAgent
 from app.models.citizen import Citizen
 from app.models.cluster import IssueCluster
 from app.models.constituency import Constituency
@@ -109,6 +110,8 @@ async def _process_or_queue_issue(db: AsyncSession, issue: Issue) -> str:
         if redis is not None:
             await redis.aclose()
         await process_issue_intake(db, issue.id)
+        if issue.constituency_id is not None:
+            await ClusteringAgent().run(db, issue.constituency_id)
         return "processed_inline"
     else:
         await redis.aclose()
