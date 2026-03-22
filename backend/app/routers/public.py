@@ -13,10 +13,13 @@ from app.database import get_db
 from app.models.agent_log import AgentLog
 from app.schemas.health import HealthResponse
 from app.schemas.public import (
+    ConstituencyDeskResponse,
     ConstituencyDirectoryResponse,
     ConstituencyActionsResponse,
+    ConstituencyCategoryCount,
     ConstituencyDirectoryItem,
     ConstituencyIssuesResponse,
+    ConstituencyRecentIssue,
     ConstituencySummary,
     ConstituencyTimelineResponse,
     HeatmapResponse,
@@ -113,6 +116,93 @@ async def fetch_constituency_clusters(
                 "category": row.category,
             }
             for row in rows
+        ],
+    )
+
+
+def _preview_text(value: str | None) -> str:
+    text_value = (value or "").strip()
+    if len(text_value) <= 140:
+        return text_value
+    return f"{text_value[:137].rstrip()}..."
+
+
+async def fetch_constituency_desk(db: AsyncSession, constituency_id: int) -> ConstituencyDeskResponse:
+    await fetch_constituency_summary(db, constituency_id)
+
+    raw_issue_count = (
+        await db.execute(select(func.count()).select_from(Issue).where(Issue.constituency_id == constituency_id))
+    ).scalar_one()
+    clustered_issue_count = (
+        await db.execute(
+            select(func.count()).select_from(Issue).where(Issue.constituency_id == constituency_id, Issue.cluster_id.is_not(None))
+        )
+    ).scalar_one()
+    pending_issue_count = raw_issue_count - clustered_issue_count
+    public_cluster_count = (
+        await db.execute(
+            select(func.count())
+            .select_from(IssueCluster)
+            .where(
+                IssueCluster.constituency_id == constituency_id,
+                IssueCluster.issue_count >= settings.correct_constituency_minimum_cluster_size,
+            )
+        )
+    ).scalar_one()
+    action_count = (
+        await db.execute(select(func.count()).select_from(ParliamentaryAction).where(ParliamentaryAction.constituency_id == constituency_id))
+    ).scalar_one()
+    average_severity = (
+        await db.execute(select(func.avg(Issue.severity_score)).where(Issue.constituency_id == constituency_id))
+    ).scalar_one()
+    latest_issue_at = (
+        await db.execute(select(func.max(Issue.created_at)).where(Issue.constituency_id == constituency_id))
+    ).scalar_one()
+
+    category_rows = (
+        await db.execute(
+            select(func.coalesce(Issue.issue_type, "other").label("category"), func.count(Issue.id).label("count"))
+            .where(Issue.constituency_id == constituency_id)
+            .group_by(text("category"))
+            .order_by(desc(text("count")), text("category"))
+            .limit(6)
+        )
+    ).all()
+    top_category = category_rows[0].category if category_rows else None
+
+    recent_rows = (
+        await db.execute(
+            select(Issue)
+            .where(Issue.constituency_id == constituency_id)
+            .order_by(desc(Issue.created_at))
+            .limit(5)
+        )
+    ).scalars().all()
+
+    return ConstituencyDeskResponse(
+        constituency_id=constituency_id,
+        raw_issue_count=raw_issue_count,
+        clustered_issue_count=clustered_issue_count,
+        pending_issue_count=pending_issue_count,
+        public_cluster_count=public_cluster_count,
+        action_count=action_count,
+        top_category=top_category,
+        average_severity=_decimal_to_float(average_severity),
+        latest_issue_at=latest_issue_at.isoformat() if latest_issue_at else None,
+        category_breakdown=[
+            ConstituencyCategoryCount(category=row.category, count=row.count)
+            for row in category_rows
+        ],
+        recent_issues=[
+            ConstituencyRecentIssue(
+                id=str(issue.id),
+                text_preview=_preview_text(issue.translated_text or issue.raw_text),
+                category=issue.issue_type,
+                severity=_decimal_to_float(issue.severity_score),
+                created_at=issue.created_at.isoformat(),
+                clustered=issue.cluster_id is not None,
+            )
+            for issue in recent_rows
         ],
     )
 
@@ -385,6 +475,11 @@ async def get_constituency_issues(
     db: AsyncSession = Depends(get_db),
 ) -> ConstituencyIssuesResponse:
     return await fetch_constituency_clusters(db, id, page, per_page)
+
+
+@router.get("/api/constituency/{id}/desk", response_model=ConstituencyDeskResponse)
+async def get_constituency_desk(id: int, db: AsyncSession = Depends(get_db)) -> ConstituencyDeskResponse:
+    return await fetch_constituency_desk(db, id)
 
 
 @router.get("/api/constituency/{id}/timeline", response_model=ConstituencyTimelineResponse)

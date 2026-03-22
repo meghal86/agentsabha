@@ -43,6 +43,34 @@ class ConstituencyIssuesResponse(BaseModel):
     page: int
 
 
+class ConstituencyRecentIssue(BaseModel):
+    id: str
+    text_preview: str
+    category: Optional[str]
+    severity: Optional[float]
+    created_at: str
+    clustered: bool
+
+
+class ConstituencyCategoryCount(BaseModel):
+    category: str
+    count: int
+
+
+class ConstituencyDeskResponse(BaseModel):
+    constituency_id: int
+    raw_issue_count: int
+    clustered_issue_count: int
+    pending_issue_count: int
+    public_cluster_count: int
+    action_count: int
+    top_category: Optional[str]
+    average_severity: Optional[float]
+    latest_issue_at: Optional[str]
+    category_breakdown: list[ConstituencyCategoryCount]
+    recent_issues: list[ConstituencyRecentIssue]
+
+
 class HeatmapPoint(BaseModel):
     id: int
     lat: Optional[float]

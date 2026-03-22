@@ -61,6 +61,34 @@ export type ConstituencyIssueCluster = {
   category: string | null;
 };
 
+export type ConstituencyDeskCategoryCount = {
+  category: string;
+  count: number;
+};
+
+export type ConstituencyRecentIssue = {
+  id: string;
+  text_preview: string;
+  category: string | null;
+  severity: number | null;
+  created_at: string;
+  clustered: boolean;
+};
+
+export type ConstituencyDesk = {
+  constituency_id: number;
+  raw_issue_count: number;
+  clustered_issue_count: number;
+  pending_issue_count: number;
+  public_cluster_count: number;
+  action_count: number;
+  top_category: string | null;
+  average_severity: number | null;
+  latest_issue_at: string | null;
+  category_breakdown: ConstituencyDeskCategoryCount[];
+  recent_issues: ConstituencyRecentIssue[];
+};
+
 export type ParliamentaryActionSummary = {
   type: string | null;
   content: string;
@@ -95,6 +123,10 @@ export async function getConstituencyIssues(id: number | string) {
   return request<{ constituency_id: number; clusters: ConstituencyIssueCluster[]; total: number; page: number }>(
     `/api/constituency/${id}/issues`,
   );
+}
+
+export async function getConstituencyDesk(id: number | string) {
+  return request<ConstituencyDesk>(`/api/constituency/${id}/desk`);
 }
 
 export async function getConstituencyActions(id: number | string) {

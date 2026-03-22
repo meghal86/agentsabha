@@ -5,7 +5,7 @@ import { ConstituencySwitcher } from "@/components/constituency-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import constituencyGeojson from "@/data/constituencies-geojson.json";
-import { getConstituencies, getConstituencyActions, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
+import { getConstituencies, getConstituencyActions, getConstituencyDesk, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
 
 function categoryLabel(category: string | null) {
   switch (category) {
@@ -71,8 +71,9 @@ function buildTimelinePath(values: number[]) {
 }
 
 export default async function ConstituencyPage({ params }: { params: { id: string } }) {
-  const [summary, issues, actions, timeline, directory] = await Promise.all([
+  const [summary, desk, issues, actions, timeline, directory] = await Promise.all([
     getConstituencySummary(params.id).catch(() => null),
+    getConstituencyDesk(params.id).catch(() => null),
     getConstituencyIssues(params.id).catch(() => ({ clusters: [], total: 0, page: 1 })),
     getConstituencyActions(params.id).catch(() => ({ actions: [] })),
     getConstituencyTimeline(params.id).catch(() => ({ timeline: [] })),
@@ -85,7 +86,10 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
   const displayMp = summary?.mp_name ?? directoryEntry?.mp_name ?? "Unassigned";
 
   const topCategory = issues.clusters[0];
+  const liveTopCategory = topCategory?.category ?? desk?.top_category ?? null;
   const totalReports = issues.clusters.reduce((sum, cluster) => sum + cluster.count, 0);
+  const liveIssueCount = desk?.raw_issue_count ?? totalReports;
+  const pendingIssueCount = desk?.pending_issue_count ?? Math.max(liveIssueCount - totalReports, 0);
   const tatkalCount = issues.clusters.filter((cluster) => cluster.badge === "tatkal").length;
   const actionRows = actions.actions.slice(0, 3);
   const timelineSeries =
@@ -95,8 +99,21 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
   const averageSeverity =
     issues.clusters.length > 0
       ? issues.clusters.reduce((sum, cluster) => sum + (cluster.severity ?? 0), 0) / issues.clusters.length
-      : 0;
+      : desk?.average_severity ?? 0;
   const isPubliclyActive = issues.total > 0;
+  const hasLiveIntake = (desk?.raw_issue_count ?? 0) > 0;
+  const categoryBreakdown = issues.clusters.length > 0
+    ? issues.clusters.slice(0, 5).map((cluster) => ({
+        category: cluster.category,
+        count: cluster.count,
+        severity: cluster.severity,
+      }))
+    : (desk?.category_breakdown ?? []).map((row) => ({
+        category: row.category,
+        count: row.count,
+        severity: averageSeverity || 4,
+      }));
+  const recentIssueRows = desk?.recent_issues ?? [];
 
   return (
     <div className="page-shell">
@@ -132,36 +149,58 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                 </div>
                 <div className="meta-stat">
                   <span className="meta-label">Weekly brief</span>
-                  <strong>{actionRows.length} tracked actions</strong>
+                  <strong>{desk?.action_count ?? actionRows.length} tracked actions</strong>
                 </div>
               </div>
             </div>
           </div>
 
           <div className={`activation-banner ${isPubliclyActive ? "active" : "inactive"}`}>
-            <strong>{isPubliclyActive ? "Public constituency desk is active" : "Seat selected successfully"}</strong>
+            <strong>
+              {isPubliclyActive
+                ? "Public constituency desk is active"
+                : hasLiveIntake
+                  ? "Live intake is active"
+                  : "Seat selected successfully"}
+            </strong>
             <span>
               {isPubliclyActive
                 ? `${displayName} has public clusters above the publication threshold and active parliamentary tracking.`
-                : `${displayName} is available in the national map, but no public cluster has crossed the publication threshold yet.`}
+                : hasLiveIntake
+                  ? `${displayName} has ${liveIssueCount} live issue${liveIssueCount === 1 ? "" : "s"} in the intake pipeline. They are visible below even before crossing public publication threshold.`
+                  : `${displayName} is available in the national map, but no public cluster has crossed the publication threshold yet.`}
             </span>
           </div>
 
           <div className="dashboard-summary-grid">
             <article className="summary-tile">
               <span className="summary-kicker">Top category</span>
-              <strong>{topCategory ? categoryLabel(topCategory.category) : "No live category yet"}</strong>
-              <p>{topCategory?.label ?? "This constituency has not yet crossed the public publication threshold."}</p>
+              <strong>{liveTopCategory ? categoryLabel(liveTopCategory) : "No live category yet"}</strong>
+              <p>
+                {topCategory?.label ??
+                  recentIssueRows[0]?.text_preview ??
+                  "This constituency has not yet crossed the public publication threshold."}
+              </p>
             </article>
             <article className="summary-tile">
               <span className="summary-kicker">This week</span>
-              <strong>{totalReports.toLocaleString()} reports</strong>
-              <p>Live public ledger rows are now being pulled from the backend instead of placeholder copy.</p>
+              <strong>{liveIssueCount.toLocaleString()} live reports</strong>
+              <p>
+                {isPubliclyActive
+                  ? "Public desk rows are visible because clustered evidence crossed the threshold."
+                  : pendingIssueCount > 0
+                    ? `${pendingIssueCount} issue${pendingIssueCount === 1 ? "" : "s"} still pending cluster/publication threshold.`
+                    : "No live intake has arrived yet."}
+              </p>
             </article>
             <article className="summary-tile accent-tile">
               <span className="summary-kicker">Need action today</span>
               <strong>{tatkalCount} Tatkal clusters</strong>
-              <p>Escalation is driven by severity, velocity, and verified constituency patterns.</p>
+              <p>
+                {hasLiveIntake
+                  ? `${desk?.clustered_issue_count ?? 0} issues already processed by intake and routing agents.`
+                  : "Escalation is driven by severity, velocity, and verified constituency patterns."}
+              </p>
             </article>
           </div>
 
@@ -177,8 +216,8 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                   <h4>श्रेणी विवरण</h4>
                 </div>
                 <div className="category-bars">
-                  {(issues.clusters.length > 0 ? issues.clusters.slice(0, 5) : []).map((cluster) => (
-                    <div className="category-row" key={`${cluster.category}-${cluster.label}`}>
+                  {categoryBreakdown.map((cluster) => (
+                    <div className="category-row" key={`${cluster.category}-${cluster.count}`}>
                       <span>{categoryLabel(cluster.category)}</span>
                       <div className={`bar ${badgeClass(cluster.category)}`}>
                         <i style={{ width: toneWidth(cluster.severity) }}></i>
@@ -197,16 +236,16 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                 </span>
                 <div className="agent-stats">
                   <article>
-                    <strong>{issues.total}</strong>
-                    <small>Public clusters</small>
+                    <strong>{liveIssueCount}</strong>
+                    <small>Live issues</small>
                   </article>
                   <article>
                     <strong>{summary?.population?.toLocaleString() ?? "—"}</strong>
                     <small>Population</small>
                   </article>
                   <article>
-                    <strong>{actionRows.length}</strong>
-                    <small>Filed actions visible</small>
+                    <strong>{desk?.action_count ?? actionRows.length}</strong>
+                    <small>Tracked actions</small>
                   </article>
                 </div>
               </section>
@@ -265,6 +304,38 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                     </footer>
                   </article>
                 ))}
+                {issues.clusters.length === 0 && recentIssueRows.map((issue, index) => (
+                  <article className="issue-card full" key={issue.id}>
+                    <span className="issue-rank">{index + 1}</span>
+                    <div className="issue-top">
+                      <span className={`stamp-badge ${badgeClass(issue.category)}`}>{categoryLabel(issue.category)}</span>
+                      <span className="trend-up">{issue.clustered ? "clustered" : "pending cluster"}</span>
+                    </div>
+                    <h3>{issue.text_preview}</h3>
+                    <p className="issue-subhead">{displayName} live intake row, waiting for more evidence before public publication.</p>
+                    <div className="issue-progress">
+                      <div className={`severity-track ${badgeClass(issue.category)}`}>
+                        <span style={{ width: toneWidth(issue.severity) }}></span>
+                      </div>
+                      <div className="issue-meta">
+                        <strong>1 रिपोर्ट</strong>
+                        <span>{new Date(issue.created_at).toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="citizen-quote">
+                      <span className="quote-mark">&quot;</span>
+                      <div>
+                        <p>This issue has been received by Agent {displayName} and is currently part of the live intake queue.</p>
+                        <small>{issue.clustered ? "Clustered internally" : "Below public threshold"} • severity {issue.severity?.toFixed(1) ?? "—"}</small>
+                      </div>
+                    </div>
+                    <footer>
+                      <span>📍 {displayName}</span>
+                      <Link href="/submit">Add more evidence →</Link>
+                    </footer>
+                  </article>
+                ))}
+                {issues.clusters.length === 0 && recentIssueRows.length === 0 ? <p>No live issues yet.</p> : null}
               </section>
 
               <div className="jaali-divider compact-divider dashboard-divider" aria-hidden="true">
@@ -308,14 +379,17 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                     constituencyId={selectedId}
                     constituencyName={displayName}
                     stateName={displayState}
-                    topCategory={topCategory?.category ?? null}
-                    averageSeverity={issues.total > 0 ? averageSeverity : null}
+                    topCategory={liveTopCategory}
+                    averageSeverity={hasLiveIntake ? averageSeverity : null}
                   />
                   <div className="map-legend">
                     <h4>Constituency signal / क्षेत्र संकेत</h4>
                     <p>
-                      {displayName} currently has {issues.total} public clusters with an average severity of{" "}
-                      {averageSeverity ? averageSeverity.toFixed(1) : "—"}.
+                      {isPubliclyActive
+                        ? `${displayName} currently has ${issues.total} public clusters with an average severity of ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
+                        : hasLiveIntake
+                          ? `${displayName} currently has ${liveIssueCount} live issue${liveIssueCount === 1 ? "" : "s"} in the intake pipeline with average severity ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
+                          : `${displayName} currently has no live issue activity.`}
                     </p>
                   </div>
                 </div>
