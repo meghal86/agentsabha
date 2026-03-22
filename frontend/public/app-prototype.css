@@ -3011,3 +3011,331 @@ section {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 560px) {
+  .page-shell {
+    width: calc(100% - 16px);
+    padding: 16px 0 56px;
+  }
+
+  .screen-main {
+    margin-top: 16px;
+  }
+
+  .screen-frame {
+    padding: 20px 0 28px;
+  }
+
+  .frame-panel,
+  .summary-tile,
+  .map-card,
+  .logo-card,
+  .timeline-card,
+  .art-card,
+  .agent-debug-card,
+  .roadmap-detail-summary,
+  .roadmap-detail-body,
+  .roadmap-detail-section,
+  .category-breakdown,
+  .agent-panel,
+  .meta-stat,
+  .constituency-map-card,
+  .session-list article,
+  .map-legend,
+  .drawer-panel {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .product-intro,
+  .homepage-frame,
+  .dashboard-layout,
+  .map-summary,
+  .observer-main,
+  .components-grid,
+  .logo-grid,
+  .steps-grid,
+  .trending-grid,
+  .agent-next-steps,
+  .submit-summary-grid,
+  .dashboard-summary-grid,
+  .dashboard-meta-board {
+    gap: 14px;
+  }
+
+  .topbar {
+    gap: 14px;
+    padding: 16px 0 14px;
+  }
+
+  .brand-lockup {
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .brand-mark {
+    width: 56px;
+    height: 56px;
+  }
+
+  .brand-copy strong,
+  .wordmark-latin {
+    font-size: 1.35rem;
+  }
+
+  .brand-copy span:last-child,
+  .wordmark-dev {
+    font-size: 0.98rem;
+  }
+
+  .prototype-nav {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    margin: 0;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .prototype-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .screen-link,
+  .tab {
+    white-space: nowrap;
+  }
+
+  .top-actions,
+  .top-actions .button-link,
+  .outline-button,
+  .hero-actions,
+  .hero-actions .primary-button,
+  .hero-actions .secondary-button,
+  .agent-roadmap-actions,
+  .agent-roadmap-actions .secondary-button {
+    width: 100%;
+  }
+
+  .top-actions {
+    display: block;
+  }
+
+  .outline-button,
+  .primary-button,
+  .secondary-button,
+  .submit-button,
+  .whatsapp-button {
+    width: 100%;
+  }
+
+  .primary-button,
+  .secondary-button {
+    justify-content: center;
+  }
+
+  .primary-button {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-copy h1 {
+    font-size: 2.45rem;
+  }
+
+  .hero-body,
+  .frame-note,
+  .summary-tile p,
+  .roadmap-detail-section p,
+  .roadmap-detail-section li,
+  .agent-next-step-card p,
+  .submit-side-list p,
+  .activation-banner span,
+  .hover-card p,
+  .map-legend p,
+  .session-list p {
+    line-height: 1.6;
+  }
+
+  .quote-strip {
+    padding: 14px 16px;
+  }
+
+  .quote-mark {
+    font-size: 3rem;
+  }
+
+  .submit-shell {
+    padding: 20px 16px;
+  }
+
+  .submit-masthead h3,
+  .submit-shell .section-heading h2,
+  .submit-shell .section-heading h3,
+  .dashboard-title h2 {
+    font-size: 1.9rem;
+  }
+
+  .product-title,
+  .section-heading h2,
+  .observer-copy h1 {
+    font-size: 2.15rem;
+  }
+
+  .dashboard-title h3,
+  .map-header h2,
+  .constituency-map-header h4,
+  .observer-popup h3,
+  .agent-panel h4,
+  .site-footer-inner strong {
+    font-size: 1.5rem;
+  }
+
+  .step-line {
+    grid-template-columns: 28px 1fr 28px 1fr 28px;
+    gap: 6px;
+  }
+
+  .field-tools,
+  .issue-meta,
+  .constituency-map-header,
+  .constituency-map-footer,
+  .observer-note-head {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .field-tools button {
+    width: 100%;
+  }
+
+  .national-map-toolbar,
+  .map-summary,
+  .dashboard-header,
+  .observer-topbar,
+  .observer-main,
+  .site-footer-inner {
+    gap: 14px;
+  }
+
+  .tab-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-row,
+  .issue-card footer,
+  .site-footer-inner,
+  .observer-topbar,
+  .observer-note-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .issue-card footer a,
+  .issue-card footer span {
+    width: 100%;
+  }
+
+  .issue-card {
+    padding: 18px 16px 14px;
+  }
+
+  .issue-card::before {
+    inset: 10px;
+  }
+
+  .issue-card::after {
+    left: 16px;
+    right: 16px;
+    top: 58px;
+  }
+
+  .issue-rank {
+    font-size: 3.15rem;
+    right: 10px;
+  }
+
+  .issue-card h3 {
+    margin: 16px 0 8px;
+    font-size: 1.28rem;
+    max-width: none;
+  }
+
+  .issue-subhead {
+    margin-bottom: 14px;
+    max-width: none;
+    font-size: 0.94rem;
+  }
+
+  .issue-meta strong,
+  .agent-stats strong,
+  .constituency-map-metric strong,
+  .pulse-number {
+    font-size: 1.6rem;
+  }
+
+  .timeline-card {
+    padding: 18px 14px;
+    overflow-x: auto;
+  }
+
+  .timeline-chart {
+    min-width: 620px;
+  }
+
+  .constituency-map-card {
+    padding: 14px;
+  }
+
+  .constituency-shape-svg {
+    min-height: 240px;
+  }
+
+  .national-map-svg {
+    min-height: 320px;
+  }
+
+  .observer-map-stage {
+    min-height: 320px;
+    height: 320px;
+  }
+
+  .observer-copy p:last-child,
+  .hover-card h3,
+  .summary-tile strong,
+  .agent-debug-head h3,
+  .agent-next-step-card h3 {
+    max-width: none;
+  }
+
+  .observer-popup {
+    padding: 14px 16px;
+  }
+
+  .observer-ticker-track {
+    gap: 24px;
+    padding: 14px 0;
+  }
+
+  .observer-ticker-track span {
+    font-size: 0.92rem;
+  }
+
+  .phone-map {
+    height: 180px;
+  }
+
+  .phone-frame {
+    padding: 14px;
+    border-radius: 22px;
+  }
+}
