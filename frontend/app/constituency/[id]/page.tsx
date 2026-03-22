@@ -1,13 +1,10 @@
-import Link from "next/link";
-
-import { ConstituencyShapeMap } from "@/components/constituency-shape-map";
+import { ConstituencyDeskTabs } from "@/components/constituency-desk-tabs";
 import { ConstituencySwitcher } from "@/components/constituency-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getConstituencyActions, getConstituencyDesk, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
 
-function categoryLabel(category: string | null) {
+function summaryCategoryLabel(category: string | null) {
   switch (category) {
     case "road":
       return "सड़क / Roads";
@@ -28,6 +25,10 @@ function categoryLabel(category: string | null) {
     default:
       return "अन्य / Other";
   }
+}
+
+function categoryLabel(category: string | null) {
+  return summaryCategoryLabel(category);
 }
 
 function badgeClass(category: string | null) {
@@ -175,7 +176,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
           <div className="dashboard-summary-grid">
             <article className="summary-tile">
               <span className="summary-kicker">Top category</span>
-              <strong>{liveTopCategory ? categoryLabel(liveTopCategory) : "No live category yet"}</strong>
+              <strong>{liveTopCategory ? summaryCategoryLabel(liveTopCategory) : "No live category yet"}</strong>
               <p>
                 {topCategory?.label ??
                   recentIssueRows[0]?.text_preview ??
@@ -251,166 +252,22 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
               </section>
             </aside>
 
-            <div className="dashboard-main">
-              <div className="tab-bar" role="tablist" aria-label="Constituency sections">
-                <button className="tab active" type="button">
-                  Top Issues / प्रमुख समस्याएं
-                </button>
-                <button className="tab" type="button">
-                  Timeline / समयरेखा
-                </button>
-                <button className="tab" type="button">
-                  Map / मानचित्र
-                </button>
-                <button className="tab" type="button">
-                  Sessions / सत्र
-                </button>
-              </div>
-              <div className="filter-row">
-                <span className="stamp-badge road">Tatkal</span>
-                <span className="stamp-badge water">Paani</span>
-                <span className="stamp-badge neutral">Live ledger</span>
-              </div>
-
-              <section className="tab-panel active">
-                {(issues.clusters.length > 0 ? issues.clusters.slice(0, 3) : []).map((cluster, index) => (
-                  <article className="issue-card full" key={`${cluster.label}-${index}`}>
-                    <span className="issue-rank">{index + 1}</span>
-                    <div className="issue-top">
-                      <span className={`stamp-badge ${badgeClass(cluster.category)}`}>{categoryLabel(cluster.category)}</span>
-                      <span className="trend-up">{cluster.badge ?? "stable"}</span>
-                    </div>
-                    <h3>{cluster.label ?? "Unlabelled cluster"}</h3>
-                    <p className="issue-subhead">{summary?.name ?? "This constituency"} cluster with {cluster.count} linked reports</p>
-                    <div className="issue-progress">
-                      <div className={`severity-track ${badgeClass(cluster.category)}`}>
-                        <span style={{ width: toneWidth(cluster.severity) }}></span>
-                      </div>
-                      <div className="issue-meta">
-                        <strong>{cluster.count} रिपोर्ट</strong>
-                        <span>{cluster.velocity !== null ? `${cluster.velocity.toFixed(0)}% change` : "steady pattern"}</span>
-                      </div>
-                    </div>
-                    <div className="citizen-quote">
-                      <span className="quote-mark">&quot;</span>
-                      <div>
-                        <p>This cluster has crossed the public threshold and is now visible in the constituency desk.</p>
-                        <small>Live backend data • severity {cluster.severity?.toFixed(1) ?? "—"}</small>
-                      </div>
-                    </div>
-                    <footer>
-                      <span>📍 {summary?.name ?? `Constituency ${params.id}`}</span>
-                      <Link href="/submit">Add more evidence →</Link>
-                    </footer>
-                  </article>
-                ))}
-                {issues.clusters.length === 0 && recentIssueRows.map((issue, index) => (
-                  <article className="issue-card full" key={issue.id}>
-                    <span className="issue-rank">{index + 1}</span>
-                    <div className="issue-top">
-                      <span className={`stamp-badge ${badgeClass(issue.category)}`}>{categoryLabel(issue.category)}</span>
-                      <span className="trend-up">{issue.clustered ? "clustered" : "pending cluster"}</span>
-                    </div>
-                    <h3>{issue.text_preview}</h3>
-                    <p className="issue-subhead">{displayName} live intake row, waiting for more evidence before public publication.</p>
-                    <div className="issue-progress">
-                      <div className={`severity-track ${badgeClass(issue.category)}`}>
-                        <span style={{ width: toneWidth(issue.severity) }}></span>
-                      </div>
-                      <div className="issue-meta">
-                        <strong>1 रिपोर्ट</strong>
-                        <span>{new Date(issue.created_at).toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="citizen-quote">
-                      <span className="quote-mark">&quot;</span>
-                      <div>
-                        <p>This issue has been received by Agent {displayName} and is currently part of the live intake queue.</p>
-                        <small>{issue.clustered ? "Clustered internally" : "Below public threshold"} • severity {issue.severity?.toFixed(1) ?? "—"}</small>
-                      </div>
-                    </div>
-                    <footer>
-                      <span>📍 {displayName}</span>
-                      <Link href="/submit">Add more evidence →</Link>
-                    </footer>
-                  </article>
-                ))}
-                {issues.clusters.length === 0 && recentIssueRows.length === 0 ? <p>No live issues yet.</p> : null}
-              </section>
-
-              <div className="jaali-divider compact-divider dashboard-divider" aria-hidden="true">
-                <img src="/prototype/art/jaali-band.svg" alt="" />
-              </div>
-
-              <section className="tab-panel active" id="panel-timeline">
-                <div className="timeline-card">
-                  <div className="section-heading small">
-                    <p>ISSUE VOLUME OVER TIME</p>
-                    <h4>समय के साथ समस्याओं की संख्या</h4>
-                  </div>
-                  {timelineSeries ? (
-                    <svg viewBox="0 0 760 200" className="timeline-chart">
-                      <g className="chart-guides">
-                        <line x1="40" y1="180" x2="720" y2="180" />
-                        <line x1="40" y1="135" x2="720" y2="135" />
-                        <line x1="40" y1="90" x2="720" y2="90" />
-                        <line x1="40" y1="45" x2="720" y2="45" />
-                      </g>
-                      <path className="chart-line" d={timelinePath} />
-                      <g className="chart-points">
-                        {timelineSeries.data.map((point, index) => {
-                          const x = 40 + (index * 680) / Math.max(timelineSeries.data.length - 1, 1);
-                          const max = Math.max(...timelineValues, 1);
-                          const y = 180 - (point.count / max) * 140;
-                          return <circle key={point.week} cx={x} cy={y} r="5" />;
-                        })}
-                      </g>
-                    </svg>
-                  ) : (
-                    <p>No timeline yet.</p>
-                  )}
-                </div>
-              </section>
-
-              <section className="tab-panel active" id="panel-map">
-                <div className="map-summary">
-                  <ConstituencyShapeMap
-                    collection={constituencyGeojson}
-                    constituencyId={selectedId}
-                    constituencyName={displayName}
-                    stateName={displayState}
-                    topCategory={liveTopCategory}
-                    averageSeverity={hasLiveIntake ? averageSeverity : null}
-                  />
-                  <div className="map-legend">
-                    <h4>Constituency signal / क्षेत्र संकेत</h4>
-                    <p>
-                      {isPubliclyActive
-                        ? `${displayName} currently has ${issues.total} public clusters with an average severity of ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
-                        : hasLiveIntake
-                          ? `${displayName} currently has ${liveIssueCount} live issue${liveIssueCount === 1 ? "" : "s"} in the intake pipeline with average severity ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
-                          : `${displayName} currently has no live issue activity.`}
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              <div className="jaali-divider compact-divider dashboard-divider" aria-hidden="true">
-                <img src="/prototype/art/jaali-band.svg" alt="" />
-              </div>
-
-              <section className="tab-panel active">
-                <div className="session-list">
-                  {(actionRows.length > 0 ? actionRows : []).map((action, index) => (
-                    <article key={`${action.type}-${index}`}>
-                      <span className="stamp-badge neutral">{action.type ?? "ACTION"}</span>
-                      <h4>{action.content}</h4>
-                      <p>Status: {action.status}{action.filed_at ? ` • Filed ${new Date(action.filed_at).toLocaleDateString()}` : ""}</p>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            </div>
+            <ConstituencyDeskTabs
+              selectedId={selectedId}
+              displayName={displayName}
+              displayState={displayState}
+              issues={issues.clusters.length > 0 ? issues.clusters.slice(0, 3) : []}
+              actions={actionRows}
+              recentIssues={recentIssueRows}
+              timelineSeries={timelineSeries}
+              timelinePath={timelinePath}
+              timelineValues={timelineValues}
+              liveTopCategory={liveTopCategory}
+              liveIssueCount={liveIssueCount}
+              averageSeverity={averageSeverity}
+              hasLiveIntake={hasLiveIntake}
+              isPubliclyActive={isPubliclyActive}
+            />
           </div>
         </section>
       </main>
