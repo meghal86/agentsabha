@@ -256,6 +256,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
               selectedId={selectedId}
               displayName={displayName}
               displayState={displayState}
+              mpName={displayMp}
               issues={issues.clusters.length > 0 ? issues.clusters.slice(0, 3) : []}
               actions={actionRows}
               recentIssues={recentIssueRows}

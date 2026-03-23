@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getNationalHeatmap, getNationalPulse } from "@/lib/api";
+import { forumDefinitions } from "@/lib/forum-system";
 
 function toBadge(severity: number | null) {
   if (severity === null) return "neutral";
@@ -97,6 +98,34 @@ export default async function HomePage() {
           </div>
 
           <div className="below-fold-grid">
+            <section className="frame-panel full-width-panel">
+              <div className="section-heading compact-heading">
+                <div>
+                  <p>सक्रिय मंच</p>
+                  <h2>Forums live now</h2>
+                </div>
+              </div>
+              <div className="forum-grid compact-forum-grid">
+                {forumDefinitions.slice(0, 4).map((forum) => (
+                  <article key={forum.slug} className="forum-surface-card compact-forum-card">
+                    <div className="forum-surface-header" style={{ borderTopColor: forum.color }}>
+                      <div>
+                        <span className="summary-kicker">{forum.hindiName}</span>
+                        <h3>{forum.name}</h3>
+                      </div>
+                      <span className="stamp-badge neutral">{forum.orchestratorTitle}</span>
+                    </div>
+                    <p className="frame-note">{forum.orchestratorIdentity}</p>
+                    <div className="forum-rules-strip">
+                      {forum.outputs.slice(0, 2).map((output) => (
+                        <span key={output}>{output}</span>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
             <section className="frame-panel">
               <div className="section-heading inline-heading compact-heading">
                 <h2>अभी क्या हो रहा है</h2>
@@ -142,8 +171,8 @@ export default async function HomePage() {
               <div className="steps-grid compact-steps">
                 {[
                   ["01", "Citizen submits", "Citizen issue arrives by web or WhatsApp in any language.", "/art/warli-citizen.svg"],
-                  ["02", "Agent clusters", "The intake agent structures, translates, embeds, and groups similar issues.", "/art/warli-cluster.svg"],
-                  ["03", "MP co-pilot", "The strongest clusters become briefs and draft parliamentary questions.", "/art/warli-parliament.svg"],
+                  ["02", "Forum selected", "The right Indian forum is selected and governed by its native orchestrator.", "/art/warli-cluster.svg"],
+                  ["03", "Output admitted", "The strongest clusters become parliamentary, civic, or editorial outputs under procedural rules.", "/art/warli-parliament.svg"],
                 ].map(([step, title, body, image]) => (
                   <article key={step}>
                     <span className="step-number">{step}</span>

@@ -2336,6 +2336,124 @@ section {
   margin-top: 14px;
 }
 
+.forum-grid,
+.mp-personality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.compact-forum-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.forum-surface-card,
+.mp-personality-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--aged-border);
+  border-top: 3px solid var(--neela);
+  border-radius: 18px;
+  background: rgba(250, 243, 224, 0.72);
+}
+
+.forum-surface-header,
+.mp-personality-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.forum-surface-header h3,
+.mp-personality-head h3 {
+  margin: 6px 0 0;
+  font-family: "Playfair Display", serif;
+  font-size: 1.45rem;
+}
+
+.forum-surface-header p,
+.mp-personality-head p {
+  margin: 4px 0 0;
+  color: var(--muted-ink);
+}
+
+.forum-orchestrator-block {
+  padding: 14px 16px;
+  border: 1px solid rgba(27, 42, 74, 0.12);
+  border-radius: 14px;
+}
+
+.forum-orchestrator-block strong {
+  display: block;
+  margin-bottom: 8px;
+  font-family: "Playfair Display", serif;
+  font-size: 1.15rem;
+}
+
+.forum-orchestrator-block p {
+  margin: 0;
+  color: var(--muted-ink);
+  line-height: 1.65;
+}
+
+.forum-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.forum-mini-grid section,
+.record-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.forum-mini-grid ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted-ink);
+  line-height: 1.6;
+}
+
+.forum-rules-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.forum-rules-strip span,
+.mp-trait-row-live span {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid rgba(27, 42, 74, 0.12);
+  background: rgba(245, 230, 200, 0.58);
+  color: var(--muted-ink);
+  font-size: 0.78rem;
+}
+
+.mp-avatar-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.mp-trait-row-live {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.constituency-mp-card {
+  border-top-width: 3px;
+}
+
 .map-first-page .page-shell {
   width: min(1440px, calc(100% - 36px));
 }
@@ -2882,7 +3000,11 @@ section {
   .submit-summary-grid,
   .observer-main,
   .product-intro,
-  .agents-debug-grid {
+  .agents-debug-grid,
+  .forum-grid,
+  .mp-personality-grid,
+  .compact-forum-grid,
+  .forum-mini-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2995,7 +3117,8 @@ section {
   }
 
   .agent-next-steps,
-  .roadmap-detail-grid {
+  .roadmap-detail-grid,
+  .forum-mini-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3042,7 +3165,9 @@ section {
   .constituency-map-card,
   .session-list article,
   .map-legend,
-  .drawer-panel {
+  .drawer-panel,
+  .forum-surface-card,
+  .mp-personality-card {
     padding: 16px;
     border-radius: 14px;
   }
@@ -3056,6 +3181,8 @@ section {
   .logo-grid,
   .steps-grid,
   .trending-grid,
+  .forum-grid,
+  .mp-personality-grid,
   .agent-next-steps,
   .submit-summary-grid,
   .dashboard-summary-grid,
@@ -3201,7 +3328,9 @@ section {
   .issue-meta,
   .constituency-map-header,
   .constituency-map-footer,
-  .observer-note-head {
+  .observer-note-head,
+  .forum-surface-header,
+  .mp-personality-head {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: flex-start;

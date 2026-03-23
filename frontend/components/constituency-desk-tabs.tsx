@@ -5,6 +5,7 @@ import { useId, useState } from "react";
 
 import { ConstituencyShapeMap } from "@/components/constituency-shape-map";
 import constituencyGeojson from "@/data/constituencies-geojson.json";
+import { buildGenericMpProfile, findMpPersonality, getForumsForConstituency } from "@/lib/forum-system";
 
 type DeskCluster = {
   label: string | null;
@@ -45,6 +46,7 @@ type ConstituencyDeskTabsProps = {
   selectedId: number;
   displayName: string;
   displayState: string;
+  mpName: string;
   issues: DeskCluster[];
   actions: DeskAction[];
   recentIssues: DeskRecentIssue[];
@@ -58,7 +60,7 @@ type ConstituencyDeskTabsProps = {
   isPubliclyActive: boolean;
 };
 
-type TabKey = "issues" | "timeline" | "map" | "sessions";
+type TabKey = "issues" | "forums" | "mp" | "actions" | "record";
 
 function categoryLabel(category: string | null) {
   switch (category) {
@@ -112,6 +114,7 @@ export function ConstituencyDeskTabs({
   selectedId,
   displayName,
   displayState,
+  mpName,
   issues,
   actions,
   recentIssues,
@@ -126,15 +129,18 @@ export function ConstituencyDeskTabs({
 }: ConstituencyDeskTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("issues");
   const tabsetId = useId();
+  const forumRows = getForumsForConstituency(liveIssueCount, actions.length > 0);
+  const mpProfile = findMpPersonality(mpName) ?? buildGenericMpProfile(mpName, displayName, displayState);
 
   return (
     <div className="dashboard-main">
       <div className="tab-bar" role="tablist" aria-label="Constituency sections">
         {[
-          ["issues", "Top Issues / प्रमुख समस्याएं"],
-          ["timeline", "Timeline / समयरेखा"],
-          ["map", "Map / मानचित्र"],
-          ["sessions", "Sessions / सत्र"],
+          ["issues", "Issues / प्रमुख समस्याएं"],
+          ["forums", "Forums / मंच"],
+          ["mp", "MP / सांसद"],
+          ["actions", "Actions / कार्रवाई"],
+          ["record", "Record / अभिलेख"],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -156,7 +162,7 @@ export function ConstituencyDeskTabs({
           <div className="filter-row">
             <span className="stamp-badge road">Tatkal</span>
             <span className="stamp-badge water">Paani</span>
-            <span className="stamp-badge neutral">Live ledger</span>
+            <span className="stamp-badge neutral">Public record</span>
           </div>
           <section className="tab-panel active" id={`${tabsetId}-issues-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-issues-tab`}>
             {issues.map((cluster, index) => (
@@ -229,65 +235,94 @@ export function ConstituencyDeskTabs({
         </>
       ) : null}
 
-      {activeTab === "timeline" ? (
-        <section className="tab-panel active" id={`${tabsetId}-timeline-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-timeline-tab`}>
-          <div className="timeline-card">
-            <div className="section-heading small">
-              <p>ISSUE VOLUME OVER TIME</p>
-              <h4>समय के साथ समस्याओं की संख्या</h4>
-            </div>
-            {timelineSeries ? (
-              <svg viewBox="0 0 760 200" className="timeline-chart">
-                <g className="chart-guides">
-                  <line x1="40" y1="180" x2="720" y2="180" />
-                  <line x1="40" y1="135" x2="720" y2="135" />
-                  <line x1="40" y1="90" x2="720" y2="90" />
-                  <line x1="40" y1="45" x2="720" y2="45" />
-                </g>
-                <path className="chart-line" d={timelinePath} />
-                <g className="chart-points">
-                  {timelineSeries.data.map((point, index) => {
-                    const x = 40 + (index * 680) / Math.max(timelineSeries.data.length - 1, 1);
-                    const max = Math.max(...timelineValues, 1);
-                    const y = 180 - (point.count / max) * 140;
-                    return <circle key={point.week} cx={x} cy={y} r="5" />;
-                  })}
-                </g>
-              </svg>
-            ) : (
-              <p>No timeline yet.</p>
-            )}
+      {activeTab === "forums" ? (
+        <section className="tab-panel active" id={`${tabsetId}-forums-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-forums-tab`}>
+          <div className="forum-grid compact-forum-grid">
+            {forumRows.map((forum) => (
+              <article key={forum.slug} className="forum-surface-card compact-forum-card">
+                <div className="forum-surface-header" style={{ borderTopColor: forum.color }}>
+                  <div>
+                    <span className="summary-kicker">{forum.hindiName}</span>
+                    <h3>{forum.name}</h3>
+                  </div>
+                  <span className="stamp-badge neutral">{forum.status}</span>
+                </div>
+                <div className="forum-orchestrator-block" style={{ background: `${forum.color}10`, borderColor: `${forum.color}44` }}>
+                  <span className="summary-kicker">Orchestrator</span>
+                  <strong>{forum.orchestratorTitle}</strong>
+                  <p>{forum.orchestratorIdentity}</p>
+                </div>
+                <div className="forum-mini-grid">
+                  <section>
+                    <span className="summary-kicker">Procedure</span>
+                    <ul>
+                      {forum.rules.slice(0, 2).map((rule) => (
+                        <li key={rule}>{rule}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section>
+                    <span className="summary-kicker">Outputs</span>
+                    <ul>
+                      {forum.outputs.slice(0, 2).map((output) => (
+                        <li key={output}>{output}</li>
+                      ))}
+                    </ul>
+                  </section>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
       ) : null}
 
-      {activeTab === "map" ? (
-        <section className="tab-panel active" id={`${tabsetId}-map-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-map-tab`}>
-          <div className="map-summary">
-            <ConstituencyShapeMap
-              collection={constituencyGeojson}
-              constituencyId={selectedId}
-              constituencyName={displayName}
-              stateName={displayState}
-              topCategory={liveTopCategory}
-              averageSeverity={hasLiveIntake ? averageSeverity : null}
-            />
-            <div className="map-legend">
-              <h4>Constituency signal / क्षेत्र संकेत</h4>
-              <p>
-                {isPubliclyActive
-                  ? `${displayName} currently has ${issues.length} public clusters with an average severity of ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
-                  : hasLiveIntake
-                    ? `${displayName} currently has ${liveIssueCount} live issue${liveIssueCount === 1 ? "" : "s"} in the intake pipeline with average severity ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
-                    : `${displayName} currently has no live issue activity.`}
-              </p>
+      {activeTab === "mp" ? (
+        <section className="tab-panel active" id={`${tabsetId}-mp-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-mp-tab`}>
+          <article className="mp-personality-card constituency-mp-card" style={{ borderTopColor: mpProfile.partyColor }}>
+            <div className="mp-personality-head">
+              <div className="mp-avatar-mark" style={{ background: `${mpProfile.partyColor}22`, color: mpProfile.partyColor }}>
+                {mpProfile.name
+                  .split(" ")
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)}
+              </div>
+              <div>
+                <h3>{mpProfile.name}</h3>
+                <p>
+                  {displayName}, {displayState}
+                </p>
+                <span className="stamp-badge neutral">{mpProfile.languages}</span>
+              </div>
             </div>
-          </div>
+            <blockquote className="citizen-quote">
+              <span className="quote-mark">&quot;</span>
+              <div>
+                <p>{mpProfile.voice}</p>
+                <small>{mpProfile.coreDrive}</small>
+              </div>
+            </blockquote>
+            <div className="roadmap-detail-grid">
+              <section className="roadmap-detail-section">
+                <span className="summary-kicker">Background</span>
+                <p>{mpProfile.background}</p>
+              </section>
+              <section className="roadmap-detail-section">
+                <span className="summary-kicker">Behaviour by forum</span>
+                <ul>
+                  <li>{mpProfile.forumStyle.parliament}</li>
+                  <li>{mpProfile.forumStyle.committee}</li>
+                  <li>{mpProfile.forumStyle.janSunvai}</li>
+                  <li>{mpProfile.forumStyle.media}</li>
+                </ul>
+              </section>
+            </div>
+          </article>
         </section>
       ) : null}
 
-      {activeTab === "sessions" ? (
-        <section className="tab-panel active" id={`${tabsetId}-sessions-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-sessions-tab`}>
+      {activeTab === "actions" ? (
+        <section className="tab-panel active" id={`${tabsetId}-actions-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-actions-tab`}>
           <div className="session-list">
             {actions.length > 0 ? (
               actions.map((action, index) => (
@@ -302,11 +337,68 @@ export function ConstituencyDeskTabs({
               ))
             ) : (
               <article>
-                <span className="stamp-badge neutral">NO SESSION ACTIONS YET</span>
-                <h4>Parliamentary drafting has not produced a visible session item for this constituency yet.</h4>
-                <p>Once a question, zero-hour notice, or brief reaches the constituency desk, it will appear here.</p>
+                <span className="stamp-badge neutral">NO PUBLIC ACTIONS YET</span>
+                <h4>No admitted procedural output is visible for this constituency yet.</h4>
+                <p>Once a question, Zero Hour notice, brief, or committee item is admitted, it will appear in this record.</p>
               </article>
             )}
+          </div>
+        </section>
+      ) : null}
+
+      {activeTab === "record" ? (
+        <section className="tab-panel active" id={`${tabsetId}-record-panel`} role="tabpanel" aria-labelledby={`${tabsetId}-record-tab`}>
+          <div className="record-stack">
+            <div className="timeline-card">
+              <div className="section-heading small">
+                <p>ISSUE VOLUME OVER TIME</p>
+                <h4>समय के साथ समस्याओं की संख्या</h4>
+              </div>
+              {timelineSeries ? (
+                <svg viewBox="0 0 760 200" className="timeline-chart">
+                  <g className="chart-guides">
+                    <line x1="40" y1="180" x2="720" y2="180" />
+                    <line x1="40" y1="135" x2="720" y2="135" />
+                    <line x1="40" y1="90" x2="720" y2="90" />
+                    <line x1="40" y1="45" x2="720" y2="45" />
+                  </g>
+                  <path className="chart-line" d={timelinePath} />
+                  <g className="chart-points">
+                    {timelineSeries.data.map((point, index) => {
+                      const x = 40 + (index * 680) / Math.max(timelineSeries.data.length - 1, 1);
+                      const max = Math.max(...timelineValues, 1);
+                      const y = 180 - (point.count / max) * 140;
+                      return <circle key={point.week} cx={x} cy={y} r="5" />;
+                    })}
+                  </g>
+                </svg>
+              ) : (
+                <p>No constituency record timeline yet.</p>
+              )}
+            </div>
+            <div className="map-summary">
+              <ConstituencyShapeMap
+                collection={constituencyGeojson}
+                constituencyId={selectedId}
+                constituencyName={displayName}
+                stateName={displayState}
+                topCategory={liveTopCategory}
+                averageSeverity={hasLiveIntake ? averageSeverity : null}
+              />
+              <div className="map-legend">
+                <h4>Constituency record / क्षेत्र अभिलेख</h4>
+                <p>
+                  {isPubliclyActive
+                    ? `${displayName} currently has ${issues.length} public clusters with an average severity of ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
+                    : hasLiveIntake
+                      ? `${displayName} currently has ${liveIssueCount} live issue${liveIssueCount === 1 ? "" : "s"} in the intake pipeline with average severity ${averageSeverity ? averageSeverity.toFixed(1) : "—"}.`
+                      : `${displayName} currently has no live issue activity.`}
+                </p>
+                <p>
+                  This record combines map evidence, timeline movement, and public procedural outputs for the selected constituency.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
       ) : null}

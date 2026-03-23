@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active?: "home" | "constituency" | "submit" | "about" | "agents" | "prototype";
+  active?: "home" | "constituency" | "forums" | "mps" | "submit" | "about" | "agents" | "prototype";
 };
 
 const navItems = [
   { href: "/", label: "Home", key: "home" },
-  { href: "/constituency", label: "Constituency", key: "constituency" },
+  { href: "/constituency", label: "Constituencies", key: "constituency" },
+  { href: "/forums", label: "Forums", key: "forums" },
+  { href: "/mps", label: "MPs", key: "mps" },
   { href: "/submit", label: "Submit", key: "submit" },
   { href: "/about", label: "About", key: "about" },
   { href: "/agents", label: "Agents", key: "agents" },
