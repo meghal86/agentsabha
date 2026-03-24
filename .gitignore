@@ -26,3 +26,5 @@ coverage/
 *.jpeg
 *.webp
 backend/generated/
+.vercel
+.env*.local

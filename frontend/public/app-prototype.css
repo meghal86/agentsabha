@@ -8,6 +8,11 @@
   --raat: #1a1a2e;
   --haath-kagaz: #faf3e0;
   --aged-border: #e2d4b0;
+  --surface-paper: rgba(250, 243, 224, 0.92);
+  --surface-paper-soft: rgba(250, 243, 224, 0.82);
+  --surface-stage: rgba(245, 230, 200, 0.82);
+  --surface-stage-soft: rgba(245, 230, 200, 0.64);
+  --surface-rule: rgba(27, 42, 74, 0.1);
   --water: #1e6b8c;
   --electricity: #d4831a;
   --health: #7b3f9e;
@@ -32,9 +37,11 @@ body {
   color: var(--neela);
   font-family: "DM Sans", sans-serif;
   background:
-    radial-gradient(circle at 1px 1px, var(--pattern-dot) 1.2px, transparent 0) 0 0 / 40px 40px,
-    linear-gradient(180deg, rgba(250, 243, 224, 0.7), rgba(245, 230, 200, 0.95)),
-    linear-gradient(90deg, transparent 0, rgba(162, 82, 45, 0.025) 50%, transparent 100%);
+    radial-gradient(circle at 16% 12%, rgba(255, 153, 51, 0.08), transparent 22%),
+    radial-gradient(circle at 82% 18%, rgba(160, 82, 45, 0.06), transparent 20%),
+    radial-gradient(circle at 1px 1px, var(--pattern-dot) 1.1px, transparent 0) 0 0 / 40px 40px,
+    linear-gradient(180deg, rgba(250, 243, 224, 0.94), rgba(245, 230, 200, 0.98)),
+    linear-gradient(90deg, transparent 0, rgba(162, 82, 45, 0.03) 50%, transparent 100%);
 }
 
 .screen-page {
@@ -474,8 +481,10 @@ textarea {
   grid-template-columns: 48px 1fr;
   gap: 16px;
   padding: 18px 20px;
-  background: rgba(250, 243, 224, 0.75);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.94), rgba(245, 230, 200, 0.76));
   border-left: 3px solid var(--kesariya);
+  border-top: 1px solid rgba(255, 153, 51, 0.12);
 }
 
 .quote-mark {
@@ -524,9 +533,11 @@ textarea {
 .submit-shell,
 .phone-screen,
 .loading-panel {
-  background: var(--haath-kagaz);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.97), rgba(250, 243, 224, 0.88));
   border: 1px solid var(--aged-border);
   border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .issue-card {
@@ -607,9 +618,10 @@ textarea {
   min-height: 780px;
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(245, 230, 200, 0.18), rgba(250, 243, 224, 0.82)),
+    radial-gradient(circle at 18% 15%, rgba(255, 153, 51, 0.08), transparent 18%),
+    linear-gradient(180deg, var(--surface-stage-soft), rgba(250, 243, 224, 0.94)),
     radial-gradient(circle at 20px 20px, rgba(255, 153, 51, 0.08) 0 1px, transparent 1.2px) 0 0 / 40px 40px;
-  border: 1px solid rgba(226, 212, 176, 0.8);
+  border: 1px solid rgba(226, 212, 176, 0.96);
 }
 
 .national-outline {
@@ -715,8 +727,10 @@ textarea {
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  background: rgba(245, 230, 200, 0.88);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.96), rgba(245, 230, 200, 0.88));
   border-left: 2px solid var(--kesariya);
+  border-top: 1px solid var(--surface-rule);
 }
 
 .national-hover-card {
@@ -842,9 +856,12 @@ section {
 
 .frame-panel {
   padding: 22px;
-  background: rgba(250, 243, 224, 0.58);
+  background:
+    linear-gradient(180deg, var(--surface-paper), var(--surface-paper-soft)),
+    linear-gradient(90deg, transparent, rgba(162, 82, 45, 0.02), transparent);
   border: 1px solid var(--aged-border);
   border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
 }
 
 .compact-heading {
@@ -1302,7 +1319,8 @@ section {
   padding: 14px 18px;
   margin: 18px 0 20px;
   border: 1px solid var(--aged-border);
-  background: rgba(250, 243, 224, 0.9);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.96), rgba(245, 230, 200, 0.84));
 }
 
 .activation-banner.active {
@@ -1344,7 +1362,8 @@ section {
 
 .meta-stat {
   padding: 14px 16px;
-  background: rgba(245, 230, 200, 0.52);
+  background:
+    linear-gradient(180deg, rgba(245, 230, 200, 0.8), rgba(245, 230, 200, 0.62));
   border: 1px solid var(--aged-border);
   border-radius: 14px;
 }
@@ -1382,9 +1401,11 @@ section {
 
 .summary-tile {
   padding: 18px 20px;
-  background: rgba(250, 243, 224, 0.66);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.94), rgba(250, 243, 224, 0.82));
   border: 1px solid var(--aged-border);
   border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .summary-tile strong {
@@ -1672,7 +1693,8 @@ section {
   display: grid;
   gap: 14px;
   padding: 18px;
-  background: rgba(250, 243, 224, 0.72);
+  background:
+    linear-gradient(180deg, rgba(245, 230, 200, 0.86), rgba(250, 243, 224, 0.92));
   border: 1px solid var(--aged-border);
   border-radius: 18px;
 }
@@ -1777,7 +1799,8 @@ section {
 .map-legend,
 .session-list article {
   padding: 18px;
-  background: rgba(250, 243, 224, 0.72);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.94), rgba(250, 243, 224, 0.82));
   border: 1px solid var(--aged-border);
   border-radius: 18px;
 }
@@ -2383,7 +2406,8 @@ section {
   border: 1px solid var(--aged-border);
   border-top: 3px solid var(--neela);
   border-radius: 18px;
-  background: rgba(250, 243, 224, 0.72);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.95), rgba(250, 243, 224, 0.84));
 }
 
 .forum-surface-header,
@@ -2448,7 +2472,8 @@ section {
   padding: 18px;
   border: 1px solid var(--aged-border);
   border-radius: 18px;
-  background: rgba(250, 243, 224, 0.72);
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.95), rgba(250, 243, 224, 0.84));
 }
 
 .orchestrator-grid {
