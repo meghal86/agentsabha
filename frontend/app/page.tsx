@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getNationalHeatmap, getNationalPulse } from "@/lib/api";
-import { forumDefinitions } from "@/lib/forum-system";
+import { forumDefinitions, getForumDestination } from "@/lib/forum-system";
 
 function toBadge(severity: number | null) {
   if (severity === null) return "neutral";
@@ -134,7 +134,9 @@ export default async function HomePage() {
               </div>
               <div className="trending-grid">
                 {(trending.length > 0 ? trending : [{ label: "Road safety", total_reports: 847, avg_severity: 8.4, constituency_count: 3 }]).map(
-                  (issue, index) => (
+                  (issue, index) => {
+                    const destination = getForumDestination(null, issue.avg_severity, issue.avg_severity && issue.avg_severity >= 8 ? "tatkal" : null);
+                    return (
                     <article className="issue-card compact" key={issue.label}>
                       <span className="issue-rank">{index + 1}</span>
                       <div className="issue-top">
@@ -150,13 +152,17 @@ export default async function HomePage() {
                         <strong>{issue.total_reports}</strong>
                         <span>{issue.avg_severity?.toFixed(1) ?? "—"} avg severity</span>
                       </div>
+                      <p className="forum-destination-line">
+                        Forum destination: <strong>{destination.name}</strong> · Orchestrator: {destination.orchestratorTitle}
+                      </p>
                       <blockquote>{issue.constituency_count} constituency agents are seeing the same pattern and escalating it together.</blockquote>
                       <footer>
                         <span>📍 National pulse</span>
                         <Link href="/constituency">देखें →</Link>
                       </footer>
                     </article>
-                  ),
+                    );
+                  },
                 )}
               </div>
             </section>

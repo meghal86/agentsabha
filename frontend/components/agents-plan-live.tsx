@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import type { RoadmapRuntimeAgent } from "@/lib/api";
 import { agentRoadmap, buildLiveRoadmap, buildRoadmapSummary, getRoadmapDetails, groupRoadmapByLayer } from "@/lib/agent-roadmap";
+import { forumDefinitions } from "@/lib/forum-system";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -40,6 +41,13 @@ export function AgentsPlanLive({
   initialBackendAvailable: boolean;
   initialGeneratedAt: string | null;
 }) {
+  const contextSystems = [
+    "Constituency data injection",
+    "Cluster state and velocity memory",
+    "Source retrieval and citation context",
+    "Parliamentary action history",
+    "Audit log and runtime proof",
+  ];
   const [runtimeAgents, setRuntimeAgents] = useState(initialRuntimeAgents);
   const [backendAvailable, setBackendAvailable] = useState(initialBackendAvailable);
   const [lastSuccessfulUpdate, setLastSuccessfulUpdate] = useState<string | null>(initialGeneratedAt);
@@ -95,10 +103,10 @@ export function AgentsPlanLive({
     <>
       <div className="product-intro">
         <div>
-          <p className="eyebrow">{summary.total} AGENT BUILD PLAN</p>
-          <h1 className="product-title">What is planned, what is built, and what is live right now</h1>
+          <p className="eyebrow">{summary.total} ROLE AGENT BUILD PLAN</p>
+          <h1 className="product-title">Layer 1 role agents, Layer 2 forum orchestrators, Layer 3 live context</h1>
           <p className="hero-body">
-            This board combines the formal AgentSabha roadmap with live runtime signals from the backend. It is meant to be a delivery document, not just a design-time checklist.
+            This board combines the formal 46-agent roadmap with the forum-native orchestration model. It is meant to be an execution document, not just a checklist.
           </p>
           <p className="frame-note">
             Refresh every 15 seconds · Last successful update{" "}
@@ -108,7 +116,7 @@ export function AgentsPlanLive({
         <div className="product-intro-stats product-intro-stats-grid">
           <article className="summary-tile">
             <span className="summary-kicker">Total planned</span>
-            <strong>{summary.total} agents</strong>
+            <strong>{summary.total} role agents</strong>
             <p>Exact formal agent count from the 46-prompts document.</p>
           </article>
           <article className="summary-tile accent-tile">
@@ -168,6 +176,47 @@ export function AgentsPlanLive({
       <section className="frame-panel full-width-panel">
         <div className="section-heading compact-heading">
           <div>
+            <p>LAYER 2</p>
+            <h2>Forum orchestrators</h2>
+          </div>
+        </div>
+        <div className="forum-grid compact-forum-grid">
+          {forumDefinitions.map((forum) => (
+            <article key={forum.slug} className="forum-surface-card compact-forum-card">
+              <div className="forum-surface-header" style={{ borderTopColor: forum.color }}>
+                <div>
+                  <span className="summary-kicker">{forum.hindiName}</span>
+                  <h3>{forum.orchestratorTitle}</h3>
+                </div>
+                <span className="stamp-badge neutral">{forum.name}</span>
+              </div>
+              <p className="frame-note">{forum.orchestratorIdentity}</p>
+              <div className="forum-mini-grid">
+                <section>
+                  <span className="summary-kicker">Procedure</span>
+                  <ul>
+                    {forum.rules.slice(0, 2).map((rule) => (
+                      <li key={rule}>{rule}</li>
+                    ))}
+                  </ul>
+                </section>
+                <section>
+                  <span className="summary-kicker">Cannot do</span>
+                  <ul>
+                    {forum.cannot.slice(0, 2).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="frame-panel full-width-panel">
+        <div className="section-heading compact-heading">
+          <div>
             <p>EXECUTION GUIDE</p>
             <h2>How to use this board to finish the project end to end</h2>
           </div>
@@ -197,6 +246,15 @@ export function AgentsPlanLive({
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="frame-panel full-width-panel">
+        <div className="section-heading compact-heading">
+          <div>
+            <p>LAYER 1</p>
+            <h2>Role agents</h2>
+          </div>
         </div>
       </section>
 
@@ -286,6 +344,24 @@ export function AgentsPlanLive({
           </div>
         </section>
       ))}
+
+      <section className="frame-panel full-width-panel">
+        <div className="section-heading compact-heading">
+          <div>
+            <p>LAYER 3</p>
+            <h2>Live context injection</h2>
+          </div>
+        </div>
+        <div className="dashboard-summary-grid">
+          {contextSystems.map((item) => (
+            <article key={item} className="summary-tile">
+              <span className="summary-kicker">Context system</span>
+              <strong>{item}</strong>
+              <p>These systems feed fresh procedural context into every session without changing the underlying identity or forum authority.</p>
+            </article>
+          ))}
+        </div>
+      </section>
     </>
   );
 }

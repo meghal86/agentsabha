@@ -8,10 +8,9 @@ const navItems = [
   { href: "/", label: "Home", key: "home" },
   { href: "/constituency", label: "Constituencies", key: "constituency" },
   { href: "/forums", label: "Forums", key: "forums" },
-  { href: "/mps", label: "MPs", key: "mps" },
-  { href: "/submit", label: "Submit", key: "submit" },
-  { href: "/about", label: "About", key: "about" },
-  { href: "/agents", label: "Agents", key: "agents" },
+  { href: "/mps", label: "MP Personalities", key: "mps" },
+  { href: "/submit", label: "Submit Issue", key: "submit" },
+  { href: "/agents", label: "Agent System", key: "agents" },
 ] as const;
 
 export function SiteHeader({ active }: SiteHeaderProps) {
@@ -91,6 +90,11 @@ export function SiteHeader({ active }: SiteHeaderProps) {
         <Link className="outline-button button-link" href="/submit">
           Submit Issue
         </Link>
+        <button className="language-toggle" type="button" aria-pressed="false" aria-label="Language toggle">
+          <span>EN</span>
+          <span className="divider">|</span>
+          <span>हिं</span>
+        </button>
       </nav>
     </header>
   );

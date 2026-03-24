@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ForumCard } from "@/components/forum-card";
+import { OrchestratorPanel } from "@/components/orchestrator-panel";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { forumDefinitions } from "@/lib/forum-system";
@@ -45,43 +47,21 @@ export default function ForumsPage() {
             </div>
             <div className="forum-grid">
               {forumDefinitions.map((forum) => (
-                <article key={forum.slug} className="forum-surface-card">
-                  <div className="forum-surface-header" style={{ borderTopColor: forum.color }}>
-                    <div>
-                      <span className="summary-kicker">{forum.hindiName}</span>
-                      <h3>{forum.name}</h3>
-                    </div>
-                    <span className="stamp-badge neutral">Orchestrator</span>
-                  </div>
-                  <div className="forum-orchestrator-block" style={{ background: `${forum.color}10`, borderColor: `${forum.color}44` }}>
-                    <span className="summary-kicker">Native authority</span>
-                    <strong>{forum.orchestratorTitle}</strong>
-                    <p>{forum.orchestratorIdentity}</p>
-                  </div>
-                  <div className="forum-mini-grid">
-                    <section>
-                      <span className="summary-kicker">Roles</span>
-                      <ul>
-                        {forum.roles.slice(0, 4).map((role) => (
-                          <li key={role}>{role}</li>
-                        ))}
-                      </ul>
-                    </section>
-                    <section>
-                      <span className="summary-kicker">Outputs</span>
-                      <ul>
-                        {forum.outputs.slice(0, 4).map((output) => (
-                          <li key={output}>{output}</li>
-                        ))}
-                      </ul>
-                    </section>
-                  </div>
-                  <div className="forum-rules-strip">
-                    {forum.rules.slice(0, 2).map((rule) => (
-                      <span key={rule}>{rule}</span>
-                    ))}
-                  </div>
-                </article>
+                <ForumCard key={forum.slug} forum={forum} />
+              ))}
+            </div>
+          </section>
+
+          <section className="frame-panel full-width-panel">
+            <div className="section-heading compact-heading">
+              <div>
+                <p>What the orchestrator can and cannot do</p>
+                <h2>Procedure is powerful. Content remains untouched.</h2>
+              </div>
+            </div>
+            <div className="forum-grid">
+              {forumDefinitions.slice(0, 3).map((forum) => (
+                <OrchestratorPanel key={forum.slug} forum={forum} />
               ))}
             </div>
           </section>

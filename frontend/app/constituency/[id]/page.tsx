@@ -3,6 +3,7 @@ import { ConstituencySwitcher } from "@/components/constituency-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getConstituencies, getConstituencyActions, getConstituencyDesk, getConstituencyIssues, getConstituencySummary, getConstituencyTimeline } from "@/lib/api";
+import { getForumsForConstituency } from "@/lib/forum-system";
 
 function summaryCategoryLabel(category: string | null) {
   switch (category) {
@@ -115,6 +116,12 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
         severity: averageSeverity || 4,
       }));
   const recentIssueRows = desk?.recent_issues ?? [];
+  const forumRows = getForumsForConstituency(liveIssueCount, actionRows.length > 0);
+  const currentForum =
+    forumRows.find((forum) => forum.status === "Admitted") ??
+    forumRows.find((forum) => forum.status === "Queued") ??
+    forumRows[0];
+  const lastAction = actionRows[0];
 
   return (
     <div className="page-shell">
@@ -230,11 +237,25 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
               </section>
 
               <section className="agent-panel">
-                <p>AGENT STATUS</p>
+                <p>CONSTITUENCY AGENT</p>
                 <h4>Agent {displayName}</h4>
                 <span className="status-line">
                   <i></i> Active / सक्रिय
                 </span>
+                <div className="agent-procedure-block">
+                  <article>
+                    <small>Current forum</small>
+                    <strong>{currentForum?.name ?? "Lok Sabha Session"}</strong>
+                  </article>
+                  <article>
+                    <small>Layer 2 rules active</small>
+                    <strong>{currentForum?.rules[0] ?? "No forum rule injected yet"}</strong>
+                  </article>
+                  <article>
+                    <small>Last action</small>
+                    <strong>{lastAction?.type ?? "No admitted action yet"}</strong>
+                  </article>
+                </div>
                 <div className="agent-stats">
                   <article>
                     <strong>{liveIssueCount}</strong>
@@ -246,7 +267,7 @@ export default async function ConstituencyPage({ params }: { params: { id: strin
                   </article>
                   <article>
                     <strong>{desk?.action_count ?? actionRows.length}</strong>
-                    <small>Tracked actions</small>
+                    <small>Parliamentary actions</small>
                   </article>
                 </div>
               </section>

@@ -402,3 +402,23 @@ export function buildGenericMpProfile(name: string, constituency: string, state:
       `You are ${name}, public representative for ${constituency}, ${state}. Your identity layer is still incomplete and should be replaced by a full personality prompt. Until then, stay factual, constituency-grounded, and forum-aware.`,
   };
 }
+
+export function getForumBySlug(slug: string) {
+  return forumDefinitions.find((forum) => forum.slug === slug) ?? null;
+}
+
+export function getForumDestination(category: string | null, severity: number | null, badge: string | null) {
+  if (badge === "tatkal" || (severity ?? 0) >= 8) {
+    return getForumBySlug("lok-sabha-session") ?? forumDefinitions[0];
+  }
+  if (category === "health" || category === "education" || category === "environment") {
+    return getForumBySlug("committee-hearing") ?? forumDefinitions[1];
+  }
+  if (category === "employment" || category === "housing" || badge === "chronic") {
+    return getForumBySlug("jan-sunvai") ?? forumDefinitions[2];
+  }
+  if (category === "power" || category === "water") {
+    return getForumBySlug("press-briefing") ?? forumDefinitions[4];
+  }
+  return getForumBySlug("lok-sabha-session") ?? forumDefinitions[0];
+}

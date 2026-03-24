@@ -1,8 +1,36 @@
+import Link from "next/link";
+
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { mpPersonalities } from "@/lib/forum-system";
 
-export default function MpPersonalitiesPage() {
+function matchesForum(mpForum: string, filter: string) {
+  if (!filter) return true;
+  return mpForum.toLowerCase().includes(filter.toLowerCase());
+}
+
+export default function MpPersonalitiesPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string; forum?: string };
+}) {
+  const query = searchParams?.q?.toLowerCase().trim() ?? "";
+  const forumFilter = searchParams?.forum ?? "";
+  const filtered = mpPersonalities.filter((mp) => {
+    const matchesQuery =
+      !query ||
+      `${mp.name} ${mp.constituency} ${mp.state} ${mp.party} ${mp.languages} ${mp.traits.join(" ")}`
+        .toLowerCase()
+        .includes(query);
+    const matchesForumFilter =
+      !forumFilter ||
+      matchesForum(mp.forumStyle.parliament, forumFilter) ||
+      matchesForum(mp.forumStyle.committee, forumFilter) ||
+      matchesForum(mp.forumStyle.janSunvai, forumFilter) ||
+      matchesForum(mp.forumStyle.media, forumFilter);
+    return matchesQuery && matchesForumFilter;
+  });
+
   return (
     <div className="page-shell">
       <SiteHeader active="mps" />
@@ -41,8 +69,27 @@ export default function MpPersonalitiesPage() {
                 <h2>MP personality register</h2>
               </div>
             </div>
+            <form className="directory-filter-row" method="get">
+              <label className="issue-form-field">
+                <span>Search personality / खोजें</span>
+                <input defaultValue={searchParams?.q ?? ""} name="q" type="search" placeholder="Name, constituency, language, trait" />
+              </label>
+              <label className="issue-form-field">
+                <span>Forum lens / मंच</span>
+                <select defaultValue={forumFilter} name="forum">
+                  <option value="">All forums</option>
+                  <option value="parliament">Parliament</option>
+                  <option value="committee">Committee</option>
+                  <option value="Jan Sunvai">Jan Sunvai</option>
+                  <option value="media">Media</option>
+                </select>
+              </label>
+              <button className="secondary-button" type="submit">
+                Apply filter
+              </button>
+            </form>
             <div className="mp-personality-grid">
-              {mpPersonalities.map((mp) => (
+              {filtered.map((mp) => (
                 <article key={mp.slug} className="mp-personality-card" style={{ borderTopColor: mp.partyColor }}>
                   <div className="mp-personality-head">
                     <div className="mp-avatar-mark" style={{ background: `${mp.partyColor}22`, color: mp.partyColor }}>
@@ -93,6 +140,9 @@ export default function MpPersonalitiesPage() {
                     <span className="summary-kicker">Layer 1 prompt fragment</span>
                     <p>{mp.layerOnePrompt}</p>
                   </div>
+                  <Link className="secondary-button forum-open-link" href={`/mps/${mp.slug}`}>
+                    Open full profile
+                  </Link>
                 </article>
               ))}
             </div>

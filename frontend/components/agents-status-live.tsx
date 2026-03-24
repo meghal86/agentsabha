@@ -75,7 +75,7 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
       <div className="product-intro">
         <div>
           <p className="eyebrow">AGENT DEBUG CONSOLE</p>
-          <h1 className="product-title">Which agents exist, and what are they doing now?</h1>
+          <h1 className="product-title">Role agents: which ones exist, and what are they doing now?</h1>
           <p className="hero-body">
             This is the live build-status surface. It shows actual runtime activity from the backend audit log and refreshes every 15 seconds.
           </p>
@@ -84,8 +84,8 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
         <div className="product-intro-stats">
           <article className="summary-tile">
             <span className="summary-kicker">Formal roadmap</span>
-            <strong>46 agents</strong>
-            <p>Exact prompt-defined system from the current document set.</p>
+            <strong>46 role agents</strong>
+            <p>Formal delivery register for the role-agent system defined in the prompt set.</p>
           </article>
           <article className="summary-tile accent-tile">
             <span className="summary-kicker">Live now</span>
@@ -98,7 +98,7 @@ export function AgentsStatusLive({ initialDebugAgents }: { initialDebugAgents: D
       <div className="frame-panel full-width-panel">
         <div className="agent-roadmap-actions">
           <Link className="secondary-button" href="/agents-plan">
-            Open 46-agent plan
+            Open Agent System plan
           </Link>
           <Link className="secondary-button" href="/constituency">
             Back to product
