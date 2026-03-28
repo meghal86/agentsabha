@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanRuleDeviations } from "@/lib/api";
@@ -80,11 +79,13 @@ export default async function SansadDarpanRuleDeviationsPage() {
                   <h3>{item.title}</h3>
                   <p>{item.summary}</p>
                   <div className="sansaddarpan-metric-row">
-                    <strong>{Math.round(item.confidence * 100)}%</strong>
+                    <strong>
+                      <span className="sansaddarpan-nowrap">{Math.round(item.confidence * 100)}%</span>
+                    </strong>
                     <span>{item.rule_reference}</span>
                   </div>
-                  <Link className="secondary-button forum-open-link" href={`/sansaddarpan/rule-deviations/${item.id}`}>
-                    Open case
+                  <Link className="sansaddarpan-inline-action forum-open-link" href={`/sansaddarpan/rule-deviations/${item.id}`}>
+                    Open case →
                   </Link>
                 </article>
               ))}

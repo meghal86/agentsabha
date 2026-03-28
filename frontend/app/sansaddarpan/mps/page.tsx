@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanMps } from "@/lib/api";
@@ -89,24 +88,24 @@ export default async function SansadDarpanMpsPage() {
                 <tbody>
                   {data.mps.map((mp) => (
                     <tr key={mp.slug}>
-                      <td>
+                      <td data-label="MP">
                         <strong>{mp.name}</strong>
                         <span>{mp.party}</span>
                       </td>
-                      <td>
+                      <td data-label="Constituency">
                         {mp.constituency}
                         <span>{mp.state}</span>
                       </td>
-                      <td>{mp.attendance_rate.toFixed(1)}%</td>
-                      <td>{mp.questions_asked}</td>
-                      <td>{mp.debates}</td>
-                      <td>
+                      <td data-label="Attendance">{mp.attendance_rate.toFixed(1)}%</td>
+                      <td data-label="Questions">{mp.questions_asked}</td>
+                      <td data-label="Debates">{mp.debates}</td>
+                      <td data-label="Score">
                         <span className={`sansaddarpan-score-pill ${getScoreTone(mp.score)}`}>{mp.score}</span>
                       </td>
-                      <td>#{mp.national_rank}</td>
-                      <td>
-                        <Link className="secondary-button forum-open-link" href={`/sansaddarpan/mps/${mp.slug}`}>
-                          Open
+                      <td data-label="Rank">#{mp.national_rank}</td>
+                      <td data-label="Profile">
+                        <Link className="sansaddarpan-inline-action forum-open-link" href={`/sansaddarpan/mps/${mp.slug}`}>
+                          Open →
                         </Link>
                       </td>
                     </tr>

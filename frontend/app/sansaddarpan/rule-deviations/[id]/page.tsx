@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/site-footer";
@@ -18,6 +19,16 @@ export default async function SansadDarpanRuleDeviationPage({ params }: { params
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
+          <nav className="sansaddarpan-breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/">AgentSabha</Link>
+            <span>/</span>
+            <Link href="/sansaddarpan">SansadDarpan</Link>
+            <span>/</span>
+            <Link href="/sansaddarpan/rule-deviations">Rule Deviations</Link>
+            <span>/</span>
+            <span aria-current="page">{item.title}</span>
+          </nav>
+
           <div className="product-intro compact-intro">
             <div>
               <p className="eyebrow">RULE DEVIATION CASE FILE</p>
@@ -32,7 +43,9 @@ export default async function SansadDarpanRuleDeviationPage({ params }: { params
             <div className="dashboard-summary-grid">
               <article className="summary-tile sansaddarpan-tile">
                 <span className="summary-kicker">Confidence</span>
-                <strong>{Math.round(item.confidence * 100)}%</strong>
+                <strong>
+                  <span className="sansaddarpan-nowrap">{Math.round(item.confidence * 100)}%</span>
+                </strong>
                 <p>Confidence is shown publicly, but publication still requires human verification.</p>
               </article>
               <article className="summary-tile sansaddarpan-tile">

@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanMethodology } from "@/lib/api";

@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanConstituencies } from "@/lib/api";
@@ -14,6 +13,14 @@ export default async function SansadDarpanConstituenciesPage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
+          <nav className="sansaddarpan-breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/">AgentSabha</Link>
+            <span>/</span>
+            <Link href="/sansaddarpan">SansadDarpan</Link>
+            <span>/</span>
+            <span aria-current="page">Welfare</span>
+          </nav>
+
           <section className="sansaddarpan-masthead">
             <div className="sansaddarpan-masthead-copy">
               <p className="eyebrow">CONSTITUENCY WELFARE DASHBOARD</p>
@@ -57,6 +64,13 @@ export default async function SansadDarpanConstituenciesPage() {
                   </Link>
                 </article>
               ))}
+              {data.constituencies.length < 3 ? (
+                <article className="summary-tile sansaddarpan-card sansaddarpan-placeholder-card">
+                  <span className="summary-kicker">Coverage expanding</span>
+                  <h3>More constituencies are coming next</h3>
+                  <p>The welfare layer is already live, but national profile coverage and benchmark refresh are still being expanded.</p>
+                </article>
+              ) : null}
             </div>
           </section>
         </section>

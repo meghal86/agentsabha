@@ -1,8 +1,16 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanMp } from "@/lib/api";
+
+const scoreBreakdownCopy: Record<string, string> = {
+  attendance: "Attendance is weighted as the reliability floor of the score. High presence matters, but it does not outweigh substantive parliamentary work.",
+  questions: "Question activity reflects how consistently the MP uses formal parliamentary tools to demand data, accountability, and ministerial answers.",
+  debates: "Debate contribution rewards sustained floor participation and issue articulation, not symbolic appearances alone.",
+  bonus: "Bonus points remain capped. Zero Hour mentions and private member bills can help the score, but they are not allowed to dominate it.",
+};
 
 export default async function SansadDarpanMpDetailPage({ params }: { params: { slug: string } }) {
   let mp;
@@ -18,6 +26,16 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
+          <nav className="sansaddarpan-breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/">AgentSabha</Link>
+            <span>/</span>
+            <Link href="/sansaddarpan">SansadDarpan</Link>
+            <span>/</span>
+            <Link href="/sansaddarpan/mps">MP Scorecards</Link>
+            <span>/</span>
+            <span aria-current="page">{mp.name}</span>
+          </nav>
+
           <section className="sansaddarpan-masthead">
             <div className="sansaddarpan-masthead-copy">
               <p className="eyebrow">MP PROFILE · PUBLIC SCORECARD</p>
@@ -26,6 +44,14 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
                 {mp.constituency}, {mp.state} · {mp.party}
               </p>
               <p className="frame-note">{mp.narrative}</p>
+              <div className="hero-actions sansaddarpan-hero-actions">
+                <Link className="secondary-button button-link" href="#source-trail">
+                  Jump to source trail
+                </Link>
+                <Link className="outline-button button-link" href="/sansaddarpan/methodology">
+                  Review methodology
+                </Link>
+              </div>
             </div>
             <aside className="sansaddarpan-masthead-panel">
               <span className="summary-kicker">National rank</span>
@@ -88,13 +114,13 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
                 <article key={key} className="summary-tile sansaddarpan-card">
                   <span className="summary-kicker">{key}</span>
                   <strong>{value.toFixed(1)}</strong>
-                  <p>This component is versioned and must remain methodology-linked at all times.</p>
+                  <p>{scoreBreakdownCopy[key] ?? "This score component is method-linked and source-backed."}</p>
                 </article>
               ))}
             </div>
           </section>
 
-          <section className="frame-panel full-width-panel sansaddarpan-surface">
+          <section id="source-trail" className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="section-heading compact-heading">
               <div>
                 <p>Source trail</p>

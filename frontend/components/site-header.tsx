@@ -24,6 +24,9 @@ const sansaddarpanNavItems = [
 
 export function SiteHeader({ active, product = "agentsabha" }: SiteHeaderProps) {
   const navItems = product === "sansaddarpan" ? sansaddarpanNavItems : agentsabhaNavItems;
+  const ctaHref = product === "sansaddarpan" ? "/" : "/submit";
+  const ctaLabel = product === "sansaddarpan" ? "Open AgentSabha" : "Submit Issue";
+  const ctaClass = `${product === "sansaddarpan" ? "secondary-button" : "outline-button"} button-link`;
 
   return (
     <header className="topbar mandate-frame">
@@ -108,14 +111,36 @@ export function SiteHeader({ active, product = "agentsabha" }: SiteHeaderProps) 
       </nav>
 
       <nav className="top-actions">
-        <Link className="outline-button button-link" href={product === "sansaddarpan" ? "/" : "/submit"}>
-          {product === "sansaddarpan" ? "Open AgentSabha" : "Submit Issue"}
+        <Link className={ctaClass} href={ctaHref}>
+          {ctaLabel}
         </Link>
         <button className="language-toggle" type="button" aria-pressed="false" aria-label="Language toggle">
           <span className="language-option active">EN</span>
           <span className="language-option">हिं</span>
         </button>
       </nav>
+
+      <details className="mobile-nav-menu">
+        <summary>Menu</summary>
+        <div className="mobile-nav-panel">
+          <nav className="mobile-nav-links" aria-label="Mobile primary">
+            {navItems.map((item) => (
+              <Link key={item.href} className={`mobile-screen-link${active === item.key ? " active" : ""}`} href={item.href}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="mobile-nav-actions">
+            <Link className={ctaClass} href={ctaHref}>
+              {ctaLabel}
+            </Link>
+            <button className="language-toggle" type="button" aria-pressed="false" aria-label="Language toggle">
+              <span className="language-option active">EN</span>
+              <span className="language-option">हिं</span>
+            </button>
+          </div>
+        </div>
+      </details>
     </header>
   );
 }
