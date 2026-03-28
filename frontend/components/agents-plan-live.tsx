@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { RoadmapRuntimeAgent } from "@/lib/api";
 import { agentRoadmap, buildLiveRoadmap, buildRoadmapSummary, getRoadmapDetails, groupRoadmapByLayer } from "@/lib/agent-roadmap";
 import { forumDefinitions } from "@/lib/forum-system";
+import { buildSansadDarpanSummary, sansaddarpanRoadmap } from "@/lib/sansaddarpan-roadmap";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -84,6 +85,7 @@ export function AgentsPlanLive({
   const liveRoadmap = useMemo(() => buildLiveRoadmap(agentRoadmap, runtimeAgents), [runtimeAgents]);
   const summary = useMemo(() => buildRoadmapSummary(liveRoadmap), [liveRoadmap]);
   const groupedRoadmap = useMemo(() => groupRoadmapByLayer(liveRoadmap), [liveRoadmap]);
+  const sansaddarpanSummary = useMemo(() => buildSansadDarpanSummary(sansaddarpanRoadmap), []);
   const focusAgents = useMemo(
     () =>
       liveRoadmap
@@ -246,6 +248,106 @@ export function AgentsPlanLive({
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="frame-panel full-width-panel">
+        <div className="section-heading compact-heading">
+          <div>
+            <p>LAYER 3 PRODUCT</p>
+            <h2>SansadDarpan</h2>
+          </div>
+        </div>
+        <div className="dashboard-summary-grid">
+          <article className="summary-tile">
+            <span className="summary-kicker">Workstreams</span>
+            <strong>{sansaddarpanSummary.total}</strong>
+            <p>Public evidence shell, scorecards, welfare, rule deviations, methodology, and national data foundation.</p>
+          </article>
+          <article className="summary-tile">
+            <span className="summary-kicker">Built</span>
+            <strong>{sansaddarpanSummary.built}</strong>
+            <p>Workstreams with live pages and working end-to-end code paths.</p>
+          </article>
+          <article className="summary-tile">
+            <span className="summary-kicker">Partial</span>
+            <strong>{sansaddarpanSummary.partial}</strong>
+            <p>Workstreams that still need national coverage, ingestion, or review hardening.</p>
+          </article>
+          <article className="summary-tile accent-tile">
+            <span className="summary-kicker">Coverage</span>
+            <strong>{sansaddarpanSummary.completion}%</strong>
+            <p>Average completion across the current SansadDarpan product register.</p>
+          </article>
+        </div>
+        <div className="agents-debug-grid roadmap-grid">
+          {sansaddarpanRoadmap.map((item) => (
+            <details key={item.id} className={`agent-debug-card ${statusTone(item.status)} roadmap-detail-card`}>
+              <summary className="roadmap-detail-summary">
+                <div className="agent-debug-head">
+                  <div>
+                    <span className="summary-kicker">{item.category}</span>
+                    <h3>{item.title}</h3>
+                  </div>
+                  <span className={`agent-phase-badge ${statusTone(item.status)}`}>
+                    {item.status === "built" ? "Built" : item.status === "partial" ? "Partial" : "Planned"}
+                  </span>
+                </div>
+                <p className="agent-debug-purpose">{item.note}</p>
+                <div className="agent-debug-summaryline">
+                  <span>{item.completion}% complete</span>
+                  <span>{item.completedWork.length} completed</span>
+                  <span>{item.remainingWork.length} pending</span>
+                </div>
+                <div className="agent-roadmap-bar small">
+                  <span style={{ width: progressWidth(item.completion) }}></span>
+                </div>
+              </summary>
+
+              <div className="roadmap-detail-body">
+                <div className="roadmap-detail-grid">
+                  <section className="roadmap-detail-section">
+                    <span className="summary-kicker">Completed</span>
+                    <ul>
+                      {item.completedWork.map((entry, index) => (
+                        <li key={`${item.id}-completed-${index}`}>{entry}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section className="roadmap-detail-section">
+                    <span className="summary-kicker">Pending</span>
+                    <ul>
+                      {item.remainingWork.map((entry, index) => (
+                        <li key={`${item.id}-pending-${index}`}>{entry}</li>
+                      ))}
+                    </ul>
+                  </section>
+                </div>
+                <div className="roadmap-detail-grid">
+                  <section className="roadmap-detail-section">
+                    <span className="summary-kicker">Proof</span>
+                    <ul>
+                      {item.proofPoints.map((entry, index) => (
+                        <li key={`${item.id}-proof-${index}`}>{entry}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section className="roadmap-detail-section">
+                    <span className="summary-kicker">Open surface</span>
+                    <p>
+                      Public route: <Link href={item.href}>{item.href}</Link>
+                    </p>
+                  </section>
+                </div>
+                <div className="roadmap-detail-grid">
+                  <section className="roadmap-detail-section">
+                    <span className="summary-kicker">Next step</span>
+                    <p>{item.nextStep}</p>
+                  </section>
+                </div>
+              </div>
+            </details>
+          ))}
         </div>
       </section>
 

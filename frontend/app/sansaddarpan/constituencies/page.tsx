@@ -25,8 +25,8 @@ export default async function SansadDarpanConstituenciesPage() {
             </div>
             <aside className="sansaddarpan-masthead-panel">
               <span className="summary-kicker">Current scope</span>
-              <strong>{data.constituencies.length} seeded constituencies</strong>
-              <p>Next step is a real constituency-district crosswalk and welfare ingestion pipeline. This page is ready for that migration.</p>
+              <strong>{data.constituencies.length} live constituency profiles</strong>
+              <p>Each profile links constituency-level welfare gaps back to whether the issue has been raised on the parliamentary record.</p>
             </aside>
           </section>
           <section className="frame-panel full-width-panel sansaddarpan-surface">

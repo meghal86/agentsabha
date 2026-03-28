@@ -63,7 +63,7 @@ export default async function SansadDarpanRuleDeviationsPage() {
             <article>
               <span>Highest confidence</span>
               <strong>{Math.round(Math.max(...data.deviations.map((item) => item.confidence)) * 100)}%</strong>
-              <small>current seeded cases</small>
+              <small>current live registry</small>
             </article>
           </section>
 

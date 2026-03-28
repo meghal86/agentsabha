@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.constituency import Constituency
 from app.models.mp_identity import MpIdentity, MpParticipationScore
+from app.models.parliamentary_action import ParliamentaryAction
+from app.models.sansaddarpan import ConstituencyWelfareMetric, ConstituencyWelfareProfile, RuleDeviationCase
 
 from app.schemas.sansaddarpan import (
     SansadDarpanConstituencyCard,
@@ -26,48 +29,63 @@ from app.schemas.sansaddarpan import (
 )
 
 router = APIRouter(prefix="/api/sansaddarpan", tags=["sansaddarpan"])
+DISPLAY_NAME_OVERRIDES = {
+    "Bangalore South": "Bengaluru South",
+    "Gurgaon": "Gurugram",
+}
 
 
-OVERVIEW = SansadDarpanOverviewResponse(
-    product_name="SansadDarpan",
-    hindi_name="सांसद दर्पण",
-    tagline="Parliamentary Transparency & Accountability Platform",
-    launch_window="3-month MVP launch",
-    primary_users=["Journalists", "Researchers", "Activists", "Engaged citizens"],
-    layer_placement="Layer 3 — public evidence and accountability surface built on parliamentary records, welfare datasets, and verified procedural analysis.",
-    sections=[
-        SansadDarpanSection(
-            slug="mp-participation",
-            title="MP Participation Scorecard",
-            hindi_title="सांसद भागीदारी स्कोरकार्ड",
-            summary="Attendance, questions, debates, Zero Hour mentions, and private member bill activity — benchmarked against national, state, and party averages.",
-            metric_label="Profiles in scope",
-            metric_value="543 MPs",
-            href="/sansaddarpan/mps",
-            layer="Layer 3",
-        ),
-        SansadDarpanSection(
-            slug="constituency-welfare",
-            title="Constituency Welfare Dashboard",
-            hindi_title="कल्याण डैशबोर्ड",
-            summary="Constituency welfare gaps mapped to MGNREGS, PMAY, PM Kisan, Ujjwala, and SDG data — then linked back to whether the MP raised them in Parliament.",
-            metric_label="Scheme lenses",
-            metric_value="5 welfare systems",
-            href="/sansaddarpan/constituencies",
-            layer="Layer 3",
-        ),
-        SansadDarpanSection(
-            slug="rule-deviations",
-            title="Verified Rule Deviation Tracker",
-            hindi_title="नियम विचलन रजिस्टर",
-            summary="Human-verified deviations from Rules of Procedure with citations, confidence, and review notes. No AI-only publication is allowed.",
-            metric_label="Seeded cases",
-            metric_value="18 verified cases",
-            href="/sansaddarpan/rule-deviations",
-            layer="Layer 3",
-        ),
-    ],
-)
+def _slugify(value: str) -> str:
+    return value.lower().replace("&", "and").replace(".", "").replace(",", "").replace(" ", "-")
+
+
+def _display_constituency_name(name: str | None) -> str | None:
+    if name is None:
+        return None
+    return DISPLAY_NAME_OVERRIDES.get(name, name)
+
+
+def _build_overview(mp_count: int, welfare_system_count: int, verified_case_count: int) -> SansadDarpanOverviewResponse:
+    return SansadDarpanOverviewResponse(
+        product_name="SansadDarpan",
+        hindi_name="सांसद दर्पण",
+        tagline="Parliamentary Transparency & Accountability Platform",
+        launch_window="3-month MVP launch",
+        primary_users=["Journalists", "Researchers", "Activists", "Engaged citizens"],
+        layer_placement="Layer 3 — public evidence and accountability surface built on parliamentary records, welfare datasets, and verified procedural analysis.",
+        sections=[
+            SansadDarpanSection(
+                slug="mp-participation",
+                title="MP Participation Scorecard",
+                hindi_title="सांसद भागीदारी स्कोरकार्ड",
+                summary="Attendance, questions, debates, Zero Hour mentions, and private member bill activity — benchmarked against national, state, and party averages.",
+                metric_label="Profiles in scope",
+                metric_value=f"{mp_count} MPs",
+                href="/sansaddarpan/mps",
+                layer="Layer 3",
+            ),
+            SansadDarpanSection(
+                slug="constituency-welfare",
+                title="Constituency Welfare Dashboard",
+                hindi_title="कल्याण डैशबोर्ड",
+                summary="Constituency welfare gaps mapped to MGNREGS, PMAY, PM Kisan, Ujjwala, and SDG data — then linked back to whether the MP raised them in Parliament.",
+                metric_label="Live scheme lenses",
+                metric_value=f"{welfare_system_count} welfare systems",
+                href="/sansaddarpan/constituencies",
+                layer="Layer 3",
+            ),
+            SansadDarpanSection(
+                slug="rule-deviations",
+                title="Verified Rule Deviation Tracker",
+                hindi_title="नियम विचलन रजिस्टर",
+                summary="Human-verified deviations from Rules of Procedure with citations, confidence, and review notes. No AI-only publication is allowed.",
+                metric_label="Published cases",
+                metric_value=f"{verified_case_count} verified cases",
+                href="/sansaddarpan/rule-deviations",
+                layer="Layer 3",
+            ),
+        ],
+    )
 
 
 MPS = [
@@ -262,8 +280,32 @@ METHODOLOGY = SansadDarpanMethodologyResponse(
 )
 
 
-def fetch_sansaddarpan_overview() -> SansadDarpanOverviewResponse:
-    return OVERVIEW
+async def fetch_sansaddarpan_overview(db: AsyncSession) -> SansadDarpanOverviewResponse:
+    fallback = _build_overview(
+        mp_count=len(MPS),
+        welfare_system_count=len({metric.label for item in CONSTITUENCY_WELFARE for metric in item.metrics}),
+        verified_case_count=len([item for item in DEVIATIONS if item.status == "human-verified"]),
+    )
+
+    try:
+        mp_count = await db.scalar(select(func.count(MpIdentity.mp_id))) or 0
+        welfare_system_count = await db.scalar(select(func.count(func.distinct(ConstituencyWelfareMetric.metric_key)))) or 0
+        verified_case_count = (
+            await db.scalar(
+                select(func.count(RuleDeviationCase.id)).where(RuleDeviationCase.status == "human-verified")
+            )
+        ) or 0
+    except SQLAlchemyError:
+        return fallback
+
+    if mp_count == 0 and welfare_system_count == 0 and verified_case_count == 0:
+        return fallback
+
+    return _build_overview(
+        mp_count=mp_count or len(MPS),
+        welfare_system_count=welfare_system_count or len({metric.label for item in CONSTITUENCY_WELFARE for metric in item.metrics}),
+        verified_case_count=verified_case_count or len([item for item in DEVIATIONS if item.status == "human-verified"]),
+    )
 
 
 def _fallback_mp_list() -> SansadDarpanMpListResponse:
@@ -280,21 +322,21 @@ def _fallback_mp_profile(slug: str) -> SansadDarpanMpProfileResponse:
     raise HTTPException(status_code=404, detail="MP scorecard not found")
 
 
-def fetch_sansaddarpan_constituencies() -> SansadDarpanConstituencyListResponse:
+def _fallback_constituency_list() -> SansadDarpanConstituencyListResponse:
     return SansadDarpanConstituencyListResponse(
-        update_frequency="Daily sources, annual SDG refresh",
+        update_frequency="Daily scheme refresh · monthly benchmark rollup",
         constituencies=CONSTITUENCY_WELFARE,
     )
 
 
-def fetch_sansaddarpan_constituency(slug: str) -> SansadDarpanConstituencyCard:
+def fetch_sansaddarpan_constituency_fallback(slug: str) -> SansadDarpanConstituencyCard:
     for constituency in CONSTITUENCY_WELFARE:
         if constituency.slug == slug:
             return constituency
     raise HTTPException(status_code=404, detail="Constituency welfare profile not found")
 
 
-def fetch_sansaddarpan_rule_deviations() -> SansadDarpanRuleDeviationListResponse:
+def _fallback_rule_deviations() -> SansadDarpanRuleDeviationListResponse:
     return SansadDarpanRuleDeviationListResponse(
         human_review_required=True,
         deviations=[
@@ -312,7 +354,7 @@ def fetch_sansaddarpan_rule_deviations() -> SansadDarpanRuleDeviationListRespons
     )
 
 
-def fetch_sansaddarpan_rule_deviation(case_id: str) -> SansadDarpanRuleDeviationDetailResponse:
+def fetch_sansaddarpan_rule_deviation_fallback(case_id: str) -> SansadDarpanRuleDeviationDetailResponse:
     for deviation in DEVIATIONS:
         if deviation.id == case_id:
             return deviation
@@ -397,9 +439,135 @@ async def fetch_sansaddarpan_mp(db: AsyncSession, slug: str) -> SansadDarpanMpPr
     )
 
 
+async def fetch_sansaddarpan_constituencies(db: AsyncSession) -> SansadDarpanConstituencyListResponse:
+    try:
+        profile_result = await db.execute(
+            select(ConstituencyWelfareProfile)
+            .options(
+                selectinload(ConstituencyWelfareProfile.constituency),
+                selectinload(ConstituencyWelfareProfile.metrics),
+            )
+            .order_by(desc(ConstituencyWelfareProfile.last_refreshed_at), ConstituencyWelfareProfile.constituency_id)
+        )
+        profiles = profile_result.scalars().unique().all()
+    except SQLAlchemyError:
+        return _fallback_constituency_list()
+
+    if not profiles:
+        return _fallback_constituency_list()
+
+    try:
+        action_result = await db.execute(select(ParliamentaryAction.constituency_id).distinct())
+        action_constituencies = {row[0] for row in action_result if row[0] is not None}
+    except SQLAlchemyError:
+        action_constituencies = set()
+
+    try:
+        mp_result = await db.execute(
+            select(MpIdentity.constituency_id, MpIdentity.full_name_en).where(MpIdentity.constituency_id.is_not(None))
+        )
+        mp_names = {row.constituency_id: row.full_name_en for row in mp_result if row.constituency_id is not None}
+    except SQLAlchemyError:
+        mp_names = {}
+
+    return SansadDarpanConstituencyListResponse(
+        update_frequency=profiles[0].refresh_cadence,
+        constituencies=[
+            SansadDarpanConstituencyCard(
+                slug=_slugify(_display_constituency_name(profile.constituency.name) or profile.constituency.name),
+                name=_display_constituency_name(profile.constituency.name) or profile.constituency.name,
+                state=profile.constituency.state,
+                mp_name=profile.constituency.mp_name or mp_names.get(profile.constituency_id) or "MP not mapped yet",
+                top_gap=profile.top_gap,
+                raised_in_parliament=profile.raised_in_parliament or profile.constituency_id in action_constituencies,
+                metrics=[
+                    SansadDarpanWelfareMetric(
+                        label=metric.label,
+                        value=metric.value_text,
+                        benchmark=metric.benchmark_text,
+                        status=metric.status,
+                    )
+                    for metric in sorted(profile.metrics, key=lambda item: (item.display_order, item.label))
+                ],
+            )
+            for profile in profiles
+            if profile.constituency is not None
+        ],
+    )
+
+
+async def fetch_sansaddarpan_constituency(db: AsyncSession, slug: str) -> SansadDarpanConstituencyCard:
+    try:
+        data = await fetch_sansaddarpan_constituencies(db)
+    except HTTPException:
+        raise
+
+    for constituency in data.constituencies:
+        if constituency.slug == slug:
+            return constituency
+    return fetch_sansaddarpan_constituency_fallback(slug)
+
+
+async def fetch_sansaddarpan_rule_deviations(db: AsyncSession) -> SansadDarpanRuleDeviationListResponse:
+    try:
+        result = await db.execute(
+            select(RuleDeviationCase).order_by(
+                desc(RuleDeviationCase.published_at),
+                desc(RuleDeviationCase.last_reviewed_at),
+                desc(RuleDeviationCase.confidence),
+            )
+        )
+        deviations = result.scalars().all()
+    except SQLAlchemyError:
+        return _fallback_rule_deviations()
+
+    if not deviations:
+        return _fallback_rule_deviations()
+
+    return SansadDarpanRuleDeviationListResponse(
+        human_review_required=any(item.human_review_required for item in deviations),
+        deviations=[
+            SansadDarpanRuleDeviationCard(
+                id=item.id,
+                title=item.title,
+                session_label=item.session_label,
+                rule_reference=item.rule_reference,
+                confidence=item.confidence,
+                status=item.status,
+                summary=item.summary,
+            )
+            for item in deviations
+        ],
+    )
+
+
+async def fetch_sansaddarpan_rule_deviation(db: AsyncSession, case_id: str) -> SansadDarpanRuleDeviationDetailResponse:
+    try:
+        result = await db.execute(select(RuleDeviationCase).where(RuleDeviationCase.id == case_id))
+        deviation = result.scalar_one_or_none()
+    except SQLAlchemyError:
+        return fetch_sansaddarpan_rule_deviation_fallback(case_id)
+
+    if deviation is None:
+        return fetch_sansaddarpan_rule_deviation_fallback(case_id)
+
+    return SansadDarpanRuleDeviationDetailResponse(
+        id=deviation.id,
+        title=deviation.title,
+        session_label=deviation.session_label,
+        rule_reference=deviation.rule_reference,
+        confidence=deviation.confidence,
+        status=deviation.status,
+        summary=deviation.summary,
+        analysis=deviation.analysis,
+        primary_sources=deviation.primary_sources or [],
+        review_notes=deviation.review_notes or [],
+    )
+
+
 @router.get("", response_model=SansadDarpanOverviewResponse)
-async def sansaddarpan_overview() -> SansadDarpanOverviewResponse:
-    return fetch_sansaddarpan_overview()
+async def sansaddarpan_overview(db: AsyncSession = Depends(get_db)) -> SansadDarpanOverviewResponse:
+    return await fetch_sansaddarpan_overview(db)
 
 
 @router.get("/mps", response_model=SansadDarpanMpListResponse)
@@ -413,23 +581,23 @@ async def sansaddarpan_mp(slug: str, db: AsyncSession = Depends(get_db)) -> Sans
 
 
 @router.get("/constituencies", response_model=SansadDarpanConstituencyListResponse)
-async def sansaddarpan_constituencies() -> SansadDarpanConstituencyListResponse:
-    return fetch_sansaddarpan_constituencies()
+async def sansaddarpan_constituencies(db: AsyncSession = Depends(get_db)) -> SansadDarpanConstituencyListResponse:
+    return await fetch_sansaddarpan_constituencies(db)
 
 
 @router.get("/constituencies/{slug}", response_model=SansadDarpanConstituencyCard)
-async def sansaddarpan_constituency(slug: str) -> SansadDarpanConstituencyCard:
-    return fetch_sansaddarpan_constituency(slug)
+async def sansaddarpan_constituency(slug: str, db: AsyncSession = Depends(get_db)) -> SansadDarpanConstituencyCard:
+    return await fetch_sansaddarpan_constituency(db, slug)
 
 
 @router.get("/rule-deviations", response_model=SansadDarpanRuleDeviationListResponse)
-async def sansaddarpan_rule_deviations() -> SansadDarpanRuleDeviationListResponse:
-    return fetch_sansaddarpan_rule_deviations()
+async def sansaddarpan_rule_deviations(db: AsyncSession = Depends(get_db)) -> SansadDarpanRuleDeviationListResponse:
+    return await fetch_sansaddarpan_rule_deviations(db)
 
 
 @router.get("/rule-deviations/{case_id}", response_model=SansadDarpanRuleDeviationDetailResponse)
-async def sansaddarpan_rule_deviation(case_id: str) -> SansadDarpanRuleDeviationDetailResponse:
-    return fetch_sansaddarpan_rule_deviation(case_id)
+async def sansaddarpan_rule_deviation(case_id: str, db: AsyncSession = Depends(get_db)) -> SansadDarpanRuleDeviationDetailResponse:
+    return await fetch_sansaddarpan_rule_deviation(db, case_id)
 
 
 @router.get("/methodology", response_model=SansadDarpanMethodologyResponse)

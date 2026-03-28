@@ -8,6 +8,7 @@ from app.models.issue import Issue
 from app.models.mp_identity import MpIdentity, MpParticipationScore
 from app.models.mp_brief import MPBrief, PodcastEpisode
 from app.models.parliamentary_action import ParliamentaryAction
+from app.models.sansaddarpan import ConstituencyWelfareMetric, ConstituencyWelfareProfile, RuleDeviationCase
 
 __all__ = [
     "AgentLog",
@@ -23,4 +24,7 @@ __all__ = [
     "MPBrief",
     "ParliamentaryAction",
     "PodcastEpisode",
+    "ConstituencyWelfareProfile",
+    "ConstituencyWelfareMetric",
+    "RuleDeviationCase",
 ]

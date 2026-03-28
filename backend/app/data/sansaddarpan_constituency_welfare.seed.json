@@ -1,0 +1,134 @@
+[
+  {
+    "constituency_id": 38,
+    "top_gap": "MGNREGS wage delay remains above the national average despite repeated local complaints from peri-urban labour households.",
+    "raised_in_parliament": false,
+    "refresh_cadence": "Daily scheme refresh · monthly benchmark rollup",
+    "source_notes": ["MGNREGS public dashboard", "PMAY progress register", "PM Kisan status extract"],
+    "metrics": [
+      {
+        "metric_key": "mgnregs_delay",
+        "label": "MGNREGS average delay",
+        "value_text": "19 days",
+        "benchmark_text": "India avg 11 days",
+        "status": "alert",
+        "display_order": 1
+      },
+      {
+        "metric_key": "pmay_completion",
+        "label": "PMAY completion",
+        "value_text": "74%",
+        "benchmark_text": "India avg 82%",
+        "status": "pending",
+        "display_order": 2
+      },
+      {
+        "metric_key": "pm_kisan_disbursal",
+        "label": "PM Kisan disbursal",
+        "value_text": "91%",
+        "benchmark_text": "India avg 89%",
+        "status": "positive",
+        "display_order": 3
+      }
+    ]
+  },
+  {
+    "constituency_id": 502,
+    "top_gap": "Ujjwala refill continuity is lagging peri-urban demand despite high connection coverage and above-average parliamentary visibility.",
+    "raised_in_parliament": true,
+    "refresh_cadence": "Daily scheme refresh · monthly benchmark rollup",
+    "source_notes": ["Ujjwala refill dashboard", "SDG district scorecard", "MGNREGS district data"],
+    "metrics": [
+      {
+        "metric_key": "mgnregs_delay",
+        "label": "MGNREGS average delay",
+        "value_text": "8 days",
+        "benchmark_text": "India avg 11 days",
+        "status": "positive",
+        "display_order": 1
+      },
+      {
+        "metric_key": "ujjwala_refill_continuity",
+        "label": "Ujjwala refill continuity",
+        "value_text": "62%",
+        "benchmark_text": "India avg 71%",
+        "status": "alert",
+        "display_order": 2
+      },
+      {
+        "metric_key": "sdg_district_score",
+        "label": "SDG district score",
+        "value_text": "71/100",
+        "benchmark_text": "India top quartile 75+",
+        "status": "pending",
+        "display_order": 3
+      }
+    ]
+  },
+  {
+    "constituency_id": 477,
+    "top_gap": "PMAY completion is above average, but urban employment-linked scheme follow-through remains weaker than the state benchmark.",
+    "raised_in_parliament": true,
+    "refresh_cadence": "Daily scheme refresh · monthly benchmark rollup",
+    "source_notes": ["PMAY urban progress dashboard", "Urban livelihoods utilisation", "PM Kisan transfer logs"],
+    "metrics": [
+      {
+        "metric_key": "pmay_completion",
+        "label": "PMAY completion",
+        "value_text": "86%",
+        "benchmark_text": "India avg 82%",
+        "status": "positive",
+        "display_order": 1
+      },
+      {
+        "metric_key": "urban_employment_follow_through",
+        "label": "Urban employment follow-through",
+        "value_text": "58%",
+        "benchmark_text": "Karnataka avg 67%",
+        "status": "alert",
+        "display_order": 2
+      },
+      {
+        "metric_key": "pm_kisan_disbursal",
+        "label": "PM Kisan disbursal",
+        "value_text": "88%",
+        "benchmark_text": "India avg 89%",
+        "status": "pending",
+        "display_order": 3
+      }
+    ]
+  },
+  {
+    "constituency_id": 107,
+    "top_gap": "Public housing completion and ration-portability follow-through are not matching the constituency’s need profile.",
+    "raised_in_parliament": true,
+    "refresh_cadence": "Daily scheme refresh · monthly benchmark rollup",
+    "source_notes": ["PMAY district dashboard", "ONORC portability reports", "PM Kisan constituency rollup"],
+    "metrics": [
+      {
+        "metric_key": "pmay_completion",
+        "label": "PMAY completion",
+        "value_text": "69%",
+        "benchmark_text": "Uttar Pradesh avg 77%",
+        "status": "alert",
+        "display_order": 1
+      },
+      {
+        "metric_key": "ration_portability",
+        "label": "ONORC portability success",
+        "value_text": "81%",
+        "benchmark_text": "India avg 88%",
+        "status": "pending",
+        "display_order": 2
+      },
+      {
+        "metric_key": "pm_kisan_disbursal",
+        "label": "PM Kisan disbursal",
+        "value_text": "93%",
+        "benchmark_text": "India avg 89%",
+        "status": "positive",
+        "display_order": 3
+      }
+    ]
+  }
+]

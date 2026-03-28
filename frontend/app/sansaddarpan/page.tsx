@@ -36,9 +36,9 @@ export default async function SansadDarpanPage() {
                 </Link>
               </div>
               <div className="sansaddarpan-live-strip">
-                <span>Last updated: public seed + live API fallback</span>
-                <span>18 verified cases in review registry</span>
-                <span>543 MP scorecards planned</span>
+                <span>Live DB-backed accountability register</span>
+                <span>Public evidence linked to source methodology</span>
+                <span>Parliament, welfare, and procedure in one surface</span>
               </div>
             </div>
             <aside className="sansaddarpan-masthead-panel">

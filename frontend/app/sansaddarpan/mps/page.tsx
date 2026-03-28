@@ -44,14 +44,14 @@ export default async function SansadDarpanMpsPage() {
             <aside className="sansaddarpan-masthead-panel">
               <span className="summary-kicker">Current register</span>
               <strong>{data.mps.length} profiles</strong>
-              <p>First seeded scorecards are now DB-backed. This module is the first real SansadDarpan feature, not just a shell.</p>
+              <p>These scorecards are coming from the live SansadDarpan database layer, not a static page fixture.</p>
             </aside>
           </section>
           <section className="sansaddarpan-stat-strip">
             <article>
               <span>Highest score</span>
               <strong>{Math.max(...data.mps.map((mp) => mp.score))}</strong>
-              <small>current seeded cohort</small>
+              <small>current public register</small>
             </article>
             <article>
               <span>Avg attendance</span>

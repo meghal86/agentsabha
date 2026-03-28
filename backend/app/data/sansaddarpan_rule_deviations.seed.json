@@ -1,0 +1,76 @@
+[
+  {
+    "id": "money-bill-2016",
+    "title": "Money Bill certification controversy",
+    "session_label": "Budget Session 2016",
+    "rule_reference": "Articles 109/110 read with Speaker certification convention",
+    "confidence": 0.93,
+    "status": "human-verified",
+    "summary": "Certification route raised substantial procedural questions about whether the bill fit the Money Bill definition.",
+    "analysis": "The proceeding record, public objections, and later constitutional litigation indicate a credible deviation question around classification and bicameral scrutiny.",
+    "primary_sources": [
+      "Lok Sabha proceedings",
+      "Text of the bill",
+      "Supreme Court judgments discussing Article 110"
+    ],
+    "review_notes": [
+      "Published only after manual comparison with constitutional text.",
+      "Reasoning chain archived with citations."
+    ]
+  },
+  {
+    "id": "mass-suspension-2023",
+    "title": "Mass suspension procedure review",
+    "session_label": "Winter Session 2023",
+    "rule_reference": "Lok Sabha Rules on naming and suspension of members",
+    "confidence": 0.9,
+    "status": "human-verified",
+    "summary": "Bulk suspension events triggered a rule-compliance review concerning sequencing, grounds, and opportunity to respond.",
+    "analysis": "The issue is not simply political disagreement; it is whether the procedural rule path reflected the text and established precedent in the House record.",
+    "primary_sources": [
+      "Lok Sabha bulletin",
+      "House transcript",
+      "Rules of Procedure"
+    ],
+    "review_notes": [
+      "Human reviewer compared transcript to rule steps before publication."
+    ]
+  },
+  {
+    "id": "anti-defection-delay",
+    "title": "Delayed anti-defection decision pattern",
+    "session_label": "Multi-session precedent review",
+    "rule_reference": "Tenth Schedule + Speaker decision timelines in judicial precedent",
+    "confidence": 0.88,
+    "status": "under-review",
+    "summary": "The tracker logs prolonged decision gaps between petition filing and adjudication under the anti-defection framework.",
+    "analysis": "Delay itself may not always equal deviation, but the tracker evaluates whether precedent and procedural duty were meaningfully frustrated.",
+    "primary_sources": [
+      "Petition filings",
+      "Speaker communications",
+      "Supreme Court judgments"
+    ],
+    "review_notes": [
+      "Held in review pending final legal sign-off on comparator precedents."
+    ]
+  },
+  {
+    "id": "division-demand-closed",
+    "title": "Division demand closure review",
+    "session_label": "Monsoon Session 2024",
+    "rule_reference": "Voting procedure and division demand convention in the House record",
+    "confidence": 0.84,
+    "status": "archived",
+    "summary": "An archived case tracking whether a division request was procedurally closed before the record fully reflected the demand.",
+    "analysis": "The case remained important for methodology, but a later full transcript review reduced confidence below the publication threshold for a live registry entry.",
+    "primary_sources": [
+      "House video archive",
+      "Transcript revision log",
+      "Speaker directions digest"
+    ],
+    "review_notes": [
+      "Archived after full transcript reconciliation.",
+      "Kept visible for audit continuity."
+    ]
+  }
+]
