@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active?: "home" | "constituency" | "forums" | "mps" | "submit" | "about" | "agents" | "prototype";
+  active?: "home" | "constituency" | "forums" | "mps" | "submit" | "about" | "agents" | "sansaddarpan" | "prototype";
 };
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/forums", label: "Forums", key: "forums" },
   { href: "/mps", label: "MP Personalities", key: "mps" },
   { href: "/submit", label: "Submit Issue", key: "submit" },
+  { href: "/sansaddarpan", label: "SansadDarpan", key: "sansaddarpan" },
   { href: "/agents", label: "Agent System", key: "agents" },
 ] as const;
 
