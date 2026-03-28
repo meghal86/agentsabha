@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import desc, select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.models.constituency import Constituency
+from app.models.mp_identity import MpIdentity, MpParticipationScore
 
 from app.schemas.sansaddarpan import (
     SansadDarpanConstituencyCard,
@@ -259,14 +266,14 @@ def fetch_sansaddarpan_overview() -> SansadDarpanOverviewResponse:
     return OVERVIEW
 
 
-def fetch_sansaddarpan_mps() -> SansadDarpanMpListResponse:
+def _fallback_mp_list() -> SansadDarpanMpListResponse:
     return SansadDarpanMpListResponse(
         methodology_version="v1.0 public draft",
         mps=[SansadDarpanMpCard(**mp.model_dump(exclude={"zero_hour_mentions", "private_member_bills", "voting_participation", "score_breakdown", "sources", "narrative", "og_ready"})) for mp in MPS],
     )
 
 
-def fetch_sansaddarpan_mp(slug: str) -> SansadDarpanMpProfileResponse:
+def _fallback_mp_profile(slug: str) -> SansadDarpanMpProfileResponse:
     for mp in MPS:
         if mp.slug == slug:
             return mp
@@ -316,19 +323,93 @@ def fetch_sansaddarpan_methodology() -> SansadDarpanMethodologyResponse:
     return METHODOLOGY
 
 
+async def fetch_sansaddarpan_mps(db: AsyncSession) -> SansadDarpanMpListResponse:
+    try:
+        result = await db.execute(
+            select(MpIdentity, MpParticipationScore, Constituency)
+            .join(MpParticipationScore, MpParticipationScore.mp_id == MpIdentity.mp_id)
+            .outerjoin(Constituency, Constituency.id == MpIdentity.constituency_id)
+            .order_by(desc(MpParticipationScore.participation_score), MpIdentity.full_name_en)
+        )
+        rows = result.all()
+    except SQLAlchemyError:
+        return _fallback_mp_list()
+
+    if not rows:
+        return _fallback_mp_list()
+
+    return SansadDarpanMpListResponse(
+        methodology_version="v1.0 public draft",
+        mps=[
+            SansadDarpanMpCard(
+                slug=mp.slug,
+                name=mp.full_name_en,
+                constituency=constituency.name if constituency else "Unknown constituency",
+                state=constituency.state if constituency else "Unknown state",
+                party=mp.party_name or "Independent",
+                attendance_rate=score.attendance_rate,
+                questions_asked=score.questions_asked,
+                debates=score.debates_participated,
+                score=score.participation_score,
+                national_rank=score.national_rank,
+                summary=score.summary or "",
+            )
+            for mp, score, constituency in rows
+        ],
+    )
+
+
+async def fetch_sansaddarpan_mp(db: AsyncSession, slug: str) -> SansadDarpanMpProfileResponse:
+    try:
+        result = await db.execute(
+            select(MpIdentity, MpParticipationScore, Constituency)
+            .join(MpParticipationScore, MpParticipationScore.mp_id == MpIdentity.mp_id)
+            .outerjoin(Constituency, Constituency.id == MpIdentity.constituency_id)
+            .where(MpIdentity.slug == slug)
+        )
+        row = result.one_or_none()
+    except SQLAlchemyError:
+        return _fallback_mp_profile(slug)
+
+    if row is None:
+        return _fallback_mp_profile(slug)
+
+    mp, score, constituency = row
+    return SansadDarpanMpProfileResponse(
+        slug=mp.slug,
+        name=mp.full_name_en,
+        constituency=constituency.name if constituency else "Unknown constituency",
+        state=constituency.state if constituency else "Unknown state",
+        party=mp.party_name or "Independent",
+        attendance_rate=score.attendance_rate,
+        questions_asked=score.questions_asked,
+        debates=score.debates_participated,
+        score=score.participation_score,
+        national_rank=score.national_rank,
+        summary=score.summary or "",
+        zero_hour_mentions=score.zero_hour_mentions,
+        private_member_bills=score.private_member_bills,
+        voting_participation=score.voting_participation,
+        score_breakdown=score.score_breakdown or {},
+        sources=score.sources or [],
+        narrative=score.narrative or "",
+        og_ready=score.og_ready,
+    )
+
+
 @router.get("", response_model=SansadDarpanOverviewResponse)
 async def sansaddarpan_overview() -> SansadDarpanOverviewResponse:
     return fetch_sansaddarpan_overview()
 
 
 @router.get("/mps", response_model=SansadDarpanMpListResponse)
-async def sansaddarpan_mps() -> SansadDarpanMpListResponse:
-    return fetch_sansaddarpan_mps()
+async def sansaddarpan_mps(db: AsyncSession = Depends(get_db)) -> SansadDarpanMpListResponse:
+    return await fetch_sansaddarpan_mps(db)
 
 
 @router.get("/mps/{slug}", response_model=SansadDarpanMpProfileResponse)
-async def sansaddarpan_mp(slug: str) -> SansadDarpanMpProfileResponse:
-    return fetch_sansaddarpan_mp(slug)
+async def sansaddarpan_mp(slug: str, db: AsyncSession = Depends(get_db)) -> SansadDarpanMpProfileResponse:
+    return await fetch_sansaddarpan_mp(db, slug)
 
 
 @router.get("/constituencies", response_model=SansadDarpanConstituencyListResponse)

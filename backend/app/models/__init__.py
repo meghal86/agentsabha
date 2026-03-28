@@ -5,6 +5,7 @@ from app.models.cluster import ClusterSnapshot, IssueCluster
 from app.models.constituency import Constituency
 from app.models.dissent_record import DissentRecord
 from app.models.issue import Issue
+from app.models.mp_identity import MpIdentity, MpParticipationScore
 from app.models.mp_brief import MPBrief, PodcastEpisode
 from app.models.parliamentary_action import ParliamentaryAction
 
@@ -16,9 +17,10 @@ __all__ = [
     "Constituency",
     "DissentRecord",
     "Issue",
+    "MpIdentity",
+    "MpParticipationScore",
     "IssueCluster",
     "MPBrief",
     "ParliamentaryAction",
     "PodcastEpisode",
 ]
-
