@@ -86,22 +86,24 @@ def upgrade() -> None:
         ],
     )
 
-    op.execute(
-        sa.text(
-            """
-            INSERT INTO mp_participation_scores (
-              mp_id, attendance_rate, questions_asked, debates_participated, zero_hour_mentions,
-              private_member_bills, voting_participation, participation_score, national_rank,
-              state_rank, party_rank, score_breakdown, summary, narrative, sources, og_ready
-            )
-            SELECT
-              mp.mp_id, :attendance_rate, :questions_asked, :debates_participated, :zero_hour_mentions,
-              :private_member_bills, :voting_participation, :participation_score, :national_rank,
-              :state_rank, :party_rank, CAST(:score_breakdown AS jsonb), :summary, :narrative, CAST(:sources AS jsonb), true
-            FROM mp_identity mp
-            WHERE mp.slug = :slug
-            """
-        ),
+    bind = op.get_bind()
+    insert_stmt = sa.text(
+        """
+        INSERT INTO mp_participation_scores (
+          mp_id, attendance_rate, questions_asked, debates_participated, zero_hour_mentions,
+          private_member_bills, voting_participation, participation_score, national_rank,
+          state_rank, party_rank, score_breakdown, summary, narrative, sources, og_ready
+        )
+        SELECT
+          mp.mp_id, :attendance_rate, :questions_asked, :debates_participated, :zero_hour_mentions,
+          :private_member_bills, :voting_participation, :participation_score, :national_rank,
+          :state_rank, :party_rank, CAST(:score_breakdown AS jsonb), :summary, :narrative, CAST(:sources AS jsonb), true
+        FROM mp_identity mp
+        WHERE mp.slug = :slug
+        """
+    )
+    bind.execute(
+        insert_stmt,
         [
             {
                 "slug": row["slug"],
