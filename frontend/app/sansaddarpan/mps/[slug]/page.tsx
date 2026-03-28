@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanMp } from "@/lib/api";
@@ -15,7 +14,7 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-mps" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -34,9 +33,6 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
               <p>This profile is shareable, source-linked, and rendered as a public scorecard rather than a generic biography page.</p>
             </aside>
           </section>
-
-          <SansadDarpanSubnav active="mps" />
-
           <section className="sansaddarpan-stat-strip">
             <article>
               <span>Participation score</span>

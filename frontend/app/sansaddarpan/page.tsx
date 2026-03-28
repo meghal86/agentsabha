@@ -10,7 +10,7 @@ export default async function SansadDarpanPage() {
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-overview" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -52,9 +52,6 @@ export default async function SansadDarpanPage() {
               </div>
             </aside>
           </section>
-
-          <SansadDarpanSubnav active="overview" />
-
           <section className="sansaddarpan-stat-strip">
             {overview.sections.map((section) => (
               <Link key={section.slug} className="sansaddarpan-stat-link" href={section.href}>

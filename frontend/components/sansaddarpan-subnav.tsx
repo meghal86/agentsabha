@@ -13,13 +13,8 @@ const items = [
 ] as const;
 
 export function SansadDarpanSubnav({ active }: SansadDarpanSubnavProps) {
-  return (
-    <nav className="sansaddarpan-subnav" aria-label="SansadDarpan sections">
-      {items.map((item) => (
-        <Link key={item.href} className={`sansaddarpan-subnav-link${active === item.key ? " active" : ""}`} href={item.href}>
-          {item.label}
-        </Link>
-      ))}
-    </nav>
-  );
+  void active;
+  void items;
+  void Link;
+  return null;
 }

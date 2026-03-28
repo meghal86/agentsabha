@@ -219,6 +219,12 @@ textarea {
   gap: 16px;
 }
 
+.brand-cluster {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
 .brand-mark {
   width: 68px;
   height: 68px;
@@ -308,6 +314,35 @@ textarea {
   gap: 6px;
   justify-content: center;
   margin: 0 20px;
+}
+
+.product-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid rgba(27, 42, 74, 0.12);
+  border-radius: 999px;
+  background: rgba(250, 243, 224, 0.68);
+}
+
+.product-switch-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: rgba(27, 42, 74, 0.7);
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.product-switch-link.active {
+  background: var(--neela);
+  color: var(--haath-kagaz);
+  box-shadow: 0 8px 18px rgba(27, 42, 74, 0.12);
 }
 
 .screen-link {
@@ -1459,6 +1494,31 @@ section {
   margin: 0;
   color: var(--muted-ink);
   line-height: 1.65;
+}
+
+.product-duo-panel {
+  margin-bottom: 20px;
+}
+
+.product-duo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  min-height: 220px;
+}
+
+.agentsabha-product-card {
+  background:
+    linear-gradient(180deg, rgba(250, 243, 224, 0.99), rgba(245, 230, 200, 0.92));
+}
+
+.sansaddarpan-product-card {
+  background:
+    linear-gradient(180deg, rgba(250, 247, 240, 0.99), rgba(253, 244, 231, 0.94));
+  border-color: #e8d5b0;
 }
 
 .accent-tile {
@@ -3064,6 +3124,21 @@ section {
   gap: 8px;
 }
 
+.product-shell[data-product="sansaddarpan"] .product-switcher {
+  border-color: rgba(232, 213, 176, 0.95);
+  background: rgba(253, 247, 240, 0.95);
+}
+
+.product-shell[data-product="sansaddarpan"] .product-switch-link {
+  color: rgba(27, 42, 74, 0.72);
+}
+
+.product-shell[data-product="sansaddarpan"] .product-switch-link.active {
+  background: var(--sd-secondary);
+  color: white;
+  box-shadow: 0 8px 18px rgba(160, 82, 45, 0.14);
+}
+
 .product-shell[data-product="sansaddarpan"] .screen-link {
   color: rgba(27, 42, 74, 0.72);
   border-bottom-width: 0;
@@ -3715,6 +3790,16 @@ section {
     margin: 10px 0 0;
   }
 
+  .brand-cluster {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-switcher {
+    width: 100%;
+  }
+
   .observer-popup {
     position: static;
     margin-top: 14px;
@@ -3838,6 +3923,10 @@ section {
     align-items: flex-start;
   }
 
+  .brand-cluster {
+    gap: 12px;
+  }
+
   .brand-mark {
     width: 56px;
     height: 56px;
@@ -3867,6 +3956,16 @@ section {
     display: none;
   }
 
+  .product-switcher {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .product-switcher::-webkit-scrollbar {
+    display: none;
+  }
+
   .screen-link,
   .tab {
     white-space: nowrap;
@@ -3885,6 +3984,10 @@ section {
 
   .top-actions {
     display: block;
+  }
+
+  .product-duo-grid {
+    grid-template-columns: 1fr;
   }
 
   .outline-button,

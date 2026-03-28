@@ -10,7 +10,7 @@ export default async function SansadDarpanMethodologyPage() {
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-methodology" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -42,9 +42,6 @@ export default async function SansadDarpanMethodologyPage() {
               <p>Every score, welfare benchmark, and procedural flag should link back to its inputs, logic, and publication threshold.</p>
             </aside>
           </section>
-
-          <SansadDarpanSubnav active="methodology" />
-
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="section-heading compact-heading">
               <div>

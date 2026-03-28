@@ -1,22 +1,33 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active?: "home" | "constituency" | "forums" | "mps" | "submit" | "about" | "agents" | "sansaddarpan" | "prototype";
+  active?: string;
+  product?: "agentsabha" | "sansaddarpan";
 };
 
-const navItems = [
+const agentsabhaNavItems = [
   { href: "/", label: "Home", key: "home" },
   { href: "/constituency", label: "Constituencies", key: "constituency" },
   { href: "/forums", label: "Forums", key: "forums" },
   { href: "/mps", label: "MP Personalities", key: "mps" },
   { href: "/submit", label: "Submit Issue", key: "submit" },
-  { href: "/sansaddarpan", label: "SansadDarpan", key: "sansaddarpan" },
   { href: "/agents", label: "Agent System", key: "agents" },
 ] as const;
 
-export function SiteHeader({ active }: SiteHeaderProps) {
+const sansaddarpanNavItems = [
+  { href: "/sansaddarpan", label: "Dashboard", key: "sansaddarpan-overview" },
+  { href: "/sansaddarpan/mps", label: "MP Scorecards", key: "sansaddarpan-mps" },
+  { href: "/sansaddarpan/constituencies", label: "Welfare", key: "sansaddarpan-constituencies" },
+  { href: "/sansaddarpan/rule-deviations", label: "Rule Deviations", key: "sansaddarpan-rule-deviations" },
+  { href: "/sansaddarpan/methodology", label: "Methodology", key: "sansaddarpan-methodology" },
+] as const;
+
+export function SiteHeader({ active, product = "agentsabha" }: SiteHeaderProps) {
+  const navItems = product === "sansaddarpan" ? sansaddarpanNavItems : agentsabhaNavItems;
+
   return (
     <header className="topbar mandate-frame">
+      <div className="brand-cluster">
       <Link className="brand-lockup" href="/" aria-label="AgentSabha home">
         <span className="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 120 120" role="img">
@@ -78,6 +89,15 @@ export function SiteHeader({ active }: SiteHeaderProps) {
           <span>एजेंट सभा</span>
         </span>
       </Link>
+      <nav className="product-switcher" aria-label="Product switcher">
+        <Link className={`product-switch-link${product === "agentsabha" ? " active" : ""}`} href="/">
+          AgentSabha
+        </Link>
+        <Link className={`product-switch-link${product === "sansaddarpan" ? " active" : ""}`} href="/sansaddarpan">
+          SansadDarpan
+        </Link>
+      </nav>
+      </div>
 
       <nav className="prototype-nav" aria-label="Primary">
         {navItems.map((item) => (
@@ -88,8 +108,8 @@ export function SiteHeader({ active }: SiteHeaderProps) {
       </nav>
 
       <nav className="top-actions">
-        <Link className="outline-button button-link" href="/submit">
-          Submit Issue
+        <Link className="outline-button button-link" href={product === "sansaddarpan" ? "/" : "/submit"}>
+          {product === "sansaddarpan" ? "Open AgentSabha" : "Submit Issue"}
         </Link>
         <button className="language-toggle" type="button" aria-pressed="false" aria-label="Language toggle">
           <span className="language-option active">EN</span>

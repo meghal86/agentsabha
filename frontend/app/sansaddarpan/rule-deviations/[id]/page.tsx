@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanRuleDeviation } from "@/lib/api";
@@ -15,7 +14,7 @@ export default async function SansadDarpanRuleDeviationPage({ params }: { params
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-rule-deviations" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -29,9 +28,6 @@ export default async function SansadDarpanRuleDeviationPage({ params }: { params
               <p className="frame-note">{item.summary}</p>
             </div>
           </div>
-
-          <SansadDarpanSubnav active="rule-deviations" />
-
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="dashboard-summary-grid">
               <article className="summary-tile sansaddarpan-tile">

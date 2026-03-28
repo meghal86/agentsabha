@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 
-import { SansadDarpanSubnav } from "@/components/sansaddarpan-subnav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanConstituency } from "@/lib/api";
@@ -15,7 +14,7 @@ export default async function SansadDarpanConstituencyPage({ params }: { params:
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-constituencies" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -29,9 +28,6 @@ export default async function SansadDarpanConstituencyPage({ params }: { params:
               <p className="frame-note">{item.top_gap}</p>
             </div>
           </div>
-
-          <SansadDarpanSubnav active="constituencies" />
-
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="section-heading compact-heading">
               <div>

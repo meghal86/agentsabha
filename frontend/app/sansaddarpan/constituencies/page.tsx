@@ -10,7 +10,7 @@ export default async function SansadDarpanConstituenciesPage() {
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-constituencies" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -29,9 +29,6 @@ export default async function SansadDarpanConstituenciesPage() {
               <p>Next step is a real constituency-district crosswalk and welfare ingestion pipeline. This page is ready for that migration.</p>
             </aside>
           </section>
-
-          <SansadDarpanSubnav active="constituencies" />
-
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="sansaddarpan-module-grid">
               {data.constituencies.map((item) => (

@@ -20,7 +20,7 @@ export default async function SansadDarpanRuleDeviationsPage() {
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-rule-deviations" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -49,9 +49,6 @@ export default async function SansadDarpanRuleDeviationsPage() {
               <p>This is the highest-risk module in SansadDarpan. The UI should feel like a case registry, not a feed.</p>
             </aside>
           </section>
-
-          <SansadDarpanSubnav active="rule-deviations" />
-
           <section className="sansaddarpan-stat-strip">
             <article>
               <span>Published cases</span>

@@ -30,7 +30,7 @@ export default async function HomePage() {
 
   return (
     <div className="page-shell">
-      <SiteHeader active="home" />
+      <SiteHeader active="home" product="agentsabha" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame bharat-ornament-frame">
@@ -96,6 +96,33 @@ export default async function HomePage() {
           <div className="jaali-divider" aria-hidden="true">
             <img src="/prototype/art/jaali-band.svg" alt="" />
           </div>
+
+          <section className="frame-panel full-width-panel product-duo-panel">
+            <div className="section-heading compact-heading">
+              <div>
+                <p>Platform structure</p>
+                <h2>Two products. One public system.</h2>
+              </div>
+            </div>
+            <div className="product-duo-grid">
+              <article className="summary-tile product-card agentsabha-product-card">
+                <span className="summary-kicker">AgentSabha</span>
+                <strong>Voice, participation, forums</strong>
+                <p>Citizen issue intake, constituency intelligence, orchestrated public forums, and parliamentary drafting under procedural rules.</p>
+                <Link className="secondary-button button-link" href="/constituency">
+                  Open AgentSabha
+                </Link>
+              </article>
+              <article className="summary-tile product-card sansaddarpan-product-card">
+                <span className="summary-kicker">SansadDarpan</span>
+                <strong>Record, evidence, accountability</strong>
+                <p>MP scorecards, constituency welfare signals, and verified parliamentary rule-deviation records in a public evidence interface.</p>
+                <Link className="secondary-button button-link" href="/sansaddarpan">
+                  Open SansadDarpan
+                </Link>
+              </article>
+            </div>
+          </section>
 
           <div className="below-fold-grid">
             <section className="frame-panel full-width-panel">

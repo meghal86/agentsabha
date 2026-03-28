@@ -20,7 +20,7 @@ export default async function SansadDarpanMpsPage() {
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
-      <SiteHeader active="sansaddarpan" />
+      <SiteHeader active="sansaddarpan-mps" product="sansaddarpan" />
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
@@ -47,9 +47,6 @@ export default async function SansadDarpanMpsPage() {
               <p>First seeded scorecards are now DB-backed. This module is the first real SansadDarpan feature, not just a shell.</p>
             </aside>
           </section>
-
-          <SansadDarpanSubnav active="mps" />
-
           <section className="sansaddarpan-stat-strip">
             <article>
               <span>Highest score</span>
