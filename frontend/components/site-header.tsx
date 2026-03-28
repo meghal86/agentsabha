@@ -92,9 +92,8 @@ export function SiteHeader({ active }: SiteHeaderProps) {
           Submit Issue
         </Link>
         <button className="language-toggle" type="button" aria-pressed="false" aria-label="Language toggle">
-          <span>EN</span>
-          <span className="divider">|</span>
-          <span>हिं</span>
+          <span className="language-option active">EN</span>
+          <span className="language-option">हिं</span>
         </button>
       </nav>
     </header>

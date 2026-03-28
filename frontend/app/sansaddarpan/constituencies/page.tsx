@@ -14,8 +14,8 @@ export default async function SansadDarpanConstituenciesPage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
-          <div className="product-intro compact-intro">
-            <div>
+          <section className="sansaddarpan-masthead">
+            <div className="sansaddarpan-masthead-copy">
               <p className="eyebrow">CONSTITUENCY WELFARE DASHBOARD</p>
               <h1 className="product-title">Welfare performance linked back to parliamentary accountability</h1>
               <p className="hero-body">
@@ -23,12 +23,17 @@ export default async function SansadDarpanConstituenciesPage() {
               </p>
               <p className="frame-note">Update frequency: {data.update_frequency}</p>
             </div>
-          </div>
+            <aside className="sansaddarpan-masthead-panel">
+              <span className="summary-kicker">Current scope</span>
+              <strong>{data.constituencies.length} seeded constituencies</strong>
+              <p>Next step is a real constituency-district crosswalk and welfare ingestion pipeline. This page is ready for that migration.</p>
+            </aside>
+          </section>
 
           <SansadDarpanSubnav active="constituencies" />
 
           <section className="frame-panel full-width-panel sansaddarpan-surface">
-            <div className="dashboard-summary-grid">
+            <div className="sansaddarpan-module-grid">
               {data.constituencies.map((item) => (
                 <article key={item.slug} className="summary-tile sansaddarpan-card">
                   <span className="summary-kicker">
@@ -60,7 +65,7 @@ export default async function SansadDarpanConstituenciesPage() {
         </section>
       </main>
 
-      <SiteFooter note="SansadDarpan · Welfare evidence linked to parliamentary accountability" />
+      <SiteFooter brand="SansadDarpan" note="Welfare evidence linked to parliamentary accountability" endLabel="Evidence with benchmark context" />
     </div>
   );
 }

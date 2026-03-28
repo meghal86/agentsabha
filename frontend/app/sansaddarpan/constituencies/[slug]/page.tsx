@@ -55,7 +55,7 @@ export default async function SansadDarpanConstituencyPage({ params }: { params:
         </section>
       </main>
 
-      <SiteFooter note="SansadDarpan · Constituency welfare shown with benchmark context" />
+      <SiteFooter brand="SansadDarpan" note="Constituency welfare shown with benchmark context" endLabel="Scheme evidence made legible" />
     </div>
   );
 }

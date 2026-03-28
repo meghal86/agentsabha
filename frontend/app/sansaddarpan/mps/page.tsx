@@ -5,6 +5,16 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanMps } from "@/lib/api";
 
+function getScoreTone(score: number) {
+  if (score >= 90) {
+    return "positive";
+  }
+  if (score >= 70) {
+    return "warning";
+  }
+  return "critical";
+}
+
 export default async function SansadDarpanMpsPage() {
   const data = await getSansadDarpanMps();
 
@@ -14,8 +24,16 @@ export default async function SansadDarpanMpsPage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
-          <div className="product-intro compact-intro">
-            <div>
+          <nav className="sansaddarpan-breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/">AgentSabha</Link>
+            <span>/</span>
+            <Link href="/sansaddarpan">SansadDarpan</Link>
+            <span>/</span>
+            <span aria-current="page">MP Scorecards</span>
+          </nav>
+
+          <section className="sansaddarpan-masthead">
+            <div className="sansaddarpan-masthead-copy">
               <p className="eyebrow">MP PARTICIPATION SCORECARD</p>
               <h1 className="product-title">Public scorecards for every sitting Lok Sabha MP</h1>
               <p className="hero-body">
@@ -23,9 +41,32 @@ export default async function SansadDarpanMpsPage() {
               </p>
               <p className="frame-note">Methodology version: {data.methodology_version}</p>
             </div>
-          </div>
+            <aside className="sansaddarpan-masthead-panel">
+              <span className="summary-kicker">Current register</span>
+              <strong>{data.mps.length} profiles</strong>
+              <p>First seeded scorecards are now DB-backed. This module is the first real SansadDarpan feature, not just a shell.</p>
+            </aside>
+          </section>
 
           <SansadDarpanSubnav active="mps" />
+
+          <section className="sansaddarpan-stat-strip">
+            <article>
+              <span>Highest score</span>
+              <strong>{Math.max(...data.mps.map((mp) => mp.score))}</strong>
+              <small>current seeded cohort</small>
+            </article>
+            <article>
+              <span>Avg attendance</span>
+              <strong>{(data.mps.reduce((sum, mp) => sum + mp.attendance_rate, 0) / data.mps.length).toFixed(1)}%</strong>
+              <small>participation baseline</small>
+            </article>
+            <article>
+              <span>Total debates</span>
+              <strong>{data.mps.reduce((sum, mp) => sum + mp.debates, 0)}</strong>
+              <small>substantive interventions</small>
+            </article>
+          </section>
 
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="section-heading compact-heading">
@@ -62,7 +103,9 @@ export default async function SansadDarpanMpsPage() {
                       <td>{mp.attendance_rate.toFixed(1)}%</td>
                       <td>{mp.questions_asked}</td>
                       <td>{mp.debates}</td>
-                      <td>{mp.score}</td>
+                      <td>
+                        <span className={`sansaddarpan-score-pill ${getScoreTone(mp.score)}`}>{mp.score}</span>
+                      </td>
                       <td>#{mp.national_rank}</td>
                       <td>
                         <Link className="secondary-button forum-open-link" href={`/sansaddarpan/mps/${mp.slug}`}>
@@ -78,7 +121,7 @@ export default async function SansadDarpanMpsPage() {
         </section>
       </main>
 
-      <SiteFooter note="SansadDarpan · MP participation benchmarked and method-linked" />
+      <SiteFooter brand="SansadDarpan" note="MP participation benchmarked and method-linked" endLabel="Methodology visible" />
     </div>
   );
 }

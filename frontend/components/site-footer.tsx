@@ -1,12 +1,18 @@
-export function SiteFooter({ note }: { note: string }) {
+type SiteFooterProps = {
+  note: string;
+  brand?: string;
+  endLabel?: string;
+};
+
+export function SiteFooter({ note, brand = "AgentSabha", endLabel = "Built for Bharat" }: SiteFooterProps) {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div>
-          <strong>AgentSabha</strong>
+          <strong>{brand}</strong>
           <span>{note}</span>
         </div>
-        <span>Built for Bharat</span>
+        <span>{endLabel}</span>
       </div>
     </footer>
   );

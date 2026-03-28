@@ -14,29 +14,59 @@ export default async function SansadDarpanPage() {
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
-          <div className="product-intro">
-            <div>
+          <nav className="sansaddarpan-breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/">AgentSabha</Link>
+            <span>/</span>
+            <span aria-current="page">SansadDarpan</span>
+          </nav>
+
+          <section className="sansaddarpan-masthead">
+            <div className="sansaddarpan-masthead-copy">
               <p className="eyebrow">PUBLIC ACCOUNTABILITY LAYER</p>
               <h1 className="product-title">{overview.product_name}</h1>
               <p className="sansaddarpan-hindi-title">{overview.hindi_name}</p>
               <p className="hero-body">{overview.tagline}</p>
               <p className="frame-note">{overview.layer_placement}</p>
+              <div className="hero-actions sansaddarpan-hero-actions">
+                <Link className="secondary-button button-link" href="/sansaddarpan/mps">
+                  Explore MPs
+                </Link>
+                <Link className="outline-button button-link" href="/sansaddarpan/methodology">
+                  How scores are built
+                </Link>
+              </div>
+              <div className="sansaddarpan-live-strip">
+                <span>Last updated: public seed + live API fallback</span>
+                <span>18 verified cases in review registry</span>
+                <span>543 MP scorecards planned</span>
+              </div>
             </div>
-            <div className="product-intro-stats product-intro-stats-grid">
-              <article className="summary-tile sansaddarpan-tile">
-                <span className="summary-kicker">Launch discipline</span>
-                <strong>{overview.launch_window}</strong>
-                <p>Three-feature MVP: participation, welfare, and verified procedural accountability.</p>
-              </article>
-              <article className="summary-tile sansaddarpan-tile accent-tile">
-                <span className="summary-kicker">Primary users</span>
-                <strong>{overview.primary_users.length} user groups</strong>
-                <p>{overview.primary_users.join(" · ")}</p>
-              </article>
-            </div>
-          </div>
+            <aside className="sansaddarpan-masthead-panel">
+              <span className="summary-kicker">What you can do here</span>
+              <strong>Track Parliament with evidence</strong>
+              <p>Search MPs, compare constituency welfare gaps, inspect verified rule deviations, and export reporting-ready evidence trails.</p>
+              <div className="sansaddarpan-chip-row">
+                {overview.primary_users.map((group) => (
+                  <span key={group}>{group}</span>
+                ))}
+              </div>
+            </aside>
+          </section>
 
           <SansadDarpanSubnav active="overview" />
+
+          <section className="sansaddarpan-stat-strip">
+            {overview.sections.map((section) => (
+              <Link key={section.slug} className="sansaddarpan-stat-link" href={section.href}>
+                <article>
+                  <span>{section.title}</span>
+                  <strong>{section.metric_value}</strong>
+                  <small>{section.metric_label}</small>
+                  <b>Open →</b>
+                </article>
+              </Link>
+            ))}
+          </section>
 
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="section-heading compact-heading">
@@ -45,7 +75,7 @@ export default async function SansadDarpanPage() {
                 <h2>The three public accountability systems</h2>
               </div>
             </div>
-            <div className="dashboard-summary-grid">
+            <div className="sansaddarpan-module-grid">
               {overview.sections.map((section) => (
                 <article key={section.slug} className="summary-tile sansaddarpan-card">
                   <span className="summary-kicker">
@@ -58,7 +88,7 @@ export default async function SansadDarpanPage() {
                     <span>{section.metric_label}</span>
                   </div>
                   <Link className="secondary-button forum-open-link" href={section.href}>
-                    Open module
+                    Open dashboard
                   </Link>
                 </article>
               ))}
@@ -93,7 +123,11 @@ export default async function SansadDarpanPage() {
         </section>
       </main>
 
-      <SiteFooter note="SansadDarpan · Parliamentary transparency, accountability, and public record" />
+      <SiteFooter
+        brand="SansadDarpan"
+        note="Parliamentary transparency, accountability, and public record"
+        endLabel="Open public record"
+      />
     </div>
   );
 }

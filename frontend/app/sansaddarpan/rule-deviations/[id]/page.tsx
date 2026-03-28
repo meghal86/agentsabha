@@ -79,7 +79,7 @@ export default async function SansadDarpanRuleDeviationPage({ params }: { params
         </section>
       </main>
 
-      <SiteFooter note="SansadDarpan · Case files combine rules, transcripts, precedent, and human review" />
+      <SiteFooter brand="SansadDarpan" note="Case files combine rules, transcripts, precedent, and human review" endLabel="Structured case file" />
     </div>
   );
 }

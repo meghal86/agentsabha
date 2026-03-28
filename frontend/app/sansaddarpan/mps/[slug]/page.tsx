@@ -19,8 +19,8 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
 
       <main className="screen-main">
         <section className="screen-frame mandate-frame sansaddarpan-frame">
-          <div className="product-intro">
-            <div>
+          <section className="sansaddarpan-masthead">
+            <div className="sansaddarpan-masthead-copy">
               <p className="eyebrow">MP PROFILE · PUBLIC SCORECARD</p>
               <h1 className="product-title">{mp.name}</h1>
               <p className="hero-body">
@@ -28,21 +28,32 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
               </p>
               <p className="frame-note">{mp.narrative}</p>
             </div>
-            <div className="product-intro-stats product-intro-stats-grid">
-              <article className="summary-tile sansaddarpan-tile">
-                <span className="summary-kicker">Participation score</span>
-                <strong>{mp.score}</strong>
-                <p>National rank #{mp.national_rank}</p>
-              </article>
-              <article className="summary-tile sansaddarpan-tile accent-tile">
-                <span className="summary-kicker">Attendance</span>
-                <strong>{mp.attendance_rate.toFixed(1)}%</strong>
-                <p>Voting participation {mp.voting_participation.toFixed(1)}%</p>
-              </article>
-            </div>
-          </div>
+            <aside className="sansaddarpan-masthead-panel">
+              <span className="summary-kicker">National rank</span>
+              <strong>#{mp.national_rank}</strong>
+              <p>This profile is shareable, source-linked, and rendered as a public scorecard rather than a generic biography page.</p>
+            </aside>
+          </section>
 
           <SansadDarpanSubnav active="mps" />
+
+          <section className="sansaddarpan-stat-strip">
+            <article>
+              <span>Participation score</span>
+              <strong>{mp.score}</strong>
+              <small>public score</small>
+            </article>
+            <article>
+              <span>Attendance</span>
+              <strong>{mp.attendance_rate.toFixed(1)}%</strong>
+              <small>house presence</small>
+            </article>
+            <article>
+              <span>Voting</span>
+              <strong>{mp.voting_participation.toFixed(1)}%</strong>
+              <small>participation in division</small>
+            </article>
+          </section>
 
           <section className="frame-panel full-width-panel sansaddarpan-surface">
             <div className="dashboard-summary-grid">
@@ -103,7 +114,7 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
         </section>
       </main>
 
-      <SiteFooter note="SansadDarpan · Every score links back to a source and a method" />
+      <SiteFooter brand="SansadDarpan" note="Every score links back to a source and a method" endLabel="Public scorecard" />
     </div>
   );
 }
