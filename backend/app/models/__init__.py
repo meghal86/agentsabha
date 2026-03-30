@@ -8,7 +8,13 @@ from app.models.issue import Issue
 from app.models.mp_identity import MpIdentity, MpParticipationScore
 from app.models.mp_brief import MPBrief, PodcastEpisode
 from app.models.parliamentary_action import ParliamentaryAction
-from app.models.sansaddarpan import ConstituencyWelfareMetric, ConstituencyWelfareProfile, RuleDeviationCase
+from app.models.sansaddarpan import (
+    ConstituencyWelfareMetric,
+    ConstituencyWelfareProfile,
+    RuleDeviationCase,
+    SansadDarpanIngestionRun,
+    SansadDarpanSourceSnapshot,
+)
 
 __all__ = [
     "AgentLog",
@@ -27,4 +33,6 @@ __all__ = [
     "ConstituencyWelfareProfile",
     "ConstituencyWelfareMetric",
     "RuleDeviationCase",
+    "SansadDarpanSourceSnapshot",
+    "SansadDarpanIngestionRun",
 ]

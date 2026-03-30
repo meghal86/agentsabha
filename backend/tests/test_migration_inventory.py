@@ -16,7 +16,7 @@ def test_migration_chain_matches_prompt_order() -> None:
     versions_dir = Path(__file__).resolve().parents[1] / "alembic" / "versions"
     migration_paths = sorted(versions_dir.glob("*.py"))
 
-    assert len(migration_paths) == 14
+    assert len(migration_paths) == 18
 
     modules = [_load_module(path) for path in migration_paths]
     revisions = [module.revision for module in modules]

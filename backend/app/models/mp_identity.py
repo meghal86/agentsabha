@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Optional
 from uuid import UUID
 
-from sqlalchemy import Date, ForeignKey, Integer, Text, func
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,6 +26,10 @@ class MpIdentity(Base):
     term_start: Mapped[Optional[date]] = mapped_column(Date)
     term_end: Mapped[Optional[date]] = mapped_column(Date)
     lok_sabha_no: Mapped[Optional[int]] = mapped_column(Integer)
+    biography_url: Mapped[Optional[str]] = mapped_column(Text)
+    image_url: Mapped[Optional[str]] = mapped_column(Text)
+    profile_meta: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB)
+    last_synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     constituency = relationship("Constituency")
     participation_scores = relationship("MpParticipationScore", back_populates="mp", cascade="all, delete-orphan")
@@ -41,7 +45,7 @@ class MpParticipationScore(Base):
     debates_participated: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     zero_hour_mentions: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     private_member_bills: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    voting_participation: Mapped[float] = mapped_column(nullable=False)
+    voting_participation: Mapped[Optional[float]] = mapped_column(nullable=True)
     participation_score: Mapped[int] = mapped_column(Integer, nullable=False)
     national_rank: Mapped[int] = mapped_column(Integer, nullable=False)
     state_rank: Mapped[Optional[int]] = mapped_column(Integer)
@@ -51,5 +55,6 @@ class MpParticipationScore(Base):
     narrative: Mapped[Optional[str]] = mapped_column(Text)
     sources: Mapped[Optional[list[str]]] = mapped_column(JSONB)
     og_ready: Mapped[bool] = mapped_column(default=True, nullable=False)
+    last_synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     mp = relationship("MpIdentity", back_populates="participation_scores")

@@ -11,12 +11,19 @@ from app.models import (  # noqa: F401
     Citizen,
     ClusterSnapshot,
     Constituency,
+    ConstituencyWelfareMetric,
+    ConstituencyWelfareProfile,
     DissentRecord,
     Issue,
     IssueCluster,
     MPBrief,
+    MpIdentity,
+    MpParticipationScore,
     ParliamentaryAction,
     PodcastEpisode,
+    RuleDeviationCase,
+    SansadDarpanIngestionRun,
+    SansadDarpanSourceSnapshot,
 )
 
 config = context.config

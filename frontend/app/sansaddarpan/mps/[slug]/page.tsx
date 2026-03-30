@@ -72,8 +72,8 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
             </article>
             <article>
               <span>Voting</span>
-              <strong>{mp.voting_participation.toFixed(1)}%</strong>
-              <small>participation in division</small>
+              <strong>{mp.voting_participation === null ? "—" : `${mp.voting_participation.toFixed(1)}%`}</strong>
+              <small>{mp.voting_participation === null ? "not publicly disclosed" : "participation in division"}</small>
             </article>
           </section>
 
@@ -90,9 +90,9 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
                 <p>Substantive debate contributions count more than symbolic appearances.</p>
               </article>
               <article className="summary-tile sansaddarpan-tile">
-                <span className="summary-kicker">Zero Hour</span>
+                <span className="summary-kicker">Special mentions</span>
                 <strong>{mp.zero_hour_mentions}</strong>
-                <p>Zero Hour mentions are tracked, but weighted below substantive debate contribution.</p>
+                <p>The public Digital Sansad feed exposes Special Mention participation, which is used here as the live floor-intervention bonus signal.</p>
               </article>
               <article className="summary-tile sansaddarpan-tile">
                 <span className="summary-kicker">Private member bills</span>

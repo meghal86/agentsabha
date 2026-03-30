@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +13,12 @@ from app.models.constituency import Constituency
 from app.models.mp_identity import MpIdentity, MpParticipationScore
 from app.models.parliamentary_action import ParliamentaryAction
 from app.models.sansaddarpan import ConstituencyWelfareMetric, ConstituencyWelfareProfile, RuleDeviationCase
+from app.services.sansaddarpan_mp_ingest import ensure_mp_identity_fresh, sync_mp_identity_from_digital_sansad
+from app.services.sansaddarpan_mp_participation_ingest import (
+    ensure_mp_participation_fresh,
+    sync_mp_participation_from_digital_sansad,
+)
+from app.utils.internal_auth import require_bearer_token, require_purpose
 
 from app.schemas.sansaddarpan import (
     SansadDarpanConstituencyCard,
@@ -25,6 +33,7 @@ from app.schemas.sansaddarpan import (
     SansadDarpanRuleDeviationDetailResponse,
     SansadDarpanRuleDeviationListResponse,
     SansadDarpanSection,
+    SansadDarpanSyncResponse,
     SansadDarpanWelfareMetric,
 )
 
@@ -288,6 +297,7 @@ async def fetch_sansaddarpan_overview(db: AsyncSession) -> SansadDarpanOverviewR
     )
 
     try:
+        await ensure_mp_identity_fresh(db)
         mp_count = await db.scalar(select(func.count(MpIdentity.mp_id))) or 0
         welfare_system_count = await db.scalar(select(func.count(func.distinct(ConstituencyWelfareMetric.metric_key)))) or 0
         verified_case_count = (
@@ -367,6 +377,7 @@ def fetch_sansaddarpan_methodology() -> SansadDarpanMethodologyResponse:
 
 async def fetch_sansaddarpan_mps(db: AsyncSession) -> SansadDarpanMpListResponse:
     try:
+        await ensure_mp_participation_fresh(db)
         result = await db.execute(
             select(MpIdentity, MpParticipationScore, Constituency)
             .join(MpParticipationScore, MpParticipationScore.mp_id == MpIdentity.mp_id)
@@ -375,13 +386,13 @@ async def fetch_sansaddarpan_mps(db: AsyncSession) -> SansadDarpanMpListResponse
         )
         rows = result.all()
     except SQLAlchemyError:
-        return _fallback_mp_list()
+        return SansadDarpanMpListResponse(methodology_version="live-unavailable", mps=[])
 
     if not rows:
-        return _fallback_mp_list()
+        return SansadDarpanMpListResponse(methodology_version="live-empty", mps=[])
 
     return SansadDarpanMpListResponse(
-        methodology_version="v1.0 public draft",
+        methodology_version="v1.1 live digital sansad",
         mps=[
             SansadDarpanMpCard(
                 slug=mp.slug,
@@ -403,6 +414,7 @@ async def fetch_sansaddarpan_mps(db: AsyncSession) -> SansadDarpanMpListResponse
 
 async def fetch_sansaddarpan_mp(db: AsyncSession, slug: str) -> SansadDarpanMpProfileResponse:
     try:
+        await ensure_mp_participation_fresh(db)
         result = await db.execute(
             select(MpIdentity, MpParticipationScore, Constituency)
             .join(MpParticipationScore, MpParticipationScore.mp_id == MpIdentity.mp_id)
@@ -411,10 +423,10 @@ async def fetch_sansaddarpan_mp(db: AsyncSession, slug: str) -> SansadDarpanMpPr
         )
         row = result.one_or_none()
     except SQLAlchemyError:
-        return _fallback_mp_profile(slug)
+        raise HTTPException(status_code=503, detail="Live MP scorecard feed unavailable")
 
     if row is None:
-        return _fallback_mp_profile(slug)
+        raise HTTPException(status_code=404, detail="MP scorecard not found")
 
     mp, score, constituency = row
     return SansadDarpanMpProfileResponse(
@@ -603,3 +615,31 @@ async def sansaddarpan_rule_deviation(case_id: str, db: AsyncSession = Depends(g
 @router.get("/methodology", response_model=SansadDarpanMethodologyResponse)
 async def sansaddarpan_methodology() -> SansadDarpanMethodologyResponse:
     return fetch_sansaddarpan_methodology()
+
+
+@router.post("/admin/sync/mp-identity", response_model=SansadDarpanSyncResponse)
+async def sansaddarpan_sync_mp_identity(
+    authorization: Optional[str] = Header(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> SansadDarpanSyncResponse:
+    require_purpose(require_bearer_token(authorization), "admin_auth")
+    result = await sync_mp_identity_from_digital_sansad(db)
+    return SansadDarpanSyncResponse(
+        pipeline_key="digital_sansad_mp_identity",
+        status="completed",
+        **result.as_dict(),
+    )
+
+
+@router.post("/admin/sync/mp-participation", response_model=SansadDarpanSyncResponse)
+async def sansaddarpan_sync_mp_participation(
+    authorization: Optional[str] = Header(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> SansadDarpanSyncResponse:
+    require_purpose(require_bearer_token(authorization), "admin_auth")
+    result = await sync_mp_participation_from_digital_sansad(db)
+    return SansadDarpanSyncResponse(
+        pipeline_key="digital_sansad_mp_participation",
+        status="completed",
+        **result.as_dict(),
+    )

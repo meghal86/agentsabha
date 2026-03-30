@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -46,7 +48,7 @@ class SansadDarpanMpListResponse(BaseModel):
 class SansadDarpanMpProfileResponse(SansadDarpanMpCard):
     zero_hour_mentions: int
     private_member_bills: int
-    voting_participation: float
+    voting_participation: Optional[float] = None
     score_breakdown: dict[str, float]
     sources: list[str]
     narrative: str
@@ -105,3 +107,14 @@ class SansadDarpanMethodologyResponse(BaseModel):
     title: str
     principles: list[str]
     sections: list[SansadDarpanMethodologySection]
+
+
+class SansadDarpanSyncResponse(BaseModel):
+    pipeline_key: str
+    status: str
+    loksabha: int
+    records_seen: int
+    records_written: int
+    matched_constituencies: int
+    unmatched_constituencies: list[str]
+    source_snapshot_id: Optional[str] = None

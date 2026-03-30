@@ -2,8 +2,6 @@ import fallbackConstituencies from "@/data/constituencies-directory.json";
 import {
   sansaddarpanConstituenciesFallback,
   sansaddarpanMethodologyFallback,
-  sansaddarpanMpProfilesFallback,
-  sansaddarpanMpsFallback,
   sansaddarpanOverviewFallback,
   sansaddarpanRuleDeviationDetailsFallback,
   sansaddarpanRuleDeviationsFallback,
@@ -217,7 +215,7 @@ export type SansadDarpanMpListResponse = {
 export type SansadDarpanMpProfile = SansadDarpanMpCard & {
   zero_hour_mentions: number;
   private_member_bills: number;
-  voting_participation: number;
+  voting_participation: number | null;
   score_breakdown: Record<string, number>;
   sources: string[];
   narrative: string;
@@ -282,23 +280,11 @@ export async function getSansadDarpanOverview() {
 }
 
 export async function getSansadDarpanMps() {
-  try {
-    return await request<SansadDarpanMpListResponse>("/api/sansaddarpan/mps");
-  } catch {
-    return sansaddarpanMpsFallback;
-  }
+  return request<SansadDarpanMpListResponse>("/api/sansaddarpan/mps");
 }
 
 export async function getSansadDarpanMp(slug: string) {
-  try {
-    return await request<SansadDarpanMpProfile>(`/api/sansaddarpan/mps/${slug}`);
-  } catch {
-    const fallback = sansaddarpanMpProfilesFallback[slug];
-    if (!fallback) {
-      throw new Error("MP profile not found");
-    }
-    return fallback;
-  }
+  return request<SansadDarpanMpProfile>(`/api/sansaddarpan/mps/${slug}`);
 }
 
 export async function getSansadDarpanConstituencies() {

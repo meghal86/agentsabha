@@ -59,3 +59,34 @@ class RuleDeviationCase(Base):
     last_reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     published_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class SansadDarpanSourceSnapshot(Base):
+    __tablename__ = "sansaddarpan_source_snapshots"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    source_key: Mapped[str] = mapped_column(Text, nullable=False)
+    source_url: Mapped[str] = mapped_column(Text, nullable=False)
+    snapshot_kind: Mapped[str] = mapped_column(Text, nullable=False)
+    fetch_status: Mapped[str] = mapped_column(Text, nullable=False)
+    http_status: Mapped[Optional[int]] = mapped_column(Integer)
+    content_type: Mapped[Optional[str]] = mapped_column(Text)
+    sha256: Mapped[Optional[str]] = mapped_column(Text)
+    storage_path: Mapped[Optional[str]] = mapped_column(Text)
+    snapshot_meta: Mapped[Optional[dict]] = mapped_column(JSONB)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class SansadDarpanIngestionRun(Base):
+    __tablename__ = "sansaddarpan_ingestion_runs"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    pipeline_key: Mapped[str] = mapped_column(Text, nullable=False)
+    source_key: Mapped[Optional[str]] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    records_seen: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    records_written: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    summary: Mapped[Optional[dict]] = mapped_column(JSONB)
+    error_text: Mapped[Optional[str]] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
