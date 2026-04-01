@@ -7,10 +7,26 @@ import {
   sansaddarpanRuleDeviationsFallback,
 } from "@/lib/sansaddarpan-fallback";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
+
+function getApiBaseUrl() {
+  const configuredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (configuredBaseUrl) {
+    return configuredBaseUrl.replace(/\/$/, "");
+  }
+  if (process.env.NODE_ENV !== "production") {
+    return LOCAL_API_BASE_URL;
+  }
+  return null;
+}
 
 async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, { cache: "no-store" });
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
+  }
+
+  const response = await fetch(`${apiBaseUrl}${path}`, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`API request failed: ${response.status}`);
   }
@@ -280,11 +296,25 @@ export async function getSansadDarpanOverview() {
 }
 
 export async function getSansadDarpanMps() {
-  return request<SansadDarpanMpListResponse>("/api/sansaddarpan/mps");
+  try {
+    return await request<SansadDarpanMpListResponse>("/api/sansaddarpan/mps");
+  } catch {
+    const { sansaddarpanMpsFallback } = await import("@/lib/sansaddarpan-fallback");
+    return sansaddarpanMpsFallback;
+  }
 }
 
 export async function getSansadDarpanMp(slug: string) {
-  return request<SansadDarpanMpProfile>(`/api/sansaddarpan/mps/${slug}`);
+  try {
+    return await request<SansadDarpanMpProfile>(`/api/sansaddarpan/mps/${slug}`);
+  } catch {
+    const { sansaddarpanMpProfilesFallback } = await import("@/lib/sansaddarpan-fallback");
+    const fallback = sansaddarpanMpProfilesFallback[slug];
+    if (!fallback) {
+      throw new Error("MP profile not found");
+    }
+    return fallback;
+  }
 }
 
 export async function getSansadDarpanConstituencies() {

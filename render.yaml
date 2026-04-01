@@ -1,0 +1,69 @@
+databases:
+  - name: agentsabha-db
+    databaseName: agentsabha
+    user: agentsabha
+    plan: free
+
+services:
+  - type: web
+    name: agentsabha-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: alembic upgrade head
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agentsabha-db
+          property: connectionString
+      - key: DIRECT_URL
+        fromDatabase:
+          name: agentsabha-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: REDIS_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: UIDAI_AUA_CODE
+        sync: false
+      - key: UIDAI_ASA_CODE
+        sync: false
+      - key: UIDAI_LICENSE_KEY
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: AWS_REGION
+        value: ap-south-1
+      - key: AWS_BUCKET_NAME
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: CORRECT_CONSTITUENCY_MINIMUM_CLUSTER_SIZE
+        value: "50"
+      - key: TATKAL_SEVERITY_THRESHOLD
+        value: "8.0"
+      - key: TATKAL_NEW_REPORTS_THRESHOLD
+        value: "50"
+      - key: TATKAL_MAX_AGE_HOURS
+        value: "24"
+      - key: QUESTION_DRAFT_SHADOW_MODE
+        value: "false"

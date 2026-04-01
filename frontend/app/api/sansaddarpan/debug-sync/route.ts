@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
 const SECRET_KEY = process.env.SECRET_KEY ?? "development-secret";
 
 type SyncAction = "status" | "mp-identity" | "mp-participation";
@@ -23,10 +23,33 @@ function signAdminToken(ttlMinutes: number) {
   return `${base64Url(payload)}.${signature}`;
 }
 
+function getApiBaseUrl() {
+  const configuredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (configuredBaseUrl) {
+    return configuredBaseUrl.replace(/\/$/, "");
+  }
+  if (process.env.NODE_ENV !== "production") {
+    return LOCAL_API_BASE_URL;
+  }
+  return null;
+}
+
 async function getStatus() {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
+    return {
+      ok: false,
+      health: null,
+      methodologyVersion: null,
+      liveMpCount: 0,
+      sampleNames: [],
+      error: "NEXT_PUBLIC_API_BASE_URL is not configured",
+    };
+  }
+
   const [healthResponse, mpsResponse] = await Promise.all([
-    fetch(`${API_BASE_URL}/health`, { cache: "no-store" }),
-    fetch(`${API_BASE_URL}/api/sansaddarpan/mps`, { cache: "no-store" }),
+    fetch(`${apiBaseUrl}/health`, { cache: "no-store" }),
+    fetch(`${apiBaseUrl}/api/sansaddarpan/mps`, { cache: "no-store" }),
   ]);
 
   const health = healthResponse.ok ? await healthResponse.json() : null;
@@ -64,6 +87,17 @@ export async function POST(request: Request) {
       return NextResponse.json(await getStatus());
     }
 
+    const apiBaseUrl = getApiBaseUrl();
+    if (!apiBaseUrl) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "NEXT_PUBLIC_API_BASE_URL is not configured",
+        },
+        { status: 500 },
+      );
+    }
+
     const token = signAdminToken(30);
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -71,7 +105,7 @@ export async function POST(request: Request) {
 
     let response: Response;
     if (action === "mp-identity") {
-      response = await fetch(`${API_BASE_URL}/api/sansaddarpan/admin/sync/mp-identity?async_mode=true`, {
+      response = await fetch(`${apiBaseUrl}/api/sansaddarpan/admin/sync/mp-identity?async_mode=true`, {
         method: "POST",
         headers,
         cache: "no-store",
@@ -80,7 +114,7 @@ export async function POST(request: Request) {
       const maxMembers = typeof body.maxMembers === "number" ? body.maxMembers : 120;
       const slugParam = body.slug ? `&slug=${encodeURIComponent(body.slug)}` : "";
       response = await fetch(
-        `${API_BASE_URL}/api/sansaddarpan/admin/sync/mp-participation?async_mode=true&max_members=${encodeURIComponent(String(maxMembers))}${slugParam}`,
+        `${apiBaseUrl}/api/sansaddarpan/admin/sync/mp-participation?async_mode=true&max_members=${encodeURIComponent(String(maxMembers))}${slugParam}`,
         {
           method: "POST",
           headers,
