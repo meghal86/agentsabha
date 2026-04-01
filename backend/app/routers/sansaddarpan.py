@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
 from sqlalchemy import desc, func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.database import get_db
+from app.database import AsyncSessionLocal, get_db
 from app.models.constituency import Constituency
 from app.models.mp_identity import MpIdentity, MpParticipationScore
 from app.models.parliamentary_action import ParliamentaryAction
@@ -619,10 +619,23 @@ async def sansaddarpan_methodology() -> SansadDarpanMethodologyResponse:
 
 @router.post("/admin/sync/mp-identity", response_model=SansadDarpanSyncResponse)
 async def sansaddarpan_sync_mp_identity(
+    background_tasks: BackgroundTasks,
     authorization: Optional[str] = Header(default=None),
+    async_mode: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ) -> SansadDarpanSyncResponse:
     require_purpose(require_bearer_token(authorization), "admin_auth")
+    if async_mode:
+        background_tasks.add_task(_run_mp_identity_sync)
+        return SansadDarpanSyncResponse(
+            pipeline_key="digital_sansad_mp_identity",
+            status="queued",
+            loksabha=0,
+            records_seen=0,
+            records_written=0,
+            matched_constituencies=0,
+            unmatched_constituencies=[],
+        )
     result = await sync_mp_identity_from_digital_sansad(db)
     return SansadDarpanSyncResponse(
         pipeline_key="digital_sansad_mp_identity",
@@ -633,13 +646,38 @@ async def sansaddarpan_sync_mp_identity(
 
 @router.post("/admin/sync/mp-participation", response_model=SansadDarpanSyncResponse)
 async def sansaddarpan_sync_mp_participation(
+    background_tasks: BackgroundTasks,
     authorization: Optional[str] = Header(default=None),
+    max_members: Optional[int] = Query(default=None, ge=1, le=540),
+    slug: Optional[str] = Query(default=None),
+    async_mode: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ) -> SansadDarpanSyncResponse:
     require_purpose(require_bearer_token(authorization), "admin_auth")
-    result = await sync_mp_participation_from_digital_sansad(db)
+    if async_mode:
+        background_tasks.add_task(_run_mp_participation_sync, max_members, slug)
+        return SansadDarpanSyncResponse(
+            pipeline_key="digital_sansad_mp_participation",
+            status="queued",
+            loksabha=0,
+            records_seen=0,
+            records_written=0,
+            matched_constituencies=0,
+            unmatched_constituencies=[],
+        )
+    result = await sync_mp_participation_from_digital_sansad(db, max_members=max_members, mp_slug=slug)
     return SansadDarpanSyncResponse(
         pipeline_key="digital_sansad_mp_participation",
         status="completed",
         **result.as_dict(),
     )
+
+
+async def _run_mp_identity_sync() -> None:
+    async with AsyncSessionLocal() as db:
+        await sync_mp_identity_from_digital_sansad(db)
+
+
+async def _run_mp_participation_sync(max_members: Optional[int], slug: Optional[str]) -> None:
+    async with AsyncSessionLocal() as db:
+        await sync_mp_participation_from_digital_sansad(db, max_members=max_members, mp_slug=slug)

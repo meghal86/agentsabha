@@ -101,6 +101,7 @@ async def sync_mp_participation_from_digital_sansad(
     *,
     lok_sabha_no: Optional[int] = None,
     max_members: Optional[int] = None,
+    mp_slug: Optional[str] = None,
 ) -> MpParticipationSyncResult:
     await ensure_mp_identity_fresh(db)
     lok_sabha_no = lok_sabha_no or await _current_lok_sabha_no(db)
@@ -120,6 +121,8 @@ async def sync_mp_participation_from_digital_sansad(
                 .order_by(MpIdentity.full_name_en)
             )
         ).scalars().all()
+        if mp_slug is not None:
+            identities = [item for item in identities if item.slug == mp_slug]
         if max_members is not None:
             existing_score_ids = {
                 row[0]

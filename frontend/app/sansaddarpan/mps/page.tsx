@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SansadDarpanDebugPanel } from "@/components/sansaddarpan-debug-panel";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanMps } from "@/lib/api";
@@ -16,6 +17,7 @@ function getScoreTone(score: number) {
 
 export default async function SansadDarpanMpsPage() {
   const data = await getSansadDarpanMps();
+  const showDebugPanel = process.env.NODE_ENV === "development";
   const topScore = data.mps.length ? Math.max(...data.mps.map((mp) => mp.score)) : 0;
   const avgAttendance = data.mps.length
     ? (data.mps.reduce((sum, mp) => sum + mp.attendance_rate, 0) / data.mps.length).toFixed(1)
@@ -220,6 +222,8 @@ export default async function SansadDarpanMpsPage() {
               </table>
             </div>
           </section>
+
+          {showDebugPanel ? <SansadDarpanDebugPanel /> : null}
         </section>
       </main>
 
