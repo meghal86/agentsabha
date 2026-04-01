@@ -8,6 +8,9 @@ type DebugStatus = {
   liveMpCount: number;
   sampleNames: string[];
   health?: { status?: string; db?: string; redis?: string } | null;
+  sourceMode?: "live" | "fallback";
+  backendUrl?: string | null;
+  syncEnabled?: boolean;
   error?: string;
 };
 
@@ -110,15 +113,20 @@ export function SansadDarpanDebugPanel({ slug }: SansadDarpanDebugPanelProps) {
     <section className="frame-panel full-width-panel sansaddarpan-debug-panel">
       <div className="section-heading compact-heading">
         <div>
-          <p>Local debug</p>
+          <p>Data status</p>
           <h2>Validate live SansadDarpan data from the UI</h2>
         </div>
       </div>
       <div className="sansaddarpan-debug-grid">
         <div className="sansaddarpan-debug-status">
           <strong>{status?.liveMpCount ?? 0}</strong>
-          <span>Live MP scorecards visible</span>
+          <span>MP scorecards currently visible</span>
           <small>{status?.methodologyVersion ?? "No methodology yet"}</small>
+        </div>
+        <div className="sansaddarpan-debug-status">
+          <strong>{status?.sourceMode === "live" ? "live" : "fallback"}</strong>
+          <span>Current data mode</span>
+          <small>{status?.backendUrl?.replace(/^https?:\/\//, "") ?? "No backend configured"}</small>
         </div>
         <div className="sansaddarpan-debug-status">
           <strong>{status?.health?.status ?? "unknown"}</strong>
@@ -129,14 +137,34 @@ export function SansadDarpanDebugPanel({ slug }: SansadDarpanDebugPanelProps) {
         </div>
       </div>
       <p className="frame-note">{message}</p>
+      <p className="frame-note">
+        {status?.sourceMode === "live"
+          ? "This page is reading the live backend response."
+          : "This page is using fallback content because the backend response is unavailable or incomplete."}
+      </p>
       <div className="hero-actions sansaddarpan-debug-actions">
-        <button className="secondary-button button-link" type="button" onClick={() => runAction("mp-identity")} disabled={isPending}>
+        <button
+          className="secondary-button button-link"
+          type="button"
+          onClick={() => runAction("mp-identity")}
+          disabled={isPending || !status?.syncEnabled}
+        >
           Sync MP roster
         </button>
-        <button className="outline-button button-link" type="button" onClick={() => runAction("mp-participation", 120)} disabled={isPending}>
+        <button
+          className="outline-button button-link"
+          type="button"
+          onClick={() => runAction("mp-participation", 120)}
+          disabled={isPending || !status?.syncEnabled}
+        >
           Sync participation batch
         </button>
-        <button className="outline-button button-link" type="button" onClick={() => runAction("mp-participation", 300)} disabled={isPending}>
+        <button
+          className="outline-button button-link"
+          type="button"
+          onClick={() => runAction("mp-participation", 300)}
+          disabled={isPending || !status?.syncEnabled}
+        >
           Sync larger batch
         </button>
         <button
@@ -158,11 +186,19 @@ export function SansadDarpanDebugPanel({ slug }: SansadDarpanDebugPanelProps) {
           Refresh status
         </button>
         {slug ? (
-          <button className="outline-button button-link" type="button" onClick={() => runAction("mp-participation", undefined, slug)} disabled={isPending}>
+          <button
+            className="outline-button button-link"
+            type="button"
+            onClick={() => runAction("mp-participation", undefined, slug)}
+            disabled={isPending || !status?.syncEnabled}
+          >
             Sync this MP
           </button>
         ) : null}
       </div>
+      {!status?.syncEnabled ? (
+        <p className="frame-note">Manual sync is disabled until `SYNC_SHARED_SECRET` is configured in both Vercel and Render.</p>
+      ) : null}
       {status?.sampleNames?.length ? (
         <ul className="sansaddarpan-debug-list">
           {status.sampleNames.map((name) => (

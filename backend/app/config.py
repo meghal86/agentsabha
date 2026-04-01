@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     api_version: str = "0.1.0"
     secret_key: str = "development-secret"
+    sync_shared_secret: str = Field(default="", alias="SYNC_SHARED_SECRET")
 
     database_url: str = Field(default="postgresql://user:pass@localhost:5432/agentsabha", alias="DATABASE_URL")
     direct_url: Optional[str] = Field(default=None, alias="DIRECT_URL")

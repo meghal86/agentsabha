@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
 const SECRET_KEY = process.env.SECRET_KEY ?? "development-secret";
+const SYNC_SHARED_SECRET = process.env.SYNC_SHARED_SECRET?.trim() ?? "";
 const API_REQUEST_TIMEOUT_MS = process.env.NODE_ENV === "production" ? 8000 : 15000;
 
 type SyncAction = "status" | "mp-identity" | "mp-participation";
@@ -62,6 +63,9 @@ async function getStatus() {
     methodologyVersion: mps?.methodology_version ?? null,
     liveMpCount: Array.isArray(mps?.mps) ? mps.mps.length : 0,
     sampleNames: Array.isArray(mps?.mps) ? mps.mps.slice(0, 5).map((item: { name: string }) => item.name) : [],
+    sourceMode: mps?.methodology_version?.includes("live") ? "live" : "fallback",
+    backendUrl: apiBaseUrl,
+    syncEnabled: Boolean(SYNC_SHARED_SECRET || SECRET_KEY),
   };
 }
 
@@ -99,10 +103,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = signAdminToken(30);
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
+    const headers: Record<string, string> = {};
+    if (SYNC_SHARED_SECRET) {
+      headers["x-sync-secret"] = SYNC_SHARED_SECRET;
+    } else {
+      const token = signAdminToken(30);
+      headers.Authorization = `Bearer ${token}`;
+    }
 
     let response: Response;
     if (action === "mp-identity") {

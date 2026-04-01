@@ -17,7 +17,6 @@ function getScoreTone(score: number) {
 
 export default async function SansadDarpanMpsPage() {
   const data = await getSansadDarpanMps();
-  const showDebugPanel = process.env.NODE_ENV === "development";
   const topScore = data.mps.length ? Math.max(...data.mps.map((mp) => mp.score)) : 0;
   const avgAttendance = data.mps.length
     ? (data.mps.reduce((sum, mp) => sum + mp.attendance_rate, 0) / data.mps.length).toFixed(1)
@@ -223,7 +222,7 @@ export default async function SansadDarpanMpsPage() {
             </div>
           </section>
 
-          {showDebugPanel ? <SansadDarpanDebugPanel /> : null}
+          <SansadDarpanDebugPanel />
         </section>
       </main>
 

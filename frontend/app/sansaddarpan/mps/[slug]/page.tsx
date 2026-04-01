@@ -14,7 +14,6 @@ const scoreBreakdownCopy: Record<string, string> = {
 };
 
 export default async function SansadDarpanMpDetailPage({ params }: { params: { slug: string } }) {
-  const showDebugPanel = process.env.NODE_ENV === "development";
   let mp;
   try {
     mp = await getSansadDarpanMp(params.slug);
@@ -136,7 +135,7 @@ export default async function SansadDarpanMpDetailPage({ params }: { params: { s
             </ul>
           </section>
 
-          {showDebugPanel ? <SansadDarpanDebugPanel slug={params.slug} /> : null}
+          <SansadDarpanDebugPanel slug={params.slug} />
         </section>
       </main>
 

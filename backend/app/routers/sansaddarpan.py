@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import AsyncSessionLocal, get_db
+from app.config import get_settings
 from app.models.constituency import Constituency
 from app.models.mp_identity import MpIdentity, MpParticipationScore
 from app.models.parliamentary_action import ParliamentaryAction
@@ -38,10 +39,20 @@ from app.schemas.sansaddarpan import (
 )
 
 router = APIRouter(prefix="/api/sansaddarpan", tags=["sansaddarpan"])
+settings = get_settings()
 DISPLAY_NAME_OVERRIDES = {
     "Bangalore South": "Bengaluru South",
     "Gurgaon": "Gurugram",
 }
+
+
+def require_sync_access(authorization: Optional[str], sync_secret: Optional[str]) -> None:
+    configured_secret = settings.sync_shared_secret.strip()
+    if configured_secret:
+        if sync_secret == configured_secret:
+            return
+        raise HTTPException(status_code=401, detail="Invalid sync secret")
+    require_purpose(require_bearer_token(authorization), "admin_auth")
 
 
 def _slugify(value: str) -> str:
@@ -621,10 +632,11 @@ async def sansaddarpan_methodology() -> SansadDarpanMethodologyResponse:
 async def sansaddarpan_sync_mp_identity(
     background_tasks: BackgroundTasks,
     authorization: Optional[str] = Header(default=None),
+    x_sync_secret: Optional[str] = Header(default=None),
     async_mode: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ) -> SansadDarpanSyncResponse:
-    require_purpose(require_bearer_token(authorization), "admin_auth")
+    require_sync_access(authorization, x_sync_secret)
     if async_mode:
         background_tasks.add_task(_run_mp_identity_sync)
         return SansadDarpanSyncResponse(
@@ -648,12 +660,13 @@ async def sansaddarpan_sync_mp_identity(
 async def sansaddarpan_sync_mp_participation(
     background_tasks: BackgroundTasks,
     authorization: Optional[str] = Header(default=None),
+    x_sync_secret: Optional[str] = Header(default=None),
     max_members: Optional[int] = Query(default=None, ge=1, le=540),
     slug: Optional[str] = Query(default=None),
     async_mode: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ) -> SansadDarpanSyncResponse:
-    require_purpose(require_bearer_token(authorization), "admin_auth")
+    require_sync_access(authorization, x_sync_secret)
     if async_mode:
         background_tasks.add_task(_run_mp_participation_sync, max_members, slug)
         return SansadDarpanSyncResponse(
