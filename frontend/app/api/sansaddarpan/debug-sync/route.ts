@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
 const SECRET_KEY = process.env.SECRET_KEY ?? "development-secret";
+const API_REQUEST_TIMEOUT_MS = process.env.NODE_ENV === "production" ? 8000 : 15000;
 
 type SyncAction = "status" | "mp-identity" | "mp-participation";
 
@@ -48,8 +49,8 @@ async function getStatus() {
   }
 
   const [healthResponse, mpsResponse] = await Promise.all([
-    fetch(`${apiBaseUrl}/health`, { cache: "no-store" }),
-    fetch(`${apiBaseUrl}/api/sansaddarpan/mps`, { cache: "no-store" }),
+    fetch(`${apiBaseUrl}/health`, { cache: "no-store", signal: AbortSignal.timeout(API_REQUEST_TIMEOUT_MS) }),
+    fetch(`${apiBaseUrl}/api/sansaddarpan/mps`, { cache: "no-store", signal: AbortSignal.timeout(API_REQUEST_TIMEOUT_MS) }),
   ]);
 
   const health = healthResponse.ok ? await healthResponse.json() : null;
@@ -109,6 +110,7 @@ export async function POST(request: Request) {
         method: "POST",
         headers,
         cache: "no-store",
+        signal: AbortSignal.timeout(API_REQUEST_TIMEOUT_MS),
       });
     } else {
       const maxMembers = typeof body.maxMembers === "number" ? body.maxMembers : 120;
@@ -119,6 +121,7 @@ export async function POST(request: Request) {
           method: "POST",
           headers,
           cache: "no-store",
+          signal: AbortSignal.timeout(API_REQUEST_TIMEOUT_MS),
         },
       );
     }

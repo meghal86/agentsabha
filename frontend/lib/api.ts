@@ -8,6 +8,8 @@ import {
 } from "@/lib/sansaddarpan-fallback";
 
 const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
+const API_REQUEST_TIMEOUT_MS = process.env.NODE_ENV === "production" ? 8000 : 15000;
+const API_REQUEST_RETRIES = process.env.NODE_ENV === "production" ? 1 : 0;
 
 function getApiBaseUrl() {
   const configuredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
@@ -26,11 +28,27 @@ async function request<T>(path: string): Promise<T> {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
   }
 
-  const response = await fetch(`${apiBaseUrl}${path}`, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status}`);
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= API_REQUEST_RETRIES; attempt += 1) {
+    try {
+      const response = await fetch(`${apiBaseUrl}${path}`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(API_REQUEST_TIMEOUT_MS),
+      });
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+      return response.json() as Promise<T>;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("Unknown API request error");
+      if (attempt < API_REQUEST_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+      }
+    }
   }
-  return response.json() as Promise<T>;
+
+  throw lastError ?? new Error("API request failed");
 }
 
 export type HeatmapPoint = {
