@@ -6,6 +6,7 @@ import {
   sansaddarpanRuleDeviationDetailsFallback,
   sansaddarpanRuleDeviationsFallback,
 } from "@/lib/sansaddarpan-fallback";
+import { getWeeklyBrief as getWeeklyBriefFallback, weeklyBriefs as weeklyBriefsFallback } from "@/lib/weekly-briefs";
 
 const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
 const API_REQUEST_TIMEOUT_MS = process.env.NODE_ENV === "production" ? 8000 : 15000;
@@ -305,6 +306,125 @@ export type SansadDarpanMethodologyResponse = {
   sections: { title: string; body: string }[];
 };
 
+export type WeeklyBriefGap = {
+  title: string;
+  detail: string;
+  why_it_matters: string;
+};
+
+export type WeeklyBriefAuditHook = {
+  title: string;
+  body: string;
+  source_label: string;
+};
+
+export type WeeklyBriefParliamentaryMove = {
+  title: string;
+  body: string;
+  draft_question: string;
+};
+
+export type WeeklyBriefNarrativeBlock = {
+  title: string;
+  body: string;
+};
+
+export type WeeklyBriefSource = {
+  label: string;
+  note: string;
+};
+
+export type WeeklyBriefCard = {
+  slug: string;
+  constituency_slug: string;
+  week_label: string;
+  publish_date: string;
+  constituency: string;
+  state: string;
+  mp_name: string;
+  mp_party: string;
+  headline: string;
+  summary: string;
+};
+
+export type WeeklyBriefDetail = WeeklyBriefCard & {
+  hero_note: string;
+  welfare_gaps: WeeklyBriefGap[];
+  audit_hook: WeeklyBriefAuditHook;
+  parliamentary_move: WeeklyBriefParliamentaryMove;
+  anomaly: WeeklyBriefNarrativeBlock;
+  sdg_trend: WeeklyBriefNarrativeBlock;
+  mp_summary: string[];
+  video_segments: WeeklyBriefNarrativeBlock[];
+  source_trail: WeeklyBriefSource[];
+};
+
+export type WeeklyBriefListResponse = {
+  briefs: WeeklyBriefCard[];
+};
+
+function mapFallbackWeeklyBrief(brief: (typeof weeklyBriefsFallback)[number]): WeeklyBriefDetail {
+  return {
+    slug: brief.slug,
+    constituency_slug: brief.constituencySlug,
+    week_label: brief.weekLabel,
+    publish_date: brief.publishDate,
+    constituency: brief.constituency,
+    state: brief.state,
+    mp_name: brief.mpName,
+    mp_party: brief.mpParty,
+    headline: brief.headline,
+    summary: brief.summary,
+    hero_note: brief.heroNote,
+    welfare_gaps: brief.welfareGaps.map((gap) => ({
+      title: gap.title,
+      detail: gap.detail,
+      why_it_matters: gap.whyItMatters,
+    })),
+    audit_hook: {
+      title: brief.auditHook.title,
+      body: brief.auditHook.body,
+      source_label: brief.auditHook.sourceLabel,
+    },
+    parliamentary_move: {
+      title: brief.parliamentaryMove.title,
+      body: brief.parliamentaryMove.body,
+      draft_question: brief.parliamentaryMove.draftQuestion,
+    },
+    anomaly: {
+      title: brief.anomaly.title,
+      body: brief.anomaly.body,
+    },
+    sdg_trend: {
+      title: brief.sdgTrend.title,
+      body: brief.sdgTrend.body,
+    },
+    mp_summary: brief.mpSummary,
+    video_segments: brief.videoSegments,
+    source_trail: brief.sourceTrail,
+  };
+}
+
+function getWeeklyBriefFallbackList(): WeeklyBriefListResponse {
+  return {
+    briefs: weeklyBriefsFallback.map((brief) => {
+      const mapped = mapFallbackWeeklyBrief(brief);
+      return {
+        slug: mapped.slug,
+        constituency_slug: mapped.constituency_slug,
+        week_label: mapped.week_label,
+        publish_date: mapped.publish_date,
+        constituency: mapped.constituency,
+        state: mapped.state,
+        mp_name: mapped.mp_name,
+        mp_party: mapped.mp_party,
+        headline: mapped.headline,
+        summary: mapped.summary,
+      };
+    }),
+  };
+}
+
 export async function getSansadDarpanOverview() {
   try {
     return await request<SansadDarpanOverview>("/api/sansaddarpan");
@@ -380,5 +500,25 @@ export async function getSansadDarpanMethodology() {
     return await request<SansadDarpanMethodologyResponse>("/api/sansaddarpan/methodology");
   } catch {
     return sansaddarpanMethodologyFallback;
+  }
+}
+
+export async function getWeeklyBriefs() {
+  try {
+    return await request<WeeklyBriefListResponse>("/api/briefs");
+  } catch {
+    return getWeeklyBriefFallbackList();
+  }
+}
+
+export async function getWeeklyBrief(slug: string) {
+  try {
+    return await request<WeeklyBriefDetail>(`/api/briefs/${slug}`);
+  } catch {
+    const fallback = getWeeklyBriefFallback(slug);
+    if (!fallback) {
+      throw new Error("Weekly brief not found");
+    }
+    return mapFallbackWeeklyBrief(fallback);
   }
 }

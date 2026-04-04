@@ -2,15 +2,17 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getSansadDarpanConstituency, getSansadDarpanRuleDeviations } from "@/lib/api";
-import { weeklyBriefs } from "@/lib/weekly-briefs";
+import { getSansadDarpanConstituency, getSansadDarpanRuleDeviations, getWeeklyBriefs } from "@/lib/api";
 
 export default async function WeeklyBriefsPage() {
-  const leadBrief = weeklyBriefs[0];
-  const [leadConstituency, deviations] = await Promise.all([
-    getSansadDarpanConstituency(leadBrief.constituencySlug).catch(() => null),
+  const [briefsResponse, deviations] = await Promise.all([
+    getWeeklyBriefs(),
     getSansadDarpanRuleDeviations().catch(() => null),
   ]);
+  const leadBrief = briefsResponse.briefs[0];
+  const leadConstituency = leadBrief
+    ? await getSansadDarpanConstituency(leadBrief.constituency_slug).catch(() => null)
+    : null;
 
   return (
     <div className="page-shell">
@@ -25,15 +27,17 @@ export default async function WeeklyBriefsPage() {
               <p className="hero-body">
                 This is the public output layer of AgentSabha: a weekly constituency intelligence brief, a public video narrative, and a one-page MP summary built from the same civic research engine.
               </p>
-              <div className="hero-actions">
-                <Link className="primary-button" href={`/briefs/${leadBrief.slug}`}>
-                  <span>Read this week&apos;s brief</span>
-                  <small>{leadBrief.constituency} · {leadBrief.state}</small>
-                </Link>
-                <Link className="secondary-button" href="/sansaddarpan">
-                  Open evidence layer
-                </Link>
-              </div>
+              {leadBrief ? (
+                <div className="hero-actions">
+                  <Link className="primary-button" href={`/briefs/${leadBrief.slug}`}>
+                    <span>Read this week&apos;s brief</span>
+                    <small>{leadBrief.constituency} · {leadBrief.state}</small>
+                  </Link>
+                  <Link className="secondary-button" href="/sansaddarpan">
+                    Open evidence layer
+                  </Link>
+                </div>
+              ) : null}
             </div>
             <aside className="weekly-brief-aside">
               <span className="summary-kicker">Why this exists</span>
@@ -52,13 +56,13 @@ export default async function WeeklyBriefsPage() {
               </div>
             </div>
             <div className="weekly-brief-grid">
-              {weeklyBriefs.map((brief) => (
+              {briefsResponse.briefs.map((brief) => (
                 <article key={brief.slug} className="summary-tile weekly-brief-card">
-                  <span className="summary-kicker">{brief.weekLabel} · {brief.publishDate}</span>
+                  <span className="summary-kicker">{brief.week_label} · {brief.publish_date}</span>
                   <h3>{brief.constituency}, {brief.state}</h3>
                   <p>{brief.summary}</p>
                   <div className="weekly-brief-meta">
-                    <span>MP: {brief.mpName}</span>
+                    <span>MP: {brief.mp_name}</span>
                     <span>Public output: brief + video + MP summary</span>
                   </div>
                   {brief.slug === leadBrief.slug && leadConstituency ? (

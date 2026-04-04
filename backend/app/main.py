@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import admin, citizen, journalist, mp, public, sansaddarpan, webhook
+from app.routers import admin, briefs, citizen, journalist, mp, public, sansaddarpan, webhook
 
 settings = get_settings()
 
@@ -25,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(public.router)
+app.include_router(briefs.router)
 app.include_router(sansaddarpan.router)
 app.include_router(citizen.router)
 app.include_router(mp.router)

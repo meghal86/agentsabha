@@ -3,17 +3,18 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getSansadDarpanConstituency, getSansadDarpanRuleDeviations } from "@/lib/api";
-import { getWeeklyBrief } from "@/lib/weekly-briefs";
+import { getSansadDarpanConstituency, getSansadDarpanRuleDeviations, getWeeklyBrief } from "@/lib/api";
 
 export default async function WeeklyBriefDetailPage({ params }: { params: { slug: string } }) {
-  const brief = getWeeklyBrief(params.slug);
-  if (!brief) {
+  let brief;
+  try {
+    brief = await getWeeklyBrief(params.slug);
+  } catch {
     notFound();
   }
 
   const [constituencyEvidence, deviations] = await Promise.all([
-    getSansadDarpanConstituency(brief.constituencySlug).catch(() => null),
+    getSansadDarpanConstituency(brief.constituency_slug).catch(() => null),
     getSansadDarpanRuleDeviations().catch(() => null),
   ]);
 
@@ -33,7 +34,7 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
 
           <section className="weekly-brief-hero">
             <div className="weekly-brief-copy">
-              <p className="eyebrow">{brief.weekLabel} · {brief.publishDate}</p>
+              <p className="eyebrow">{brief.week_label} · {brief.publish_date}</p>
               <h1>{brief.headline}</h1>
               <p className="hero-body">{brief.summary}</p>
               <div className="hero-actions">
@@ -47,9 +48,9 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
             </div>
             <aside className="weekly-brief-aside">
               <span className="summary-kicker">Addressed to</span>
-              <strong>{brief.mpName}</strong>
-              <p>{brief.constituency}, {brief.state} · {brief.mpParty}</p>
-              <p>{brief.heroNote}</p>
+              <strong>{brief.mp_name}</strong>
+              <p>{brief.constituency}, {brief.state} · {brief.mp_party}</p>
+              <p>{brief.hero_note}</p>
               {constituencyEvidence ? (
                 <div className="weekly-brief-live-row">
                   {constituencyEvidence.metrics.slice(0, 2).map((metric) => (
@@ -74,18 +75,18 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
                 ? constituencyEvidence.metrics.map((metric) => ({
                     title: metric.label,
                     detail: `${metric.value} against ${metric.benchmark}. ${constituencyEvidence.top_gap}`,
-                    whyItMatters:
+                    why_it_matters:
                       metric.status === "positive"
                         ? "This is a relative strength worth preserving through continued ministerial and administrative follow-through."
                         : "This is the kind of constituency signal that should become a parliamentary follow-up rather than remain a dashboard observation.",
                   }))
-                : brief.welfareGaps
+                : brief.welfare_gaps
               ).map((gap) => (
                 <article key={gap.title} className="summary-tile weekly-brief-card">
                   <span className="summary-kicker">Welfare gap</span>
                   <h3>{gap.title}</h3>
                   <p>{gap.detail}</p>
-                  <div className="weekly-brief-note">{gap.whyItMatters}</div>
+                  <div className="weekly-brief-note">{gap.why_it_matters}</div>
                 </article>
               ))}
             </div>
@@ -95,9 +96,9 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
             <div className="dashboard-summary-grid">
               <article className="summary-tile weekly-output-card">
                 <span className="summary-kicker">Audit hook</span>
-                <strong>{brief.auditHook.title}</strong>
-                <p>{brief.auditHook.body}</p>
-                <small>{brief.auditHook.sourceLabel}</small>
+                <strong>{brief.audit_hook.title}</strong>
+                <p>{brief.audit_hook.body}</p>
+                <small>{brief.audit_hook.source_label}</small>
               </article>
               <article className="summary-tile weekly-output-card">
                 <span className="summary-kicker">MGNREGS anomaly</span>
@@ -106,8 +107,8 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
               </article>
               <article className="summary-tile weekly-output-card">
                 <span className="summary-kicker">SDG trend</span>
-                <strong>{brief.sdgTrend.title}</strong>
-                <p>{brief.sdgTrend.body}</p>
+                <strong>{brief.sdg_trend.title}</strong>
+                <p>{brief.sdg_trend.body}</p>
               </article>
               <article className="summary-tile weekly-output-card">
                 <span className="summary-kicker">Evidence stack</span>
@@ -125,8 +126,8 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
               </div>
             </div>
             <article className="weekly-question-card">
-              <p>{brief.parliamentaryMove.body}</p>
-              <blockquote>{brief.parliamentaryMove.draftQuestion}</blockquote>
+              <p>{brief.parliamentary_move.body}</p>
+              <blockquote>{brief.parliamentary_move.draft_question}</blockquote>
             </article>
           </section>
 
@@ -138,7 +139,7 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
               </div>
             </div>
             <div className="weekly-script-list">
-              {brief.videoSegments.map((segment, index) => (
+              {brief.video_segments.map((segment, index) => (
                 <article key={segment.title} className="summary-tile weekly-script-card">
                   <span className="summary-kicker">Segment {index + 1}</span>
                   <strong>{segment.title}</strong>
@@ -158,7 +159,7 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
             <div className="weekly-summary-panel">
               <p>This summary keeps the MP as the actor who can move the issue onto the parliamentary record this week.</p>
               <ul className="weekly-summary-list">
-                {brief.mpSummary.map((item) => (
+                {brief.mp_summary.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -173,7 +174,7 @@ export default async function WeeklyBriefDetailPage({ params }: { params: { slug
               </div>
             </div>
             <div className="weekly-source-grid">
-              {brief.sourceTrail.map((item) => (
+              {brief.source_trail.map((item) => (
                 <article key={item.label} className="summary-tile weekly-output-card">
                   <span className="summary-kicker">Evidence line</span>
                   <strong>{item.label}</strong>
