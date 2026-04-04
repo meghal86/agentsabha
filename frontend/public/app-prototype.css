@@ -24,6 +24,101 @@
   --paper-noise: rgba(162, 82, 45, 0.05);
 }
 
+.weekly-brief-hero,
+.weekly-brief-home-grid,
+.weekly-brief-grid,
+.weekly-script-list,
+.weekly-source-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.weekly-brief-hero,
+.weekly-brief-home-grid {
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.85fr);
+}
+
+.weekly-brief-copy,
+.weekly-brief-aside,
+.weekly-brief-card,
+.weekly-question-card,
+.weekly-summary-panel,
+.weekly-script-card,
+.weekly-output-card,
+.weekly-brief-feature-card {
+  border: 1px solid rgba(92, 70, 34, 0.16);
+  background: rgba(254, 250, 242, 0.96);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.weekly-brief-copy,
+.weekly-brief-aside,
+.weekly-question-card,
+.weekly-summary-panel {
+  padding: 28px;
+  border-radius: 28px;
+}
+
+.weekly-brief-card,
+.weekly-script-card,
+.weekly-output-card,
+.weekly-brief-feature-card {
+  border-radius: 24px;
+}
+
+.weekly-brief-aside strong,
+.weekly-question-card blockquote {
+  display: block;
+  font-family: var(--font-playfair);
+  font-size: 1.7rem;
+  line-height: 1.12;
+  color: #22325f;
+}
+
+.weekly-brief-note,
+.weekly-brief-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 16px;
+  font-size: 0.92rem;
+  color: #5b4c3b;
+}
+
+.weekly-question-card p,
+.weekly-summary-panel p {
+  margin-top: 0;
+}
+
+.weekly-question-card blockquote {
+  margin: 18px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(92, 70, 34, 0.14);
+}
+
+.weekly-summary-list {
+  margin: 18px 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 12px;
+}
+
+.weekly-script-list,
+.weekly-source-grid,
+.weekly-brief-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1040px) {
+  .weekly-brief-hero,
+  .weekly-brief-home-grid,
+  .weekly-script-list,
+  .weekly-source-grid,
+  .weekly-brief-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

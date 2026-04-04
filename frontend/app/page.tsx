@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import constituencyGeojson from "@/data/constituencies-geojson.json";
 import { getConstituencies, getNationalHeatmap, getNationalPulse } from "@/lib/api";
 import { forumDefinitions, getForumDestination } from "@/lib/forum-system";
+import { weeklyBriefs } from "@/lib/weekly-briefs";
 
 function toBadge(severity: number | null) {
   if (severity === null) return "neutral";
@@ -27,6 +28,7 @@ export default async function HomePage() {
   const resolvedCount = Math.max(12, Math.round((pulse.issues[2]?.total_reports ?? 48) / 4));
   const submissionsToday = pulse.issues.reduce((sum, issue) => sum + issue.total_reports, 0) || 3241;
   const trending = pulse.issues.slice(0, 4);
+  const leadBrief = weeklyBriefs[0];
 
   return (
     <div className="page-shell">
@@ -120,6 +122,39 @@ export default async function HomePage() {
                 <Link className="secondary-button button-link" href="/sansaddarpan">
                   Open SansadDarpan
                 </Link>
+              </article>
+            </div>
+          </section>
+
+          <section className="frame-panel full-width-panel weekly-brief-home-panel">
+            <div className="section-heading compact-heading">
+              <div>
+                <p>This week&apos;s public output</p>
+                <h2>What AI would prepare for one MP in one constituency this week</h2>
+              </div>
+            </div>
+            <div className="weekly-brief-home-grid">
+              <article className="summary-tile weekly-brief-feature-card">
+                <span className="summary-kicker">{leadBrief.weekLabel} · {leadBrief.publishDate}</span>
+                <strong>{leadBrief.constituency}, {leadBrief.state}</strong>
+                <p>{leadBrief.headline}</p>
+                <div className="weekly-brief-meta">
+                  <span>For MP: {leadBrief.mpName}</span>
+                  <span>Output: brief + video script + MP summary</span>
+                </div>
+                <Link className="secondary-button button-link" href={`/briefs/${leadBrief.slug}`}>
+                  Read this week&apos;s brief
+                </Link>
+              </article>
+              <article className="summary-tile weekly-output-card">
+                <span className="summary-kicker">Why this matters</span>
+                <strong>AI is the subject, not the MP</strong>
+                <p>The public sees what AI can discover for a constituency. The MP sees a high-quality action brief they could use immediately.</p>
+              </article>
+              <article className="summary-tile weekly-output-card">
+                <span className="summary-kicker">What ships</span>
+                <strong>Three public assets every week</strong>
+                <p>One constituency intelligence brief, one public video narrative, and one WhatsApp-ready MP summary.</p>
               </article>
             </div>
           </section>

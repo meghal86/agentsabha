@@ -7,6 +7,7 @@ type SiteHeaderProps = {
 
 const agentsabhaNavItems = [
   { href: "/", label: "Home", key: "home" },
+  { href: "/briefs", label: "Weekly Briefs", key: "briefs" },
   { href: "/constituency", label: "Constituencies", key: "constituency" },
   { href: "/forums", label: "Forums", key: "forums" },
   { href: "/mps", label: "MP Personalities", key: "mps" },
