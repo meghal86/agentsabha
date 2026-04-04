@@ -2,10 +2,15 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { getSansadDarpanConstituency, getSansadDarpanRuleDeviations } from "@/lib/api";
 import { weeklyBriefs } from "@/lib/weekly-briefs";
 
-export default function WeeklyBriefsPage() {
+export default async function WeeklyBriefsPage() {
   const leadBrief = weeklyBriefs[0];
+  const [leadConstituency, deviations] = await Promise.all([
+    getSansadDarpanConstituency(leadBrief.constituencySlug).catch(() => null),
+    getSansadDarpanRuleDeviations().catch(() => null),
+  ]);
 
   return (
     <div className="page-shell">
@@ -56,6 +61,15 @@ export default function WeeklyBriefsPage() {
                     <span>MP: {brief.mpName}</span>
                     <span>Public output: brief + video + MP summary</span>
                   </div>
+                  {brief.slug === leadBrief.slug && leadConstituency ? (
+                    <div className="weekly-brief-live-row">
+                      {leadConstituency.metrics.slice(0, 2).map((metric) => (
+                        <span key={metric.label} className="sansaddarpan-tag">
+                          {metric.label}: {metric.value}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                   <Link className="secondary-button button-link" href={`/briefs/${brief.slug}`}>
                     Open weekly brief
                   </Link>
@@ -83,9 +97,9 @@ export default function WeeklyBriefsPage() {
                 <p>A public narrative showing what AI found in the constituency and what action the MP could take this week.</p>
               </article>
               <article className="summary-tile weekly-output-card">
-                <span className="summary-kicker">03</span>
-                <strong>MP summary</strong>
-                <p>A one-page, WhatsApp-friendly version of the brief that can be forwarded directly without losing the main recommendation.</p>
+                <span className="summary-kicker">Live evidence context</span>
+                <strong>{deviations?.deviations?.length ?? 0} reviewed parliamentary cases are already in the current evidence layer</strong>
+                <p>The weekly brief sits on top of the same evidence system that now tracks welfare signals and parliamentary case review.</p>
               </article>
             </div>
           </section>

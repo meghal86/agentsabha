@@ -85,6 +85,13 @@
   color: #5b4c3b;
 }
 
+.weekly-brief-live-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
 .weekly-question-card p,
 .weekly-summary-panel p {
   margin-top: 0;

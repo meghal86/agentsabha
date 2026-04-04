@@ -3,13 +3,19 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { getSansadDarpanConstituency, getSansadDarpanRuleDeviations } from "@/lib/api";
 import { getWeeklyBrief } from "@/lib/weekly-briefs";
 
-export default function WeeklyBriefDetailPage({ params }: { params: { slug: string } }) {
+export default async function WeeklyBriefDetailPage({ params }: { params: { slug: string } }) {
   const brief = getWeeklyBrief(params.slug);
   if (!brief) {
     notFound();
   }
+
+  const [constituencyEvidence, deviations] = await Promise.all([
+    getSansadDarpanConstituency(brief.constituencySlug).catch(() => null),
+    getSansadDarpanRuleDeviations().catch(() => null),
+  ]);
 
   return (
     <div className="page-shell">
@@ -44,6 +50,15 @@ export default function WeeklyBriefDetailPage({ params }: { params: { slug: stri
               <strong>{brief.mpName}</strong>
               <p>{brief.constituency}, {brief.state} · {brief.mpParty}</p>
               <p>{brief.heroNote}</p>
+              {constituencyEvidence ? (
+                <div className="weekly-brief-live-row">
+                  {constituencyEvidence.metrics.slice(0, 2).map((metric) => (
+                    <span key={metric.label} className="sansaddarpan-tag">
+                      {metric.label}: {metric.value}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </aside>
           </section>
 
@@ -55,7 +70,17 @@ export default function WeeklyBriefDetailPage({ params }: { params: { slug: stri
               </div>
             </div>
             <div className="weekly-brief-grid">
-              {brief.welfareGaps.map((gap) => (
+              {(constituencyEvidence
+                ? constituencyEvidence.metrics.map((metric) => ({
+                    title: metric.label,
+                    detail: `${metric.value} against ${metric.benchmark}. ${constituencyEvidence.top_gap}`,
+                    whyItMatters:
+                      metric.status === "positive"
+                        ? "This is a relative strength worth preserving through continued ministerial and administrative follow-through."
+                        : "This is the kind of constituency signal that should become a parliamentary follow-up rather than remain a dashboard observation.",
+                  }))
+                : brief.welfareGaps
+              ).map((gap) => (
                 <article key={gap.title} className="summary-tile weekly-brief-card">
                   <span className="summary-kicker">Welfare gap</span>
                   <h3>{gap.title}</h3>
@@ -83,6 +108,11 @@ export default function WeeklyBriefDetailPage({ params }: { params: { slug: stri
                 <span className="summary-kicker">SDG trend</span>
                 <strong>{brief.sdgTrend.title}</strong>
                 <p>{brief.sdgTrend.body}</p>
+              </article>
+              <article className="summary-tile weekly-output-card">
+                <span className="summary-kicker">Evidence stack</span>
+                <strong>{deviations?.deviations?.length ?? 0} reviewed rule-deviation cases in the current public register</strong>
+                <p>This week’s brief is being published alongside the evidence layer rather than in isolation from it.</p>
               </article>
             </div>
           </section>

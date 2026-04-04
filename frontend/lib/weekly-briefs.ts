@@ -1,5 +1,6 @@
 export type WeeklyBrief = {
   slug: string;
+  constituencySlug: string;
   weekLabel: string;
   publishDate: string;
   constituency: string;
@@ -46,6 +47,7 @@ export type WeeklyBrief = {
 export const weeklyBriefs: WeeklyBrief[] = [
   {
     slug: "gurugram-housing-and-wage-delays",
+    constituencySlug: "gurugram",
     weekLabel: "Week 1",
     publishDate: "April 2026",
     constituency: "Gurugram",
