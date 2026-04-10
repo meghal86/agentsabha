@@ -19,6 +19,7 @@ const sansaddarpanNavItems = [
   { href: "/sansaddarpan", label: "Dashboard", key: "sansaddarpan-overview" },
   { href: "/sansaddarpan/mps", label: "MP Scorecards", key: "sansaddarpan-mps" },
   { href: "/sansaddarpan/constituencies", label: "Welfare", key: "sansaddarpan-constituencies" },
+  { href: "/sansaddarpan/weekly-briefs", label: "Weekly Briefs", key: "sansaddarpan-weekly-briefs" },
   { href: "/sansaddarpan/rule-deviations", label: "Rule Deviations", key: "sansaddarpan-rule-deviations" },
   { href: "/sansaddarpan/methodology", label: "Methodology", key: "sansaddarpan-methodology" },
 ] as const;

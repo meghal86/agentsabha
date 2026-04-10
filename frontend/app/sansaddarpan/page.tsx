@@ -7,6 +7,7 @@ import {
   getSansadDarpanMps,
   getSansadDarpanOverview,
   getSansadDarpanRuleDeviations,
+  getSansadDarpanWeeklyBriefs,
 } from "@/lib/api";
 
 function getDeviationStatus(status: string) {
@@ -26,12 +27,14 @@ function getTimelineTone(type: "alert" | "warning" | "healthy") {
 }
 
 export default async function SansadDarpanPage() {
-  const [overview, mps, welfare, deviations] = await Promise.all([
+  const [overview, mps, welfare, deviations, weeklyBriefs] = await Promise.all([
     getSansadDarpanOverview(),
     getSansadDarpanMps(),
     getSansadDarpanConstituencies(),
     getSansadDarpanRuleDeviations(),
+    getSansadDarpanWeeklyBriefs().catch(() => ({ briefs: [] })),
   ]);
+  const latestBrief = weeklyBriefs.briefs[0];
 
   const scoreLeaderboard = [...mps.mps].sort((left, right) => right.score - left.score).slice(0, 4);
   const topMp = scoreLeaderboard[0];
@@ -300,6 +303,52 @@ export default async function SansadDarpanPage() {
               </article>
             </div>
           </section>
+
+          {latestBrief ? (
+            <section className="frame-panel full-width-panel sansaddarpan-surface">
+              <div className="section-heading compact-heading">
+                <div>
+                  <p>Latest weekly brief</p>
+                  <h2>AI-generated constituency intelligence</h2>
+                </div>
+              </div>
+              <article className="summary-tile sansaddarpan-card">
+                <div className="sansaddarpan-case-header">
+                  <span className="summary-kicker">Week {latestBrief.week_number}, {latestBrief.year}</span>
+                  <span className={`sansaddarpan-status-pill ${latestBrief.status === "published" ? "published" : "review"}`}>
+                    {latestBrief.status}
+                  </span>
+                </div>
+                <h3>{latestBrief.headline}</h3>
+                <p>{latestBrief.constituency_name}, {latestBrief.constituency_state} · MP: {latestBrief.mp_name || "Not mapped"}</p>
+                <div className="sansaddarpan-quick-links" style={{ marginTop: "1rem" }}>
+                  <Link className="secondary-button button-link" href={`/sansaddarpan/weekly-briefs/${latestBrief.id}`}>
+                    Read full brief
+                  </Link>
+                  <Link className="outline-button button-link" href="/sansaddarpan/weekly-briefs">
+                    Browse all briefs
+                  </Link>
+                </div>
+              </article>
+            </section>
+          ) : (
+            <section className="frame-panel full-width-panel sansaddarpan-surface">
+              <div className="section-heading compact-heading">
+                <div>
+                  <p>Weekly constituency briefs</p>
+                  <h2>AI research for the MP who could act</h2>
+                </div>
+              </div>
+              <article className="summary-tile sansaddarpan-card sansaddarpan-placeholder-card">
+                <span className="summary-kicker">Coming soon</span>
+                <h3>Weekly briefs rotate through 543 constituencies</h3>
+                <p>Each brief uses AI to research welfare gaps, parliamentary opportunities, and policy failures — then publishes the findings as a public brief, a video script, and a one-page MP summary.</p>
+                <Link className="secondary-button forum-open-link" href="/sansaddarpan/weekly-briefs">
+                  Open weekly briefs
+                </Link>
+              </article>
+            </section>
+          )}
         </section>
       </main>
 

@@ -8,6 +8,10 @@ from sqlalchemy import Date, DateTime, ForeignKey, Integer, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app.models.party import Party
+
 from app.database import Base
 
 
@@ -23,6 +27,7 @@ class MpIdentity(Base):
     aliases: Mapped[Optional[list[str]]] = mapped_column(JSONB)
     constituency_id: Mapped[Optional[int]] = mapped_column(ForeignKey("constituencies.id"))
     party_name: Mapped[Optional[str]] = mapped_column(Text)
+    party_id: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("parties.id"))
     term_start: Mapped[Optional[date]] = mapped_column(Date)
     term_end: Mapped[Optional[date]] = mapped_column(Date)
     lok_sabha_no: Mapped[Optional[int]] = mapped_column(Integer)
@@ -32,6 +37,7 @@ class MpIdentity(Base):
     last_synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     constituency = relationship("Constituency")
+    party_rel = relationship("Party", back_populates="mps")
     participation_scores = relationship("MpParticipationScore", back_populates="mp", cascade="all, delete-orphan")
 
 

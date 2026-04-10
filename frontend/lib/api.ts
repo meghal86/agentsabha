@@ -503,6 +503,55 @@ export async function getSansadDarpanMethodology() {
   }
 }
 
+// --- SansadDarpan Weekly Briefs (stored, Claude-generated) ---
+
+export type SansadDarpanWeeklyBriefCard = {
+  id: string;
+  week_number: number;
+  year: number;
+  constituency_name: string;
+  constituency_state: string;
+  mp_name: string | null;
+  headline: string;
+  status: string;
+  youtube_title: string | null;
+  published_at: string | null;
+  created_at: string;
+};
+
+export type SansadDarpanWeeklyBriefDetail = SansadDarpanWeeklyBriefCard & {
+  brief_markdown: string;
+  video_script_json: Record<string, string>;
+  mp_whatsapp_brief: string;
+  hindi_translation: Record<string, string> | null;
+  youtube_description: string | null;
+  reel_scripts: Array<{
+    hook: string;
+    script: string;
+    caption_en: string;
+    caption_hi: string;
+    hashtags: string[];
+  }> | null;
+};
+
+export type SansadDarpanWeeklyBriefListResponse = {
+  briefs: SansadDarpanWeeklyBriefCard[];
+};
+
+export async function getSansadDarpanWeeklyBriefs() {
+  try {
+    return await request<SansadDarpanWeeklyBriefListResponse>("/api/sansaddarpan/weekly-briefs");
+  } catch {
+    return { briefs: [] } as SansadDarpanWeeklyBriefListResponse;
+  }
+}
+
+export async function getSansadDarpanWeeklyBrief(id: string) {
+  return request<SansadDarpanWeeklyBriefDetail>(`/api/sansaddarpan/weekly-briefs/${id}`);
+}
+
+// --- Legacy weekly briefs (welfare-profile-derived) ---
+
 export async function getWeeklyBriefs() {
   try {
     return await request<WeeklyBriefListResponse>("/api/briefs");
