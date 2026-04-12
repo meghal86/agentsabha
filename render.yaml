@@ -40,3 +40,5 @@ services:
         value: "24"
       - key: QUESTION_DRAFT_SHADOW_MODE
         value: "false"
+      - key: GROQ_API_KEY
+        sync: false  # set manually in Render dashboard
