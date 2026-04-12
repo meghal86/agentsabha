@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
+    groq_api_key: str = Field(default="", alias="GROQ_API_KEY")
     openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")
 
     whatsapp_token: str = Field(default="", alias="WHATSAPP_TOKEN")

@@ -1,7 +1,7 @@
 """
 Weekly brief generation pipeline.
 
-Uses Claude API to generate constituency intelligence briefs
+Uses Groq (LLaMA) to generate constituency intelligence briefs
 from live welfare data, MP participation scores, and contextual evidence.
 """
 from __future__ import annotations
@@ -11,7 +11,7 @@ import logging
 from typing import Any, Optional
 from uuid import UUID
 
-import anthropic
+from groq import Groq
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -23,6 +23,24 @@ from app.models.sansaddarpan import ConstituencyWelfareMetric, ConstituencyWelfa
 from app.models.weekly_brief import WeeklyBrief
 
 logger = logging.getLogger(__name__)
+
+
+def _call_llm(system_prompt: str, user_prompt: str) -> str:
+    """Call Groq's LLaMA chat completion and return the raw text response."""
+    settings = get_settings()
+    client = Groq(api_key=settings.groq_api_key)
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.7,
+        max_tokens=8000,
+        response_format={"type": "json_object"},
+    )
+    return response.choices[0].message.content
+
 
 BRIEF_SYSTEM_PROMPT = """You are a senior civic research analyst producing a weekly constituency intelligence brief for AgentSabha. Your audience is: (1) the MP for this constituency, who will receive an action-oriented summary, (2) Indian citizens curious about their constituency, (3) a YouTube audience watching a civic explainer video.
 
@@ -188,40 +206,149 @@ async def generate_weekly_brief(
     # Step 2 — Context assembly
     context_packet = _build_context_packet(constituency, mp, score, welfare_profile, welfare_metrics)
 
-    # Step 3 — Claude API call
-    user_prompt = (
-        f"Generate a weekly constituency intelligence brief for week {week_number} of {year}.\n\n"
-        f"Constituency context:\n{json.dumps(context_packet, indent=2, default=str)}\n\n"
-        "Please produce the full JSON output as specified in the system prompt."
-    )
-
-    if not settings.anthropic_api_key:
-        logger.warning("ANTHROPIC_API_KEY not set — using fallback brief generator")
+    # Step 3 — LLM call (Groq LLaMA)
+    if not settings.groq_api_key:
+        logger.warning("GROQ_API_KEY not set — using fallback brief generator")
         brief_data = _generate_fallback_brief(constituency, mp, score, welfare_profile, welfare_metrics)
     else:
         try:
-            client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-            message = client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=4096,
-                system=BRIEF_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_prompt}],
-            )
+            logger.info(f"Generating brief via Groq LLaMA for {constituency.name}")
 
-            # Extract JSON from response
-            response_text = message.content[0].text
-            # Try to parse JSON — Claude may wrap it in markdown code blocks
-            json_text = response_text
-            if "```json" in json_text:
-                json_text = json_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in json_text:
-                json_text = json_text.split("```")[1].split("```")[0].strip()
+            mp_name = mp.full_name_en if mp else "Vacant"
+            mp_party = (mp.party_name if mp and mp.party_name else "N/A")
 
-            brief_data = json.loads(json_text)
+            welfare_lines = []
+            if welfare_profile and welfare_profile.top_gap:
+                welfare_lines.append(f"- Top gap: {welfare_profile.top_gap}")
+            for metric in welfare_metrics:
+                welfare_lines.append(
+                    f"- {metric.label}: {metric.value_text}"
+                    f" (benchmark: {metric.benchmark_text}, status: {metric.status})"
+                )
+            welfare_block = "\n".join(welfare_lines) if welfare_lines else "- (no welfare metrics on record)"
 
+            if score:
+                score_block = (
+                    f"- Attendance rate: {score.attendance_rate}\n"
+                    f"- Starred questions filed: {score.questions_asked}\n"
+                    f"- Zero Hour notices: {score.zero_hour_mentions}\n"
+                    f"- Debates participated: {score.debates_participated}\n"
+                    f"- Participation score: {score.participation_score}/100"
+                )
+            else:
+                score_block = "- (no participation record on file)"
+
+            system_prompt = """You are a senior civic research analyst producing weekly constituency intelligence briefs for AgentSabha, an AI civic platform for Indian democracy.
+
+Core rules:
+- AI is always the subject. The MP is always the hero who could act.
+- Never grade, rank, or shame any MP.
+- Frame every gap as an opportunity with a specific parliamentary action.
+- Be specific: name the scheme, the data source, the rule number.
+- Output ONLY valid JSON. No markdown fences, no preamble, no explanation.
+- Every value must be a non-empty string. No nulls."""
+
+            user_prompt = f"""Generate a constituency intelligence brief for week {week_number} of {year}.
+
+Constituency: {constituency.name}, {constituency.state}
+MP: {mp_name} ({mp_party})
+
+Welfare data:
+{welfare_block}
+
+MP participation this session:
+{score_block}
+
+Return exactly this JSON structure with no extra text:
+{{
+  "headline_en": "one specific sentence about what AI found",
+  "headline_hi": "same in Hindi",
+  "standfirst_en": "two sentences expanding on the headline",
+  "standfirst_hi": "same in Hindi",
+  "top_findings": [
+    {{
+      "finding_en": "specific welfare gap or opportunity",
+      "finding_hi": "same in Hindi",
+      "data_source": "which scheme or dataset",
+      "parliamentary_action": "exact Zero Hour or starred question text"
+    }},
+    {{
+      "finding_en": "second finding",
+      "finding_hi": "same in Hindi",
+      "data_source": "source",
+      "parliamentary_action": "specific action"
+    }},
+    {{
+      "finding_en": "third finding",
+      "finding_hi": "same in Hindi",
+      "data_source": "source",
+      "parliamentary_action": "specific action"
+    }}
+  ],
+  "mp_brief_en": "action brief for MP under 150 words with one specific action",
+  "mp_brief_hi": "same in Hindi",
+  "video_script": {{
+    "youtube_title": "engaging YouTube title",
+    "youtube_description": "2-3 sentence description",
+    "hook": "opening 30 seconds — one striking fact",
+    "priya_intro": "Priya host segment introducing the constituency",
+    "arjun_data_segment": "Arjun host segment presenting data precisely",
+    "deep_dive": "detailed examination of the top issue",
+    "solution_segment": "parliamentary path forward AI identified",
+    "cta": "what viewers can do right now"
+  }},
+  "reels": [
+    {{
+      "hook": "line that stops the scroll",
+      "script": "60-second reel script",
+      "caption_en": "Instagram caption under 200 words",
+      "caption_hi": "same in Hindi",
+      "hashtags": ["India", "Parliament", "AIForIndia", "JanSeva"]
+    }},
+    {{
+      "hook": "second reel hook",
+      "script": "60-second reel script",
+      "caption_en": "caption",
+      "caption_hi": "caption in Hindi",
+      "hashtags": ["India", "Parliament", "AIForIndia"]
+    }},
+    {{
+      "hook": "third reel hook",
+      "script": "60-second reel script",
+      "caption_en": "caption",
+      "caption_hi": "caption in Hindi",
+      "hashtags": ["India", "Parliament", "Constituency"]
+    }},
+    {{
+      "hook": "fourth reel hook",
+      "script": "60-second reel script",
+      "caption_en": "caption",
+      "caption_hi": "caption in Hindi",
+      "hashtags": ["India", "AIForIndia", "Democracy"]
+    }}
+  ],
+  "whatsapp_brief_en": "under 300 words, one specific parliamentary action this week",
+  "whatsapp_brief_hi": "same in Hindi"
+}}"""
+
+            raw = _call_llm(system_prompt, user_prompt)
+
+            # Strip markdown fences if model wraps output
+            raw = raw.strip()
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+            raw = raw.strip()
+
+            brief_data = json.loads(raw)
+            logger.info(f"Groq brief generated successfully for {constituency.name}")
+
+        except json.JSONDecodeError as exc:
+            logger.error(f"Groq returned invalid JSON: {exc}. Using fallback.")
+            brief_data = _generate_fallback_brief(constituency, mp, score, welfare_profile, welfare_metrics)
         except Exception as exc:
-            logger.error("Claude API call failed for brief generation: %s", exc)
-            # Generate a fallback brief from available data
+            logger.error(f"Groq API error: {exc}. Using fallback.")
             brief_data = _generate_fallback_brief(constituency, mp, score, welfare_profile, welfare_metrics)
 
     # Step 4 — Save to WeeklyBrief table
