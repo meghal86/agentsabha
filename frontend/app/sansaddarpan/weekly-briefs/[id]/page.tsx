@@ -25,6 +25,7 @@ export default async function SansadDarpanWeeklyBriefDetailPage({ params }: { pa
         constituency={brief.constituency_name}
         week={brief.week_number}
         year={brief.year}
+        createdAt={brief.created_at}
       />
       <SiteHeader active="sansaddarpan-weekly-briefs" product="sansaddarpan" />
 
