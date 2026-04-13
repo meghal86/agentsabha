@@ -169,9 +169,12 @@ export default async function SansadDarpanWeeklyBriefDetailPage({ params }: { pa
                       <span className="stamp-badge">{reel.caption_en}</span>
                     </div>
                     <p style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.5rem" }}>{reel.caption_hi}</p>
-                    {reel.hashtags?.length > 0 ? (
+                    {reel.hashtags ? (
                       <div className="sansaddarpan-tl-tags" style={{ marginTop: "0.5rem" }}>
-                        {reel.hashtags.map((tag) => (
+                        {(Array.isArray(reel.hashtags)
+                          ? reel.hashtags
+                          : String(reel.hashtags).split(/[\s,]+/).filter(Boolean)
+                        ).map((tag: string) => (
                           <span key={tag} className="sansaddarpan-tag">{tag}</span>
                         ))}
                       </div>
