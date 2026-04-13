@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { GenerationSourceLogger } from "@/components/generation-source-logger";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSansadDarpanWeeklyBrief } from "@/lib/api";
@@ -19,6 +20,12 @@ export default async function SansadDarpanWeeklyBriefDetailPage({ params }: { pa
 
   return (
     <div className="page-shell product-shell" data-product="sansaddarpan">
+      <GenerationSourceLogger
+        source={brief.generation_source || "unknown"}
+        constituency={brief.constituency_name}
+        week={brief.week_number}
+        year={brief.year}
+      />
       <SiteHeader active="sansaddarpan-weekly-briefs" product="sansaddarpan" />
 
       <main className="screen-main">

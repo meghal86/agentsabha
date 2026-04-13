@@ -49,6 +49,7 @@ class WeeklyBriefDetailResponse(WeeklyBriefCardResponse):
     hindi_translation: Optional[Dict[str, Any]]
     youtube_description: Optional[str]
     reel_scripts: Optional[List[Dict[str, Any]]]
+    generation_source: str
 
 
 class WeeklyBriefListResponse(BaseModel):
@@ -99,6 +100,7 @@ def _brief_to_card(brief: WeeklyBrief, constituency: Constituency, mp: Optional[
 
 def _brief_to_detail(brief: WeeklyBrief, constituency: Constituency, mp: Optional[MpIdentity]) -> WeeklyBriefDetailResponse:
     card = _brief_to_card(brief, constituency, mp)
+    hindi = brief.hindi_translation or {}
     return WeeklyBriefDetailResponse(
         **card.dict(),
         brief_markdown=brief.brief_markdown,
@@ -107,6 +109,7 @@ def _brief_to_detail(brief: WeeklyBrief, constituency: Constituency, mp: Optiona
         hindi_translation=brief.hindi_translation,
         youtube_description=brief.youtube_description,
         reel_scripts=brief.reel_scripts,
+        generation_source=hindi.get("generation_source", "unknown"),
     )
 
 

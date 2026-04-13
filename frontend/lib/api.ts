@@ -530,8 +530,9 @@ export type SansadDarpanWeeklyBriefDetail = SansadDarpanWeeklyBriefCard & {
     script: string;
     caption_en: string;
     caption_hi: string;
-    hashtags: string[];
+    hashtags: string[] | string;
   }> | null;
+  generation_source: string;
 };
 
 export type SansadDarpanWeeklyBriefListResponse = {

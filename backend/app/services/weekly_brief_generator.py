@@ -210,6 +210,7 @@ async def generate_weekly_brief(
     if not settings.groq_api_key:
         logger.warning("GROQ_API_KEY not set — using fallback brief generator")
         brief_data = _generate_fallback_brief(constituency, mp, score, welfare_profile, welfare_metrics)
+        brief_data["_generation_source"] = "fallback-no-key"
     else:
         try:
             logger.info(f"Generating brief via Groq LLaMA for {constituency.name}")
@@ -271,14 +272,17 @@ async def generate_weekly_brief(
             raw = raw.strip()
 
             brief_data = json.loads(raw)
+            brief_data["_generation_source"] = "groq-llama-3.3-70b"
             logger.info(f"Groq brief generated successfully for {constituency.name}")
 
         except json.JSONDecodeError as exc:
             logger.error(f"Groq returned invalid JSON: {exc}. Using fallback.")
             brief_data = _generate_fallback_brief(constituency, mp, score, welfare_profile, welfare_metrics)
+            brief_data["_generation_source"] = "fallback-json-error"
         except Exception as exc:
             logger.error(f"Groq API error: {exc}. Using fallback.")
             brief_data = _generate_fallback_brief(constituency, mp, score, welfare_profile, welfare_metrics)
+            brief_data["_generation_source"] = "fallback-api-error"
 
     # Step 4 — Save to WeeklyBrief table
     brief_markdown = _build_brief_markdown(brief_data)
@@ -300,6 +304,7 @@ async def generate_weekly_brief(
             "standfirst_hi": brief_data.get("standfirst_hi", ""),
             "mp_brief_hi": brief_data.get("mp_brief_hi", ""),
             "whatsapp_brief_hi": whatsapp_hi,
+            "generation_source": brief_data.get("_generation_source", "unknown"),
         },
         youtube_title=video_script.get("youtube_title"),
         youtube_description=video_script.get("youtube_description"),
