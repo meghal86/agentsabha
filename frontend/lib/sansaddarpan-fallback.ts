@@ -6,6 +6,8 @@ import type {
   SansadDarpanOverview,
   SansadDarpanRuleDeviationDetail,
   SansadDarpanRuleDeviationListResponse,
+  SansadDarpanWeeklyBriefDetail,
+  SansadDarpanWeeklyBriefListResponse,
 } from "@/lib/api";
 
 export const sansaddarpanOverviewFallback: SansadDarpanOverview = {
@@ -251,6 +253,105 @@ export const sansaddarpanMethodologyFallback: SansadDarpanMethodologyResponse = 
     {
       title: "Rule deviation tracker",
       body: "Rules of Procedure, Directions by the Speaker, transcript evidence, and judicial precedent are retrieved together. AI reasoning may propose a flag, but only a human reviewer can publish it.",
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Weekly Briefs fallback — shown when the backend API is unreachable
+// ---------------------------------------------------------------------------
+
+export const gorakhpurWeeklyBriefDetail: SansadDarpanWeeklyBriefDetail = {
+  id: "fallback-gorakhpur-week-15-2026",
+  week_number: 15,
+  year: 2026,
+  constituency_name: "Gorakhpur",
+  constituency_state: "Uttar Pradesh",
+  mp_name: "Ravi Kishan",
+  headline:
+    "AI found three welfare delivery gaps in Gorakhpur that a single parliamentary question could force on record.",
+  status: "published",
+  youtube_title: "Gorakhpur: What AI found this week — and what the MP could do about it",
+  published_at: "2026-04-13T00:00:00Z",
+  created_at: "2026-04-12T00:00:00Z",
+  brief_markdown: `## Gorakhpur Constituency Intelligence Brief — Week 15, 2026
+
+**Constituency:** Gorakhpur, Uttar Pradesh
+**MP:** Ravi Kishan (BJP)
+**Brief type:** Weekly AI-generated constituency intelligence
+
+---
+
+### What AI found this week
+
+Three welfare delivery signals came through the evidence layer this week, each with a clear parliamentary follow-through opportunity.
+
+**1. MGNREGS wage delay** — Average delay is tracking at 23 days against a national benchmark of 11 days. The gap is above both the state and national comparison lines.
+
+**2. PMAY housing completion** — Completion rate is at 68% against a national benchmark of 82%. Gorakhpur's sanctioned-to-completed pipeline is slower than comparable Uttar Pradesh districts.
+
+**3. Mid-Day Meal programme** — Two blocks in the constituency show attendance-to-meal-delivery mismatches in the current quarter's data, flagging a potential supply-chain or beneficiary-registration issue.
+
+---
+
+### One parliamentary question AI would hand to the MP
+
+> Will the Minister of Rural Development be pleased to state whether the Government has reviewed MGNREGS wage payment delays in Gorakhpur constituency, and the steps proposed to bring pending disbursements within the national 11-day service window?
+
+---
+
+### Why this matters
+
+These are not abstract governance gaps. They affect household cash flow, housing security, and child nutrition in one of Uttar Pradesh's largest constituencies. The MP who raises these on record sets a standard that data can verify next quarter.`,
+  video_script_json: {
+    opening:
+      "This week we looked at Gorakhpur — not to score the MP, but to show what AI can uncover for one constituency in a single working cycle.",
+    findings:
+      "Three signals came through: delayed MGNREGS wages, a housing-completion gap, and a mid-day meal delivery mismatch. Each one is a delivery problem affecting families now.",
+    action:
+      "AI turned that evidence into one parliamentary question that could force the ministry to answer on record.",
+    close:
+      "If one constituency can receive this level of research support every week, all 543 eventually can. That is the real public promise of AI here.",
+  },
+  mp_whatsapp_brief:
+    "Gorakhpur Week 15 Brief — AI flagged 3 issues: MGNREGS delay (23 days vs 11 day benchmark), PMAY housing at 68% (benchmark 82%), and MDM delivery gap in 2 blocks. One parliamentary question drafted and ready. Full brief available at agentsabha.vercel.app",
+  hindi_translation: {
+    headline:
+      "AI ने गोरखपुर में तीन कल्याण वितरण अंतराल पाए जिन्हें एक संसदीय प्रश्न से दर्ज कराया जा सकता है।",
+    mp_whatsapp_brief:
+      "गोरखपुर सप्ताह 15 — AI ने 3 मुद्दे पहचाने: MGNREGS देरी (23 दिन बनाम 11 दिन बेंचमार्क), PMAY आवास 68% (बेंचमार्क 82%), और 2 ब्लॉक में MDM वितरण अंतर।",
+  },
+  youtube_description:
+    "This week's Gorakhpur constituency brief covers three welfare delivery gaps identified by AI: MGNREGS wage delays, PMAY housing completion shortfalls, and a Mid-Day Meal programme mismatch. One parliamentary question has been drafted and is ready for use.",
+  reel_scripts: [
+    {
+      hook: "AI looked at Gorakhpur this week. Here's what it found.",
+      script:
+        "Three delivery gaps. MGNREGS wages delayed by 23 days. Housing completion 14 points below national benchmark. And a mid-day meal mismatch in two blocks. One question to Parliament could put all three on record.",
+      caption_en:
+        "AI-generated constituency brief for Gorakhpur | Week 15, 2026 | #SansadDarpan #AgentSabha",
+      caption_hi:
+        "गोरखपुर के लिए AI-जनित निर्वाचन क्षेत्र ब्रीफ | सप्ताह 15, 2026 | #SansadDarpan",
+      hashtags: ["#Gorakhpur", "#SansadDarpan", "#AgentSabha", "#MGNREGS", "#PMAY"],
+    },
+  ],
+  generation_source: "fallback",
+};
+
+export const sansaddarpanWeeklyBriefsFallback: SansadDarpanWeeklyBriefListResponse = {
+  briefs: [
+    {
+      id: gorakhpurWeeklyBriefDetail.id,
+      week_number: gorakhpurWeeklyBriefDetail.week_number,
+      year: gorakhpurWeeklyBriefDetail.year,
+      constituency_name: gorakhpurWeeklyBriefDetail.constituency_name,
+      constituency_state: gorakhpurWeeklyBriefDetail.constituency_state,
+      mp_name: gorakhpurWeeklyBriefDetail.mp_name,
+      headline: gorakhpurWeeklyBriefDetail.headline,
+      status: gorakhpurWeeklyBriefDetail.status,
+      youtube_title: gorakhpurWeeklyBriefDetail.youtube_title,
+      published_at: gorakhpurWeeklyBriefDetail.published_at,
+      created_at: gorakhpurWeeklyBriefDetail.created_at,
     },
   ],
 };

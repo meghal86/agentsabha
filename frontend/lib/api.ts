@@ -5,6 +5,8 @@ import {
   sansaddarpanOverviewFallback,
   sansaddarpanRuleDeviationDetailsFallback,
   sansaddarpanRuleDeviationsFallback,
+  sansaddarpanWeeklyBriefsFallback,
+  gorakhpurWeeklyBriefDetail,
 } from "@/lib/sansaddarpan-fallback";
 import { getWeeklyBrief as getWeeklyBriefFallback, weeklyBriefs as weeklyBriefsFallback } from "@/lib/weekly-briefs";
 
@@ -543,12 +545,20 @@ export async function getSansadDarpanWeeklyBriefs() {
   try {
     return await request<SansadDarpanWeeklyBriefListResponse>("/api/sansaddarpan/weekly-briefs");
   } catch {
-    return { briefs: [] } as SansadDarpanWeeklyBriefListResponse;
+    return sansaddarpanWeeklyBriefsFallback;
   }
 }
 
 export async function getSansadDarpanWeeklyBrief(id: string) {
-  return request<SansadDarpanWeeklyBriefDetail>(`/api/sansaddarpan/weekly-briefs/${id}`);
+  try {
+    return await request<SansadDarpanWeeklyBriefDetail>(`/api/sansaddarpan/weekly-briefs/${id}`);
+  } catch {
+    const fallback = gorakhpurWeeklyBriefDetail.id === id ? gorakhpurWeeklyBriefDetail : null;
+    if (!fallback) {
+      throw new Error("Weekly brief not found");
+    }
+    return fallback;
+  }
 }
 
 // --- Legacy weekly briefs (welfare-profile-derived) ---
