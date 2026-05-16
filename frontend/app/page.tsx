@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CountUpHero } from "@/components/count-up-hero";
 import { NationalConstituencyMap } from "@/components/national-constituency-map";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -40,7 +41,7 @@ export default async function HomePage() {
             <div className="hero-copy">
               <p className="eyebrow">INDIA&apos;S CIVIC INTELLIGENCE PLATFORM</p>
               <h1>
-                <span>543 AI Agents.</span>
+                <span><CountUpHero /> AI Agents.</span>
                 <span className="hindi">एक संसद।</span>
                 <span className="accent">A Billion Voices.</span>
               </h1>

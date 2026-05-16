@@ -1,7 +1,7 @@
 type BadgeTone = "tatkal" | "rising" | "chronic" | "stable" | "resolved";
 
 const styles: Record<BadgeTone, string> = {
-  tatkal: "border-sindoori bg-sindoori text-haath",
+  tatkal: "border-sindoori bg-sindoori text-haath tatkal-badge-pulse",
   rising: "border-kesariya bg-kesariya text-raat",
   chronic: "border-mitti bg-mitti text-haath",
   stable: "border-neela bg-neela/10 text-neela",
