@@ -5,6 +5,7 @@ databases:
     plan: free
 
 services:
+  # ── FastAPI web service ────────────────────────────────────────────────────
   - type: web
     name: agentsabha-api
     runtime: python
@@ -26,6 +27,11 @@ services:
         fromDatabase:
           name: agentsabha-db
           property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: agentsabha-redis
+          type: redis
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: AWS_REGION
@@ -42,3 +48,81 @@ services:
         value: "false"
       - key: GROQ_API_KEY
         sync: false  # set manually in Render dashboard
+      - key: TWITTER_BEARER_TOKEN
+        sync: false  # set manually — requires X API Basic tier ($100/month)
+
+  # ── Celery worker (executes tasks) ────────────────────────────────────────
+  - type: worker
+    name: agentsabha-celery-worker
+    runtime: python
+    rootDir: backend
+    plan: starter  # free plan doesn't support background workers
+    buildCommand: pip install -r requirements.txt
+    startCommand: PYTHONPATH=. celery -A app.celery_app worker --loglevel=info --concurrency=2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agentsabha-db
+          property: connectionString
+      - key: DIRECT_URL
+        fromDatabase:
+          name: agentsabha-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: agentsabha-redis
+          type: redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TWITTER_BEARER_TOKEN
+        sync: false
+      - key: TATKAL_SEVERITY_THRESHOLD
+        value: "8.0"
+      - key: TATKAL_NEW_REPORTS_THRESHOLD
+        value: "50"
+      - key: TATKAL_MAX_AGE_HOURS
+        value: "24"
+      - key: CORRECT_CONSTITUENCY_MINIMUM_CLUSTER_SIZE
+        value: "50"
+
+  # ── Celery beat (schedules tasks) ─────────────────────────────────────────
+  # IMPORTANT: run exactly ONE beat instance — multiple beat processes
+  # will duplicate scheduled tasks. Scale this service to 1 always.
+  - type: worker
+    name: agentsabha-celery-beat
+    runtime: python
+    rootDir: backend
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: PYTHONPATH=. celery -A app.celery_app beat --loglevel=info --scheduler celery.beat:PersistentScheduler
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agentsabha-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: agentsabha-redis
+          type: redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: TWITTER_BEARER_TOKEN
+        sync: false
+
+  # ── Redis (Celery broker + result backend) ────────────────────────────────
+  - type: redis
+    name: agentsabha-redis
+    plan: starter  # $10/month — cheapest Render Redis
+    maxmemoryPolicy: allkeys-lru

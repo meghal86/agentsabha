@@ -77,6 +77,10 @@ class Settings(BaseSettings):
     tatkal_max_age_hours: int = Field(default=24, alias="TATKAL_MAX_AGE_HOURS")
     question_draft_shadow_mode: bool = Field(default=False, alias="QUESTION_DRAFT_SHADOW_MODE")
 
+    # X (Twitter) API — Basic tier required for search_recent_tweets.
+    # Leave empty to disable the X scraping pipeline gracefully.
+    twitter_bearer_token: str = Field(default="", alias="TWITTER_BEARER_TOKEN")
+
     @property
     def sqlalchemy_async_database_url(self) -> str:
         source = self.database_url

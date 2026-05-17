@@ -36,4 +36,11 @@ beat_schedule = {
         "task": "app.tasks.run_weekly_audit",
         "schedule": crontab(day_of_week="friday", hour=14, minute=30),
     },
+    # ── Sprint 1: X/Twitter constituency issue seeding ────────────────────────
+    # Runs at :45 past the hour (offset from other tasks) so DB connections
+    # don't spike. Skips silently when TWITTER_BEARER_TOKEN is not configured.
+    "scrape-x-issues-every-6-hours": {
+        "task": "app.tasks.scrape_x_constituency_issues",
+        "schedule": crontab(hour="*/6", minute=45),
+    },
 }

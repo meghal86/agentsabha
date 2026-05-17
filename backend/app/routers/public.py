@@ -30,6 +30,7 @@ from app.models.cluster import IssueCluster
 from app.models.constituency import Constituency
 from app.models.issue import Issue
 from app.models.parliamentary_action import ParliamentaryAction
+from app.models.x_scraped_tweet import XScrapedTweet
 
 router = APIRouter()
 settings = get_settings()
@@ -515,3 +516,51 @@ async def get_debug_agents(db: AsyncSession = Depends(get_db)) -> dict:
 @router.get("/api/roadmap/runtime")
 async def get_roadmap_runtime(db: AsyncSession = Depends(get_db)) -> dict:
     return await fetch_public_roadmap_runtime(db)
+
+
+# ─── X / Twitter community signals ───────────────────────────────────────────
+
+@router.get("/api/constituency/{id}/x-signals")
+async def get_constituency_x_signals(
+    id: int,
+    limit: int = Query(default=10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Return recent X-scraped civic signals for a constituency.
+
+    Results are ordered newest-first. Signals are labelled with
+    ``source: "x_scraped"`` so the frontend can display them with distinct
+    attribution ("Community signals from public X posts").
+    """
+    rows = (
+        await db.execute(
+            select(XScrapedTweet)
+            .where(XScrapedTweet.constituency_id == id)
+            .order_by(desc(XScrapedTweet.scraped_at))
+            .limit(limit)
+        )
+    ).scalars().all()
+
+    total = (
+        await db.scalar(
+            select(func.count()).select_from(XScrapedTweet).where(XScrapedTweet.constituency_id == id)
+        )
+    ) or 0
+
+    return {
+        "constituency_id": id,
+        "total": total,
+        "source": "x_scraped",
+        "attribution": "Community signals from public posts on X — anonymised, @usernames removed.",
+        "signals": [
+            {
+                "id": str(row.id),
+                "text": row.raw_text,
+                "issue_type": row.issue_type,
+                "like_count": row.like_count,
+                "retweet_count": row.retweet_count,
+                "scraped_at": row.scraped_at.isoformat(),
+            }
+            for row in rows
+        ],
+    }
